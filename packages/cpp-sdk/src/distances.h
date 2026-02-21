@@ -133,7 +133,59 @@ int difference(vector<int>& v1, vector<int>& v2) {
         }
         return diff;
     }
-    
+
+/**
+ * @brief Computes the total distance between two integer vectors.
+ *
+ * The vectors do not need to be sorted: if either is unsorted, a local
+ * sorted copy is made without modifying the originals.
+ *
+ * Distance is computed in two parts:
+ * - **Common part** (indices 0..minLen-1): element-wise absolute difference.
+ * - **Extra elements** (tail of the longer vector): for each extra element,
+ *   the average of its minimum and maximum distance from all elements
+ *   of the shorter vector is added to the total.
+ *
+ * @param a First integer vector.
+ * @param b Second integer vector.
+ * @return  Total distance as a @c double.
+ *
+ * @throws std::invalid_argument If exactly one of the two vectors is empty.
+ */
+double variationDistance(vector<int> a, vector<int> b) {
+    if (a.empty() && b.empty()) return 0.0;
+    if (a.empty() || b.empty())
+        throw invalid_argument("Empty vector, distance calculation is impossible.");
+
+    if (!is_sorted(a.begin(), a.end())) sort(a.begin(), a.end());
+    if (!is_sorted(b.begin(), b.end())) sort(b.begin(), b.end());
+
+    const size_t minLen = min(a.size(), b.size());
+    const size_t maxLen = max(a.size(), b.size());
+    double total = 0.0;
+
+    for (size_t i = 0; i < minLen; ++i)
+        total += abs(a[i] - b[i]);
+
+    const vector<int>& longer  = (a.size() >= b.size()) ? a : b;
+    const vector<int>& shorter = (a.size() >= b.size()) ? b : a;
+
+    for (size_t i = minLen; i < maxLen; ++i) {
+        int extra   = longer[i];
+        int minDist = INT_MAX;
+        int maxDist = INT_MIN;
+        for (int x : shorter) {
+            int d   = abs(extra - x);
+            minDist = min(minDist, d);
+            maxDist = max(maxDist, d);
+        }
+        total += (minDist + maxDist) / 2.0;
+    }
+
+    return total;
+}
+
+
 /**
  * @brief Applies a generalized Neo-Riemannian transformation to a vector of integers
  * @param input Input vector of integers
@@ -276,6 +328,10 @@ int editDistance(IntervalVector a, IntervalVector b){
 int weightedTransformationDistance(IntervalVector a, IntervalVector b){
     return weightedTransformationDistance(a.data, b.data);
 }
+double variationDistance(PositionVector a, PositionVector b){
+    return variationDistance(a.data, b.data);
+}
+
 
 
 
