@@ -1,11 +1,11 @@
-# vectors - C++ SDK
+# music++ - C++ SDK
 
 > **Part of the Musical Vectors Turborepo Monorepo**  
 > For monorepo documentation, see the [root README](../../README.md).
 
 ## Overview
 
-**vectors** is a C++ library for the vectorial representation and manipulation of musical phenomena. It provides a unified framework for working with musical structures such as scales, chords, rhythms, and transformations using mathematical and algorithmic tools. The library is designed for music theorists, computational musicologists, composers, and developers interested in algorithmic and generative music.
+**music++** is a C++ library for the vectorial representation and manipulation of musical phenomena. It provides a unified framework for working with musical structures such as scales, chords, rhythms, and transformations using mathematical and algorithmic tools. The library is designed for music theorists, computational musicologists, composers, and developers interested in algorithmic and generative music.
 
 ## Features
 
@@ -351,5 +351,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 - Tymoczko, D. (2011). *A Geometry of Music: Harmony and Counterpoint in the Extended Common Practice*. New York: Oxford University Press.
 
 - Walker, J., & Don, G. W. (2013). *Mathematics and music: composition, perception, and performance*. Boca Raton, FL: CRC Press.
+
 
 - Whiteford, K. L., Schloss, K. B., Helwig, N. E., & Palmer, S. E. (2018). Color, Music, and Emotion: Bach to the Blues. *i-Perception*, 9(6), 2041669518808535.
