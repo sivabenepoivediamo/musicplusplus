@@ -1,6 +1,6 @@
-# music++ - C++ SDK
+# **music++** C++ SDK
 
-> **Part of the Musical Vectors Turborepo Monorepo**  
+> **Part of the **music++** Turborepo Monorepo**  
 > For monorepo documentation, see the [root README](../../README.md).
 
 ## Overview
@@ -354,3 +354,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 
 - Whiteford, K. L., Schloss, K. B., Helwig, N. E., & Palmer, S. E. (2018). Color, Music, and Emotion: Bach to the Blues. *i-Perception*, 9(6), 2041669518808535.
+
