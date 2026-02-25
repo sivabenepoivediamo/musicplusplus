@@ -1,6 +1,6 @@
-# **vectors** - Turborepo Monorepo
+# **music++** - Turborepo Monorepo
 
-A Turborepo monorepo containing the **vectors** C++ library for vectorial representation and manipulation of musical phenomena.
+A Turborepo monorepo containing the **music++** C++ library for vectorial representation and manipulation of musical phenomena.
 
 ## Overview
 
@@ -45,7 +45,7 @@ This command uses Turborepo to build all packages in the correct dependency orde
 ## Monorepo Structure
 
 ```
-vectors/
+musicplusplus/
 ├── packages/
 │   └── cpp-sdk/              # C++ library package
 │       ├── src/              # Header-only library source files
@@ -225,5 +225,6 @@ When adding new features:
 ---
 
 For package-specific information, see the README files in each package directory.
+
 
 
