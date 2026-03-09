@@ -1,5 +1,5 @@
 {
-    "name": "vectors",
+    "name": "musicplusplus",
     "private": true,
     "scripts": {
         "build": "turbo run build",
@@ -18,4 +18,5 @@
         "packages/*"
     ],
     "packageManager": "npm@10.8.2"
+
 }
