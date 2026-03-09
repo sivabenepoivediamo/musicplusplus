@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/Lenovo/Desktop/playground/packages/cpp-sdk"
+    "cmake.sourceDirectory": "${workspaceFolder}/packages/cpp-sdk"
 }
+
