@@ -146,8 +146,8 @@ This library is **header-only**, meaning:
 
 ```cmake
 # Header-only library
-add_library(vectors INTERFACE)
-target_include_directories(vectors INTERFACE src)
+add_library(musicplusplus INTERFACE)
+target_include_directories(musicplusplus INTERFACE src)
 
 # C++17 standard
 set(CMAKE_CXX_STANDARD 17)
@@ -265,3 +265,4 @@ cmake --build build-release --config Release
 # See full compiler commands
 cmake --build build --verbose
 ```
+
