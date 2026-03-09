@@ -1,5 +1,5 @@
 # Doxyfile 1.8.0
-PROJECT_NAME           = "vectors"
+PROJECT_NAME           = "musicplusplus"
 OUTPUT_DIRECTORY       = docs
 INPUT                  = src examples
 FILE_PATTERNS          = *.h *.hpp *.cpp
@@ -14,3 +14,4 @@ OPTIMIZE_OUTPUT_FOR_C  = NO
 GENERATE_TREEVIEW      = YES
 HTML_EXTRA_STYLESHEET  = docs/doxygen-custom.css
 ALIASES                = "example=\"\""
+
