@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-project(vectors)
+project(musicplusplus)
 
 # Define the header-only library
-add_library(vectors INTERFACE)
-target_include_directories(vectors INTERFACE src)
+add_library(musicplusplus INTERFACE)
+target_include_directories(musicplusplus INTERFACE src)
 
 # Enable C++17 standard
 set(CMAKE_CXX_STANDARD 17)
@@ -17,3 +17,4 @@ foreach(SOURCE_FILE ${EXAMPLE_SOURCES})
     add_executable(${EXE_NAME} ${SOURCE_FILE})
     target_link_libraries(${EXE_NAME} vectors)
 endforeach()
+
