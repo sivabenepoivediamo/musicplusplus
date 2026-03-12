@@ -183,29 +183,25 @@ Documentation will be available at `docs/html/index.html`.
 
 ### Manual Build (without npm)
 
-You can also build manually with CMake:
+You can also build manually with CMake presets:
 
-```powershell
-# Configure with CMake (MinGW Makefiles on Windows)
-cmake -S . -B build -G "MinGW Makefiles"
+```bash
+# Configure (auto-detects compiler and generator for your OS)
+cmake --preset default
 
 # Build all examples
-cmake --build build --config Debug
+cmake --build --preset default
 
 # Build a specific example
 cmake --build build --target autoscale --config Debug
-
-# Run an example
-.\build\autoscale.exe
 ```
 
-**Other generators:**
-```bash
-# Ninja (faster)
-cmake -S . -B build -G Ninja
+```powershell
+# Run an example (Windows)
+.\build\autoscale.exe
 
-# Unix Makefiles (Linux/macOS/WSL)
-cmake -S . -B build -G "Unix Makefiles"
+# Run an example (Linux/macOS)
+./build/autoscale
 ```
 
 ## License

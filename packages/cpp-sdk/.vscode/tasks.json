@@ -16,6 +16,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
+                "$gcc",
                 "$msCompile"
             ],
             "group": {
@@ -29,18 +30,14 @@
             "label": "CMake: Configure",
             "command": "cmake",
             "args": [
-                "-S",
-                ".",
-                "-B",
-                "build",
-                "-G",
-                "MinGW Makefiles"
+                "--preset",
+                "default"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [],
-            "detail": "Configure CMake build system"
+            "detail": "Configure CMake build system using presets"
         },
         {
             "type": "shell",
@@ -56,6 +53,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
+                "$gcc",
                 "$msCompile"
             ],
             "group": "build",
