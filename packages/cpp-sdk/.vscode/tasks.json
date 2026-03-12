@@ -16,6 +16,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
+                "$gcc",
                 "$msCompile"
             ],
             "group": {
@@ -27,20 +28,16 @@
         {
             "type": "shell",
             "label": "CMake: Configure",
-            "command": "cmake",
+            "command": "node",
             "args": [
-                "-S",
-                ".",
-                "-B",
-                "build",
-                "-G",
-                "MinGW Makefiles"
+                "-e",
+                "var p=process.platform==='win32'?'windows':'unix';require('child_process').execSync('cmake --preset '+p,{stdio:'inherit'})"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [],
-            "detail": "Configure CMake build system"
+            "detail": "Configure CMake build system using presets"
         },
         {
             "type": "shell",
@@ -56,6 +53,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
+                "$gcc",
                 "$msCompile"
             ],
             "group": "build",
