@@ -27,7 +27,7 @@ Before getting started, ensure you have the following installed:
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd vectors
+cd musicplusplus
 
 # Install dependencies (includes Turborepo)
 npm install
@@ -225,6 +225,7 @@ When adding new features:
 ---
 
 For package-specific information, see the README files in each package directory.
+
 
 
 
