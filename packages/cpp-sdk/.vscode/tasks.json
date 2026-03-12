@@ -28,10 +28,10 @@
         {
             "type": "shell",
             "label": "CMake: Configure",
-            "command": "cmake",
+            "command": "node",
             "args": [
-                "--preset",
-                "default"
+                "-e",
+                "var p=process.platform==='win32'?'windows':'unix';require('child_process').execSync('cmake --preset '+p,{stdio:'inherit'})"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

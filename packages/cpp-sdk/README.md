@@ -186,11 +186,11 @@ Documentation will be available at `docs/html/index.html`.
 You can also build manually with CMake presets:
 
 ```bash
-# Configure (auto-detects compiler and generator for your OS)
-cmake --preset default
+# Configure (use "windows" preset on Windows)
+cmake --preset unix
 
 # Build all examples
-cmake --build --preset default
+cmake --build --preset unix
 
 # Build a specific example
 cmake --build build --target autoscale --config Debug

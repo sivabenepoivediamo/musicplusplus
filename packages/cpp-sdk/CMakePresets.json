@@ -2,7 +2,8 @@
     "version": 6,
     "configurePresets": [
         {
-            "name": "default",
+            "name": "base",
+            "hidden": true,
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -10,22 +11,95 @@
             }
         },
         {
-            "name": "release",
+            "name": "base-release",
+            "hidden": true,
             "binaryDir": "${sourceDir}/build-release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
+        },
+        {
+            "name": "unix",
+            "inherits": "base",
+            "displayName": "Default (Unix Makefiles)",
+            "generator": "Unix Makefiles",
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows",
+            "inherits": "base",
+            "displayName": "Default (MinGW Makefiles)",
+            "generator": "MinGW Makefiles",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "unix-release",
+            "inherits": "base-release",
+            "displayName": "Release (Unix Makefiles)",
+            "generator": "Unix Makefiles",
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-release",
+            "inherits": "base-release",
+            "displayName": "Release (MinGW Makefiles)",
+            "generator": "MinGW Makefiles",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
         }
     ],
     "buildPresets": [
         {
-            "name": "default",
-            "configurePreset": "default"
+            "name": "unix",
+            "configurePreset": "unix",
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
         },
         {
-            "name": "release",
-            "configurePreset": "release"
+            "name": "windows",
+            "configurePreset": "windows",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "unix-release",
+            "configurePreset": "unix-release",
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-release",
+            "configurePreset": "windows-release",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
         }
     ]
 }

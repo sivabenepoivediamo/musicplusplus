@@ -5,8 +5,7 @@ This project uses **CMake** with **CMake Presets** for cross-platform builds. It
 ### Prerequisites
 
 - **CMake 3.19+** (for preset support)
-- **A C++17 compiler**: GCC, Clang, AppleClang, or MSVC
-- **Optional**: Ninja (faster builds — CMake will auto-detect if available)
+- **A C++17 compiler**: GCC, Clang, AppleClang, or MinGW-w64
 
 ## How to Run/Debug an Example
 
@@ -58,10 +57,11 @@ npm run clean
 Or manually with CMake presets:
 ```bash
 # Configure (only needed once, or after CMakeLists.txt changes)
-cmake --preset default
+# Use "unix" on Linux/macOS, "windows" on Windows
+cmake --preset unix
 
 # Build all examples
-cmake --build --preset default
+cmake --build --preset unix
 
 # Build a specific example
 cmake --build build --target autoscale --config Debug
@@ -71,12 +71,12 @@ cmake --build build --target autoscale --config Debug
 
 ### CMake Presets (`CMakePresets.json`)
 
-Two configure/build presets are available:
+Platform-conditional presets are available — only the ones matching your OS are visible:
 
-1. **default** — Debug build in `build/`
-2. **release** — Release build in `build-release/`
+- **unix** / **unix-release** — Linux/macOS (Unix Makefiles)
+- **windows** / **windows-release** — Windows (MinGW Makefiles)
 
-No generator is specified — CMake auto-detects the best available generator for your platform (Ninja if installed, otherwise Unix Makefiles, Visual Studio, etc.).
+The `npm run build` script auto-detects your platform and picks the right preset.
 
 ### VS Code Tasks (`.vscode/tasks.json`)
 
@@ -179,7 +179,7 @@ Install CMake 3.19+:
 ### "No compiler found"
 
 Install a C++17 compiler:
-- **Windows**: Install Visual Studio Build Tools or MinGW-w64
+- **Windows**: Install MinGW-w64 (e.g. via MSYS2: `pacman -S mingw-w64-ucrt-x86_64-toolchain`)
 - **macOS**: `xcode-select --install` (installs AppleClang)
 - **Linux**: `sudo apt install g++` (or your distro's package manager)
 
@@ -202,10 +202,10 @@ CMake hasn't been configured yet:
 npm run clean
 npm run build
 
-# Or manually
+# Or manually (use "windows" preset on Windows)
 rm -rf build
-cmake --preset default
-cmake --build --preset default
+cmake --preset unix
+cmake --build --preset unix
 ```
 
 ## Advanced Usage
@@ -213,8 +213,9 @@ cmake --build --preset default
 ### Release Build
 
 ```bash
-cmake --preset release
-cmake --build --preset release
+# Use "windows-release" on Windows
+cmake --preset unix-release
+cmake --build --preset unix-release
 ```
 
 ### Verbose Build Output

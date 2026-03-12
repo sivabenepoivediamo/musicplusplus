@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "build": "cmake --preset default && cmake --build --preset default",
+        "build": "node -e \"var p=process.platform==='win32'?'windows':'unix';require('child_process').execSync('cmake --preset '+p+' && cmake --build --preset '+p,{stdio:'inherit'})\"",
         "test": "echo \"Error: no test specified\" && exit 1",
         "clean": "cmake -E remove_directory build",
         "docs": "doxygen Doxyfile",
