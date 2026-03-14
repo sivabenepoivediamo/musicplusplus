@@ -10,17 +10,6 @@
  * @date 2025
  */
 
-/**
- * @namespace Selection
- * @brief Contains selection algorithms for position and interval vectors
- * 
- * @details Implements four fundamental selection operations:
- * 1. Position-based selection from Position Vectors
- * 2. Interval-based selection from Position Vectors
- * 3. Interval-based selection from Interval Vectors
- * 4. Position-based selection from Interval Vectors
- */
-
 
     // ==================== POSITION VECTOR AS SOURCE ====================
 
