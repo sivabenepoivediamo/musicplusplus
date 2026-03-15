@@ -125,11 +125,11 @@ PositionVector deepRhythm(int steps, int events, int multiplicity, int offset) {
 
 /**
  * @brief Calculates the length of a rhythmic phrase
- * @param e Number of events (onsets)
- * @param c Number of cycles
- *  @param n Number of notes per cycle
- * @param s Number of silences
- * @param l Length of each note/silence unit
+ * @param e Phrase endpoint
+ * @param c Number of full cycles (times the phrase crosses its start)
+ * @param n Number of steps per cycle
+ * @param s Phrase starting point
+ * @param l Subdivision density
  * @return Total length of the phrase
  * @details The formula used is: length = (e + c * n - s) * l
  */
