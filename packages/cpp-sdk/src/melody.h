@@ -1,6 +1,8 @@
 #ifndef MELODY_H
 #define MELODY_H
 
+#include "./utility.h"
+
 struct NoteInfo {
     int position;
     int degree;
