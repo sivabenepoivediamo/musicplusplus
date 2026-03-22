@@ -175,7 +175,7 @@ npm run docs --workspace=packages/cpp-sdk
 
 ## C++ Library Features
 
-The **vectors** library provides:
+The **music++** library provides:
 
 - **Vector Classes**: PositionVector, IntervalVector, BinaryVector, and unified Vectors container
 - **Meta-Operators**: Selection and transformation operators for musical structures
