@@ -1,0 +1,44 @@
+{
+  "name": "musicplusplus",
+  "version": "0.1.0",
+  "description": "Typed JavaScript/TypeScript port of the musicplusplus SDK",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "node ../shared-data/scripts/generate-scale-data.mjs",
+    "build": "npm run clean && npm run build:bundle && npm run build:types && npm run verify:es5",
+    "build:bundle": "tsup",
+    "build:types": "tsc --emitDeclarationOnly",
+    "test": "vitest run",
+    "test:smoke": "npm run smoke:max && npm run smoke:web",
+    "verify": "npm run typecheck && npm run test && npm run test:smoke",
+    "verify:es5": "es-check es5 dist/index.js",
+    "smoke:max": "node ./fixtures/max-js/smoke.cjs",
+    "smoke:web": "vite build fixtures/web-smoke --outDir dist/fixture-web",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('coverage',{recursive:true,force:true});\""
+  },
+  "devDependencies": {
+    "@swc/core": "^1.13.5",
+    "@types/node": "^24.5.2",
+    "cpp-sdk": "file:../cpp-sdk",
+    "es-check": "^8.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "vitest": "^3.2.4"
+  }
+}

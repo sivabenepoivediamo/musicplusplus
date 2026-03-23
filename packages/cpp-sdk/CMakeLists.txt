@@ -9,6 +9,9 @@ target_include_directories(musicplusplus INTERFACE src)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_executable(musicplusplus-spec tools/spec_runner.cpp)
+target_link_libraries(musicplusplus-spec PRIVATE musicplusplus)
+
 # Create executables for each example
 file(GLOB EXAMPLE_SOURCES "examples/*.cpp")
 

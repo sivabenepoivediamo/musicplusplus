@@ -1,7 +1,7 @@
 #ifndef QUANTIZE_TRANSPOSE_H
 #define QUANTIZE_TRANSPOSE_H
 
-#include "./PositionVector.h"
+#include "./positionVector.h"
 
 /**
  * @file quantize_transpose.h

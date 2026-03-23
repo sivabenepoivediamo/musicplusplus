@@ -7,9 +7,9 @@
  *
  * @example
  */
-#include "../src/IntervalVector.h"
-#include "../src/BinaryVector.h"
-#include "../src/PositionVector.h"
+#include "../src/intervalVector.h"
+#include "../src/binaryVector.h"
+#include "../src/positionVector.h"
 
 void printSeparator(const string& title) {
     cout << "\n" << string(60, '=') << "\n";
