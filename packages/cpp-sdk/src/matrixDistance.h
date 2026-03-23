@@ -279,7 +279,7 @@ public:
     
     // Sort by distance (ascending)
     void sortByDistance() {
-        sort(data_.begin(), data_.end(), 
+        stable_sort(data_.begin(), data_.end(), 
             [](const auto& a, const auto& b) {
                 return get<2>(a) < get<2>(b);
             });
@@ -390,7 +390,7 @@ public:
     
     // Sort by distance (ascending)
     void sortByDistance() {
-        sort(data_.begin(), data_.end(), 
+        stable_sort(data_.begin(), data_.end(), 
             [](const auto& a, const auto& b) {
                 return get<2>(a) < get<2>(b);
             });
@@ -499,7 +499,7 @@ public:
     
     // Sort by distance (ascending)
     void sortByDistance() {
-        sort(data_.begin(), data_.end(), 
+        stable_sort(data_.begin(), data_.end(), 
             [](const auto& a, const auto& b) {
                 return get<2>(a) < get<2>(b);
             });
@@ -606,7 +606,7 @@ public:
     
     // Sort by distance (ascending)
     void sortByDistance() {
-        sort(data_.begin(), data_.end(), 
+        stable_sort(data_.begin(), data_.end(), 
             [](const auto& a, const auto& b) {
                 return get<2>(a) < get<2>(b);
             });
@@ -926,7 +926,7 @@ public:
     
     // Sort by distance (ascending)
     void sortByDistance() {
-        sort(data_.begin(), data_.end(), 
+        stable_sort(data_.begin(), data_.end(), 
             [](const auto& a, const auto& b) {
                 return get<3>(a) < get<3>(b);
             });

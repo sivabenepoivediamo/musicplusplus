@@ -23,8 +23,8 @@ vector<double> normalize(vector<int>& in) {
     }
 
     vector<double> out(in.size());
-    transform(in.begin(), in.end(), in.begin(), [sum](int val) {
-        return val / sum;
+    transform(in.begin(), in.end(), out.begin(), [sum](int val) {
+        return static_cast<double>(val) / sum;
     });
 
     return out;

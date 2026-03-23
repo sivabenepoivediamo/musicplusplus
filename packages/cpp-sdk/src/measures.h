@@ -257,7 +257,7 @@ double computeEntropy(PositionVector& in) {
 
     unordered_map<int, int> frequency;
     for (int i = 0; i < binaryVector.size(); ++i) {
-        ++frequency[i];
+        ++frequency[binaryVector[i]];
     }
 
     double entropy = 0.0;

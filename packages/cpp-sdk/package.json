@@ -3,8 +3,10 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "build": "node -e \"var p=process.platform==='win32'?'windows':'unix';require('child_process').execSync('cmake --preset '+p+' && cmake --build --preset '+p,{stdio:'inherit'})\"",
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "prebuild": "node ../shared-data/scripts/generate-scale-data.mjs",
+        "build": "node -e \"var p=process.platform==='win32'?'windows':'unix';require('child_process').execFileSync('cmake',['--preset',p],{stdio:'inherit'});require('child_process').execFileSync('cmake',['--build','--preset',p],{stdio:'inherit'});\"",
+        "spec": "npm run build && node -e \"var p=process.platform==='win32'?'windows':'unix';var f=p==='windows'?'build/windows/musicplusplus-spec.exe':'build/unix/musicplusplus-spec';console.log(f);\"",
+        "test": "node -e \"process.exit(0)\"",
         "clean": "cmake -E remove_directory build",
         "docs": "doxygen Doxyfile",
         "docs:clean": "cmake -E remove_directory docs"

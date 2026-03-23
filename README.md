@@ -7,7 +7,14 @@ A Turborepo monorepo containing the **music++** C++ library for vectorial repres
 This repository uses [Turborepo](https://turbo.build/repo) to manage a monorepo workspace containing:
 
 - **packages/cpp-sdk**: Core C++ library for musical vector manipulation
-- Future packages: TypeScript SDK, Python SDK
+- **packages/ts-sdk**: Typed TS/JS package mirroring the C++ semantics
+
+## C++ / TS Contract
+
+- C++ is the semantic reference.
+- TS is the consumable package for Max/web usage.
+- Shared static data lives in `packages/shared-data`.
+- Parity is enforced through `packages/cpp-sdk/tools/spec_runner.cpp` and the tests in `packages/ts-sdk/test`.
 
 The C++ library provides a unified framework for working with musical structures such as scales, chords, rhythms, and transformations using mathematical and algorithmic tools.
 
@@ -47,15 +54,9 @@ This command uses Turborepo to build all packages in the correct dependency orde
 ```
 musicplusplus/
 ├── packages/
-│   └── cpp-sdk/              # C++ library package
-│       ├── src/              # Header-only library source files
-│       ├── examples/         # Example programs demonstrating library features
-│       ├── docs/             # Generated Doxygen documentation
-│       ├── build/            # CMake build output (generated)
-│       ├── CMakeLists.txt    # CMake configuration
-│       ├── Doxyfile          # Doxygen configuration
-│       ├── package.json      # Package configuration with build scripts
-│       └── README.md         # C++ library documentation
+│   ├── cpp-sdk/              # C++ semantic reference + spec runner
+│   ├── ts-sdk/               # Typed TS/JS package
+│   └── shared-data/          # Shared generated static data
 ├── node_modules/
 │   └── cpp-sdk/              # Symlink to packages/cpp-sdk
 ├── package.json              # Root package configuration
@@ -169,9 +170,11 @@ npm run docs --workspace=packages/cpp-sdk
 ### Modifying the Library
 
 1. Edit or add header files in `packages/cpp-sdk/src/`
-2. Update Doxygen comments for documentation
-3. Rebuild examples to test changes: `npm run build --workspace=packages/cpp-sdk`
-4. Regenerate documentation: `npm run docs --workspace=packages/cpp-sdk`
+2. If semantics change, update `packages/cpp-sdk/tools/spec_runner.cpp`
+3. Update the relevant tests in `packages/ts-sdk/test`
+4. Run `npm run test --workspace=packages/ts-sdk`
+5. Run `npm run test:smoke --workspace=packages/ts-sdk`
+6. Rebuild examples if needed: `npm run build --workspace=packages/cpp-sdk`
 
 ## C++ Library Features
 
@@ -187,7 +190,7 @@ The **music++** library provides:
 - **Analysis Tools**: Spectrum, symmetry, entropy, deepness, geodesic distances
 - **Automation Helpers**: Voice-leading, degree automation, modal interchange, modulation
 
-For detailed library documentation, see [packages/cpp-sdk/README.md](packages/cpp-sdk/README.md).
+For package details, see [packages/cpp-sdk/README.md](packages/cpp-sdk/README.md) and [packages/ts-sdk/README.md](packages/ts-sdk/README.md).
 
 ## Turbo Configuration
 
@@ -217,7 +220,9 @@ MIT License. See [LICENSE](packages/cpp-sdk/LICENSE) for details.
 When adding new features:
 
 1. Update source files in `packages/cpp-sdk/src/`
-2. Add example usage in `packages/cpp-sdk/examples/`
+2. Update `packages/cpp-sdk/tools/spec_runner.cpp` if the feature is mirrored in TS
+3. Update the relevant tests in `packages/ts-sdk/test`
+4. Keep TS outputs aligned with C++ for mirrored features
 3. Document with Doxygen-style comments
 4. Rebuild and test: `npm run build && npm run docs`
 5. Update this README if adding major features

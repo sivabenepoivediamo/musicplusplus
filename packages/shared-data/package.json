@@ -1,0 +1,11 @@
+{
+  "name": "@musicplusplus/shared-data",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node ./scripts/generate-scale-data.mjs",
+    "generate": "node ./scripts/generate-scale-data.mjs",
+    "test": "node -e \"process.exit(0)\"",
+    "clean": "node -e \"process.exit(0)\""
+  }
+}

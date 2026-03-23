@@ -537,6 +537,7 @@ BinaryVector divide(int divisor) const {
             throw invalid_argument("Invalid Euclidean parameters");
         }
 
+        int totalSteps = steps;
         vector<vector<int>> groups;
         
         // Initialize with pulses and silences
@@ -569,7 +570,7 @@ BinaryVector divide(int divisor) const {
             result.insert(result.end(), group.begin(), group.end());
         }
 
-        return BinaryVector(result, 0, steps);
+        return BinaryVector(result, 0, totalSteps);
     }
 
     // ==================== TRANSFORMATION METHODS ====================
