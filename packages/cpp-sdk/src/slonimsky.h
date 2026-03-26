@@ -1,5 +1,5 @@
 #ifndef SLONIMSKY_H
-#define SLONIMSKY_h
+#define SLONIMSKY_H
 
 #include "./utility.h"
 
