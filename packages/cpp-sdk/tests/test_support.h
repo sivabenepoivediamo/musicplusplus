@@ -110,11 +110,22 @@ inline void fail(const char* file, int line, const std::string& message) {
 }
 
 inline bool verbose_enabled() {
+#if defined(_MSC_VER)
+    char* buf = nullptr;
+    size_t len = 0;
+    if (_dupenv_s(&buf, &len, "MUSICPP_TEST_VERBOSE") != 0 || buf == nullptr) {
+        return false;
+    }
+    std::string value(buf);
+    std::free(buf);
+    return !value.empty() && value != "0" && value != "false";
+#else
     const char* value = std::getenv("MUSICPP_TEST_VERBOSE");
     if (value == nullptr) {
         return false;
     }
     return value[0] != '\0' && std::string(value) != "0" && std::string(value) != "false";
+#endif
 }
 
 template <typename T>
