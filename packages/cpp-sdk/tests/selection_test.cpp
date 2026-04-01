@@ -1,12 +1,12 @@
 #include "test_support.h"
 
-#include "../src/selection.h"
+#include <catch2/catch_test_macros.hpp>
 
-using musicpp_test::TestCase;
+#include "../src/selection.h"
 
 namespace {
 
-void selection_position_examples() {
+TEST_CASE("selection_position_examples", "[selection]") {
     PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
     PositionVector triad_degrees({0, 2, 4}, 7);
     auto triad_root = select(c_major_scale, triad_degrees, 0);
@@ -40,7 +40,7 @@ void selection_position_examples() {
     TEST_OUTPUT("five_voices", triad_five_voices);
 }
 
-void selection_interval_examples() {
+TEST_CASE("selection_interval_examples", "[selection]") {
     PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
     IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     IntervalVector thirds({2, 2, 3}, 0, 12);
@@ -86,7 +86,7 @@ void selection_interval_examples() {
     TEST_OUTPUT("grouping_on_offset_scale", select(scale_with_offset, grouping, 0, 6));
 }
 
-void selection_position_from_interval_examples() {
+TEST_CASE("selection_position_from_interval_examples", "[selection]") {
     IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     PositionVector positions({0, 2, 5}, 12);
     auto positions_0 = select(major_scale_intervals, positions, 0);
@@ -113,7 +113,7 @@ void selection_position_from_interval_examples() {
     TEST_OUTPUT("offset_source_rotation_0", select(offset_source, positions, 0));
 }
 
-void selection_musical_and_edge_examples() {
+TEST_CASE("selection_musical_and_edge_examples", "[selection]") {
     PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
     IntervalVector harmony_by_thirds({2}, 0, 12);
     harmony_by_thirds.setOffset(1);
@@ -155,7 +155,7 @@ void selection_musical_and_edge_examples() {
     TEST_OUTPUT("triad_degrees_minus_3", select(c_major_scale, triad_degrees, -3));
 }
 
-void selection_degenerate_examples() {
+TEST_CASE("selection_degenerate_examples", "[selection]") {
     PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
     PositionVector repeated_degrees({0, 0, 2}, 7);
     PositionVector oversized_degrees({0, 2, 9}, 7);
@@ -192,13 +192,3 @@ void selection_degenerate_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"selection_position_examples", selection_position_examples},
-        {"selection_interval_examples", selection_interval_examples},
-        {"selection_position_from_interval_examples", selection_position_from_interval_examples},
-        {"selection_musical_and_edge_examples", selection_musical_and_edge_examples},
-        {"selection_degenerate_examples", selection_degenerate_examples},
-    });
-}

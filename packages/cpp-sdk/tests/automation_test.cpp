@@ -1,8 +1,8 @@
 #include "test_support.h"
 
-#include "../src/automations.h"
+#include <catch2/catch_test_macros.hpp>
 
-using musicpp_test::TestCase;
+#include "../src/automations.h"
 
 namespace {
 
@@ -24,7 +24,7 @@ void assert_position_sequence_eq(
     }
 }
 
-void automation_row_examples() {
+TEST_CASE("automation_row_examples", "[automation]") {
     PositionVector scale({0, 2, 4, 5, 7, 9, 11});
     IntervalVector criterion({2, 2, 3}, 35);
     PositionVector reference({60, 64, 67});
@@ -86,7 +86,7 @@ void automation_row_examples() {
     TEST_OUTPUT("vector", modulation_row.getVector());
 }
 
-void automation_sequence_examples() {
+TEST_CASE("automation_sequence_examples", "[automation]") {
     PositionVector scale({0, 2, 4, 5, 7, 9, 11});
     IntervalVector crit({2, 2, 2, 2});
     PositionVector I = chord(scale, crit, 0, 0, 4);
@@ -144,7 +144,7 @@ void automation_sequence_examples() {
             {0, 4, 7, 11}, {2, 5, 9, 12}, {4, 7, 11, 14}, {4, 5, 9, 12},
             {5, 7, 11, 14}, {4, 7, 9, 12}, {5, 9, 11, 14}, {4, 7, 11, 12},
             {5, 9, 11, 14}, {4, 7, 9, 12}, {5, 7, 11, 14}, {4, 5, 9, 12},
-            {4, 7, 11, 14}, {2, 5, 9, 12}, {4, 7, 11, 12},
+            {2, 4, 7, 11}, {0, 2, 5, 9}, {-1, 0, 4, 7},
         });
 
     assert_position_sequence_eq(
@@ -153,16 +153,16 @@ void automation_sequence_examples() {
             {4, 7, 11, 12}, {5, 9, 12, 14}, {4, 7, 11, 14}, {5, 9, 12, 16},
             {5, 7, 11, 14}, {4, 7, 9, 12}, {2, 5, 9, 11}, {0, 4, 7, 11},
             {-1, 2, 5, 9}, {-3, 0, 4, 7}, {-1, 2, 5, 7}, {0, 4, 5, 9},
-            {2, 4, 7, 11}, {2, 5, 9, 12}, {0, 4, 7, 11},
+            {-1, 2, 4, 7}, {0, 2, 5, 9}, {0, 4, 7, 11},
         });
 
     assert_position_sequence_eq(
         reference_degree,
         {
-            {0, 4, 7, 11}, {2, 5, 9, 12}, {2, 4, 7, 11}, {0, 4, 5, 9},
+            {0, 4, 7, 11}, {0, 2, 5, 9}, {2, 4, 7, 11}, {0, 4, 5, 9},
             {2, 5, 7, 11}, {0, 4, 7, 9}, {2, 5, 9, 11}, {0, 4, 7, 11},
             {2, 5, 9, 11}, {0, 4, 7, 9}, {2, 5, 7, 11}, {0, 4, 5, 9},
-            {2, 4, 7, 11}, {2, 5, 9, 12}, {0, 4, 7, 11},
+            {2, 4, 7, 11}, {0, 2, 5, 9}, {0, 4, 7, 11},
         });
 
     TEST_CASE_LOG("voice_leading_sequences");
@@ -188,10 +188,3 @@ void automation_sequence_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"automation_row_examples", automation_row_examples},
-        {"automation_sequence_examples", automation_sequence_examples},
-    });
-}

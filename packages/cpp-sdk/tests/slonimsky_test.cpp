@@ -1,12 +1,12 @@
 #include "test_support.h"
 
-#include "../src/slonimsky.h"
+#include <catch2/catch_test_macros.hpp>
 
-using musicpp_test::TestCase;
+#include "../src/slonimsky.h"
 
 namespace {
 
-void slonimsky_examples() {
+TEST_CASE("slonimsky_examples", "[slonimsky]") {
     using namespace slonimsky;
 
     const Seq x = {0, 6, 12};
@@ -51,9 +51,3 @@ void slonimsky_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"slonimsky_examples", slonimsky_examples},
-    });
-}

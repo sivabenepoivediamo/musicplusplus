@@ -1,6 +1,6 @@
 #include "test_support.h"
 
-using musicpp_test::TestCase;
+#include <catch2/catch_test_macros.hpp>
 
 namespace {
 
@@ -16,7 +16,7 @@ std::vector<int> normalize_positions(const PositionVector& positions) {
     return normalized;
 }
 
-void vectors_construction_and_transforms() {
+TEST_CASE("vectors_construction_and_transforms", "[vectors]") {
     Vectors majorTriad = Vectors::fromPositions({0, 4, 7});
     ASSERT_POSITION_VECTOR_EQ(majorTriad.getPositions(), musicpp_test::ints({0, 4, 7}), 12);
     ASSERT_INTERVAL_VECTOR_EQ(majorTriad.getIntervals(), musicpp_test::ints({4, 3, 5}), 0, 12);
@@ -51,7 +51,7 @@ void vectors_construction_and_transforms() {
     TEST_OUTPUT("binary", euclidean.getBinary());
 }
 
-void vectors_operator_examples() {
+TEST_CASE("vectors_operator_examples", "[vectors]") {
     Vectors majorTriad = Vectors::fromPositions({0, 4, 7});
 
     ASSERT_POSITION_VECTOR_EQ(majorTriad.transpose(5).getPositions(), musicpp_test::ints({5, 9, 12}), 12);
@@ -142,7 +142,7 @@ void vectors_operator_examples() {
     TEST_OUTPUT("euclidean_7_16", Vectors::euclidean(7, 16).getBinary());
 }
 
-void vectors_roundtrip_and_invariants() {
+TEST_CASE("vectors_roundtrip_and_invariants", "[vectors]") {
     Vectors source = Vectors::fromPositions({0, 3, 7, 10});
 
     ASSERT_POSITION_VECTOR_EQ(
@@ -191,7 +191,7 @@ void vectors_roundtrip_and_invariants() {
     TEST_OUTPUT("inverted", inverted.getPositions());
 }
 
-void interval_vector_examples() {
+TEST_CASE("interval_vector_examples", "[vectors]") {
     IntervalVector iv1;
     ASSERT_INTERVAL_VECTOR_EQ(iv1, musicpp_test::ints({0}), 0, 12);
 
@@ -261,7 +261,7 @@ void interval_vector_examples() {
     TEST_OUTPUT("double_mirror", iv18.doubleMirror(3));
 }
 
-void binary_vector_examples() {
+TEST_CASE("binary_vector_examples", "[vectors]") {
     BinaryVector bv1;
     ASSERT_BINARY_VECTOR_EQ(bv1, musicpp_test::ints({1, 0, 0, 0}), 0, 4);
 
@@ -309,7 +309,7 @@ void binary_vector_examples() {
     TEST_OUTPUT("euclidean_5_12", BinaryVector::euclidean(5, 12));
 }
 
-void position_vector_examples() {
+TEST_CASE("position_vector_examples", "[vectors]") {
     PositionVector pv1;
     ASSERT_POSITION_VECTOR_EQ(pv1, musicpp_test::ints({0}), 12);
 
@@ -358,14 +358,3 @@ void position_vector_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"vectors_construction_and_transforms", vectors_construction_and_transforms},
-        {"vectors_operator_examples", vectors_operator_examples},
-        {"vectors_roundtrip_and_invariants", vectors_roundtrip_and_invariants},
-        {"interval_vector_examples", interval_vector_examples},
-        {"binary_vector_examples", binary_vector_examples},
-        {"position_vector_examples", position_vector_examples},
-    });
-}

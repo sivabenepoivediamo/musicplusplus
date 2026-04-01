@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <functional>
 #include <iostream>
 #include <map>
 #include <utility>
@@ -258,33 +257,6 @@ inline void assert_binary_vector_eq_impl(
     if (expected_mod >= 0) {
         assert_eq_impl(actual.getMod(), expected_mod, "actual.getMod()", "expected_mod", file, line);
     }
-}
-
-struct TestCase {
-    const char* name;
-    std::function<void()> run;
-};
-
-inline int run_tests(const std::vector<TestCase>& tests) {
-    int failures = 0;
-    for (const auto& test : tests) {
-        try {
-            if (verbose_enabled()) {
-                std::cout << "[TEST] " << test.name << "\n";
-            }
-            test.run();
-            if (verbose_enabled()) {
-                std::cout << "[PASS] " << test.name << "\n";
-            }
-        } catch (const std::exception& error) {
-            ++failures;
-            std::cerr << "[FAIL] " << test.name << "\n" << error.what() << "\n";
-        } catch (...) {
-            ++failures;
-            std::cerr << "[FAIL] " << test.name << "\nUnknown exception\n";
-        }
-    }
-    return failures == 0 ? 0 : 1;
 }
 
 } // namespace musicpp_test

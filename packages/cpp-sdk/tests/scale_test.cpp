@@ -1,12 +1,11 @@
 #include "test_support.h"
 
 #include <algorithm>
+#include <catch2/catch_test_macros.hpp>
 
 #include "../src/automations.h"
 #include "../src/scale.h"
 #include "../src/scaleDictionary.h"
-
-using musicpp_test::TestCase;
 
 namespace {
 
@@ -21,7 +20,7 @@ std::vector<std::string> scale_labels(const Results& results) {
     return labels;
 }
 
-void scale_class_examples() {
+TEST_CASE("scale_class_examples", "[scale]") {
     IntervalVector interval_gen({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     Scale scale1(interval_gen, 0, 0, 0, false, 0, false, 0);
     ASSERT_INTERVAL_VECTOR_EQ(scale1.getIntervals(), musicpp_test::ints({2, 2, 1, 2, 2, 2, 1}), 0, 12);
@@ -66,7 +65,7 @@ void scale_class_examples() {
     TEST_OUTPUT("scale2.intervals", scale2.getIntervals());
 }
 
-void autoscale_examples() {
+TEST_CASE("autoscale_examples", "[scale]") {
     PositionVector scale1({0, 2, 4, 5, 7, 9, 11});
     std::vector<int> notes1 = {61, 70};
     PositionVector result1 = autoScale(scale1, notes1);
@@ -134,7 +133,7 @@ void autoscale_examples() {
     TEST_OUTPUT("result", result7);
 }
 
-void scale_dictionary_examples() {
+TEST_CASE("scale_dictionary_examples", "[scale]") {
     ScaleDatabase db;
 
     std::vector<int> major_c = {0, 2, 4, 5, 7, 9, 11};
@@ -215,11 +214,3 @@ void scale_dictionary_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"scale_class_examples", scale_class_examples},
-        {"autoscale_examples", autoscale_examples},
-        {"scale_dictionary_examples", scale_dictionary_examples},
-    });
-}

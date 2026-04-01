@@ -1,12 +1,12 @@
 #include "test_support.h"
 
-#include "../src/matrixDistance.h"
+#include <catch2/catch_test_macros.hpp>
 
-using musicpp_test::TestCase;
+#include "../src/matrixDistance.h"
 
 namespace {
 
-void matrix_generation_examples() {
+TEST_CASE("matrix_generation_examples", "[matrix]") {
     IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     auto interval_modes = modalMatrix(major_scale_intervals);
     ASSERT_EQ(interval_modes.size(), static_cast<size_t>(7));
@@ -48,7 +48,7 @@ void matrix_generation_examples() {
     TEST_OUTPUT("rototranslation_6", rototranslations[6].first);
 }
 
-void matrix_selection_and_filter_examples() {
+TEST_CASE("matrix_selection_and_filter_examples", "[matrix]") {
     PositionVector c_major({0, 2, 4, 5, 7, 9, 11});
     IntervalVector criterion({2, 2, 3}, 0, 12);
     auto interval_selection = modalSelection(positionsToIntervals(c_major), criterion, 0);
@@ -93,7 +93,7 @@ void matrix_selection_and_filter_examples() {
     TEST_OUTPUT("filtered_transpositions_size", filtered_transpositions.size());
 }
 
-void matrix_distance_examples() {
+TEST_CASE("matrix_distance_examples", "[matrix]") {
     PositionVector c_major({0, 2, 4, 5, 7, 9, 11});
     PositionVector c_lydian({0, 2, 4, 6, 7, 9, 11});
     PositionVector c_major_chord({0, 4, 7});
@@ -153,11 +153,3 @@ void matrix_distance_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"matrix_generation_examples", matrix_generation_examples},
-        {"matrix_selection_and_filter_examples", matrix_selection_and_filter_examples},
-        {"matrix_distance_examples", matrix_distance_examples},
-    });
-}
