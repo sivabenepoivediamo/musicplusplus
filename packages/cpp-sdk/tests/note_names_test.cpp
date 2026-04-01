@@ -1,12 +1,12 @@
 #include "test_support.h"
 
-#include "../src/noteNames.h"
+#include <catch2/catch_test_macros.hpp>
 
-using musicpp_test::TestCase;
+#include "../src/noteNames.h"
 
 namespace {
 
-void midi_note_name_examples() {
+TEST_CASE("midi_note_name_examples", "[note_names]") {
     NoteNamingSystem system;
     NoteResult harmonic_major = system.midiNumbersToNoteNames(
         {1, 3, 5, 6, 8, 9, 12},
@@ -38,7 +38,7 @@ void midi_note_name_examples() {
     TEST_OUTPUT("note_names", chromatic_flats.noteNames);
 }
 
-void position_vector_note_name_examples() {
+TEST_CASE("position_vector_note_name_examples", "[note_names]") {
     NoteNamingSystem system;
     NoteMapperOptions sharps_diatonic(true, true, 12);
     NoteMapperOptions flats_diatonic(false, true, 12);
@@ -132,10 +132,3 @@ void position_vector_note_name_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"midi_note_name_examples", midi_note_name_examples},
-        {"position_vector_note_name_examples", position_vector_note_name_examples},
-    });
-}

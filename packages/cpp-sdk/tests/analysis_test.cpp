@@ -1,13 +1,13 @@
 #include "test_support.h"
 
+#include <catch2/catch_test_macros.hpp>
+
 #include "../src/distances.h"
 #include "../src/measures.h"
 
-using musicpp_test::TestCase;
-
 namespace {
 
-void distance_examples() {
+TEST_CASE("distance_examples", "[analysis]") {
     PositionVector a({0, 4, 7, 11});
     PositionVector b({7, 11, 14, 17});
     auto euclidean = euclideanDistance(a, b);
@@ -51,7 +51,7 @@ void distance_examples() {
     TEST_OUTPUT("steps", steps);
 }
 
-void measure_examples() {
+TEST_CASE("measure_examples", "[analysis]") {
     PositionVector c_major({0, 2, 4, 5, 7, 9, 11}, 12, 12);
     auto distances = geodesicDistances(c_major);
     auto occurrences = calculateOccurrences(distances);
@@ -106,7 +106,7 @@ void measure_examples() {
     TEST_OUTPUT("generated", isGenerated(raw_positions, c_major.getRange()));
 }
 
-void measure_false_cases() {
+TEST_CASE("measure_false_cases", "[analysis]") {
     PositionVector asymmetrical({0, 1, 4, 6, 9}, 12, 12);
     auto distances = geodesicDistances(asymmetrical);
     auto occurrences = calculateOccurrences(distances);
@@ -140,11 +140,3 @@ void measure_false_cases() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"distance_examples", distance_examples},
-        {"measure_examples", measure_examples},
-        {"measure_false_cases", measure_false_cases},
-    });
-}

@@ -1,13 +1,13 @@
 #include "test_support.h"
 
+#include <catch2/catch_test_macros.hpp>
+
 #include "../src/chord.h"
 #include "../src/chordNames.h"
 
-using musicpp_test::TestCase;
-
 namespace {
 
-void chord_helper_examples() {
+TEST_CASE("chord_helper_examples", "[chord]") {
     PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
     IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     PositionVector triad_degrees({0, 2, 4}, 12);
@@ -34,7 +34,7 @@ void chord_helper_examples() {
     TEST_OUTPUT("intervals_from_degrees", intervals_from_degrees);
 }
 
-void chord_class_examples() {
+TEST_CASE("chord_class_examples", "[chord]") {
     PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
     IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     PositionVector triad_degrees({0, 2, 4}, 12);
@@ -73,7 +73,7 @@ void chord_class_examples() {
     TEST_OUTPUT("inverted_positions", inverted_chord.toPositions());
 }
 
-void chord_name_examples() {
+TEST_CASE("chord_name_examples", "[chord]") {
     std::vector<int> c_major = {60, 64, 67};
     std::vector<int> c_minor = {60, 63, 67};
     std::vector<int> c_dom7 = {60, 64, 67, 70};
@@ -106,11 +106,3 @@ void chord_name_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"chord_helper_examples", chord_helper_examples},
-        {"chord_class_examples", chord_class_examples},
-        {"chord_name_examples", chord_name_examples},
-    });
-}

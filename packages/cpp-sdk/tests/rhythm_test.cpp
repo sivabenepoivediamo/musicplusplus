@@ -1,9 +1,9 @@
 #include "test_support.h"
 
+#include <catch2/catch_test_macros.hpp>
+
 #include "../src/melody.h"
 #include "../src/rhythmGen.h"
-
-using musicpp_test::TestCase;
 
 namespace {
 
@@ -21,7 +21,7 @@ std::vector<int> apply_ornament(
     return tripleSelect(analysis, modifications, chord, scale, chromatic, mod).results;
 }
 
-void rhythm_generation_examples() {
+TEST_CASE("rhythm_generation_examples", "[rhythm]") {
     IntervalVector ev = euclidean(16, 3, 0);
     ASSERT_INTERVAL_VECTOR_EQ(ev, musicpp_test::ints({5, 5, 6}), 0, 16);
 
@@ -56,7 +56,7 @@ void rhythm_generation_examples() {
     TEST_OUTPUT("pattern", tihai(16, 3, false, 0));
 }
 
-void melody_examples() {
+TEST_CASE("melody_examples", "[rhythm]") {
     const std::vector<int> chord = {0, 4, 7};
     const std::vector<int> scale = {0, 2, 4, 5, 7, 9, 11};
     const std::vector<int> chromatic = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
@@ -121,10 +121,3 @@ void melody_examples() {
 }
 
 } // namespace
-
-int main() {
-    return musicpp_test::run_tests({
-        {"rhythm_generation_examples", rhythm_generation_examples},
-        {"melody_examples", melody_examples},
-    });
-}
