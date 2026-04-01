@@ -6,6 +6,16 @@ add_library(musicplusplus INTERFACE)
 target_include_directories(musicplusplus INTERFACE src)
 target_compile_features(musicplusplus INTERFACE cxx_std_17)
 
+# Strict warnings for consumers of the header-only SDK (does not affect FetchContent targets like Catch2).
+if(MSVC)
+    target_compile_options(musicplusplus INTERFACE /W4 /permissive-)
+else()
+    # -Wno-c2y-extensions must follow -Wpedantic (Catch2 / TEST_CASE uses __COUNTER__).
+    target_compile_options(musicplusplus INTERFACE
+        -Wall -Wextra -Wpedantic
+        $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-c2y-extensions>)
+endif()
+
 # Enable C++17 standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
