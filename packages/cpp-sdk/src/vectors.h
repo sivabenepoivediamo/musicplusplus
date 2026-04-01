@@ -22,17 +22,26 @@
         if (positions.size() == 0) {
             return IntervalVector({}, 0, mod);
         }
-        
+
         vector<int> posData = positions.getData();
+        const size_t n = posData.size();
         vector<int> intervalData;
-        intervalData.reserve(positions.size());
-        
-        if (posData.size() > 1) {
-            for (size_t i = 0; i < posData.size(); ++i) {
-                intervalData.emplace_back(positions[i+1] - positions[i]);
-            }
+        intervalData.reserve(n);
+
+        if (n == 1) {
+            return IntervalVector(intervalData, positions[0], mod);
         }
-        
+
+        for (size_t i = 0; i + 1 < n; ++i) {
+            intervalData.emplace_back(posData[i + 1] - posData[i]);
+        }
+        const int closureRaw = posData[0] - posData[static_cast<size_t>(n - 1)];
+        if (mod > 0) {
+            intervalData.emplace_back(euclideanDivision(closureRaw, mod).remainder);
+        } else {
+            intervalData.emplace_back(closureRaw);
+        }
+
         return IntervalVector(intervalData, positions[0], mod);
     }
     
