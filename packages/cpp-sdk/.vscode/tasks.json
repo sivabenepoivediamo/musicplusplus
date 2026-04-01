@@ -2,7 +2,7 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "CMake: Build active example",
+            "label": "CMake: Build active test",
             "command": "cmake",
             "args": [
                 "--build",
@@ -23,7 +23,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Build the current example using CMake"
+            "detail": "Build the current test target using CMake"
         },
         {
             "type": "shell",
@@ -41,7 +41,7 @@
         },
         {
             "type": "shell",
-            "label": "CMake: Build all examples",
+            "label": "CMake: Build all tests",
             "command": "cmake",
             "args": [
                 "--build",
@@ -57,7 +57,7 @@
                 "$msCompile"
             ],
             "group": "build",
-            "detail": "Build all examples using CMake"
+            "detail": "Build all test executables using CMake"
         }
     ],
     "version": "2.0.0"

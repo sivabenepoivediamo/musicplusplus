@@ -1,7 +1,7 @@
 #ifndef NOTENAMES_H
 #define NOTENAMES_H
 
-#include "PositionVector.h"
+#include "positionVector.h"
 
 /**
  * @file NoteNaming.h

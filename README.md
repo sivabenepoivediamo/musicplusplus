@@ -16,7 +16,7 @@ The C++ library provides a unified framework for working with musical structures
 Before getting started, ensure you have the following installed:
 
 - **Node.js** (v18 or later) and **npm** (v10 or later)
-- **CMake** (v3.10 or later) - for building C++ examples
+- **CMake** (v3.16 or later) - for building C++ examples
 - **Doxygen** - for generating API documentation
 - **C++ Compiler** with C++17 support (e.g., GCC, Clang, MSVC)
 
