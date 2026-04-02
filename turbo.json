@@ -16,12 +16,15 @@
             "dependsOn": [
                 "build"
             ],
-            "outputs": [
-                "coverage/**"
-            ],
+            "outputs": [],
             "inputs": [
                 "src/**/*.cpp",
-                "src/**/*.h"
+                "src/**/*.h",
+                "tests/**/*.cpp",
+                "tests/**/*.h",
+                "CMakeLists.txt",
+                "CMakePresets.json",
+                "package.json"
             ]
         },
         "lint": {},
@@ -40,7 +43,6 @@
                 "src/**/*.h",
                 "src/**/*.hpp",
                 "src/**/*.cpp",
-                "examples/**/*.cpp",
                 "Doxyfile"
             ],
             "cache": true

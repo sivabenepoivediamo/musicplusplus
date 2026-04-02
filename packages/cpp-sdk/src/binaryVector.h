@@ -569,7 +569,7 @@ BinaryVector divide(int divisor) const {
             result.insert(result.end(), group.begin(), group.end());
         }
 
-        return BinaryVector(result, 0, steps);
+        return BinaryVector(result, 0, static_cast<int>(result.size()));
     }
 
     // ==================== TRANSFORMATION METHODS ====================

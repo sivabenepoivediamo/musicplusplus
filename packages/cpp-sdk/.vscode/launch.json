@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Debug Example (Linux)",
+            "name": "Debug Test (Linux)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
@@ -18,10 +18,10 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "CMake: Build active example"
+            "preLaunchTask": "CMake: Build active test"
         },
         {
-            "name": "Debug Example (macOS)",
+            "name": "Debug Test (macOS)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
@@ -31,10 +31,10 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "CMake: Build active example"
+            "preLaunchTask": "CMake: Build active test"
         },
         {
-            "name": "Debug Example (Windows)",
+            "name": "Debug Test (Windows)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/${fileBasenameNoExtension}.exe",
@@ -51,7 +51,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "CMake: Build active example"
+            "preLaunchTask": "CMake: Build active test"
         }
     ],
     "version": "2.0.0"
