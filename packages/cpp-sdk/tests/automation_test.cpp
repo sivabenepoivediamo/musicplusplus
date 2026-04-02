@@ -26,7 +26,12 @@ void assert_position_sequence_eq(
 
 TEST_CASE("automation_row_examples", "[automation]") {
     PositionVector scale({0, 2, 4, 5, 7, 9, 11});
-    IntervalVector criterion({2, 2, 3}, 35);
+    // Same stacked-thirds pattern as matrix_test / selection_test ({2,2,3}, offset 0), but a
+    // non-zero offset here is deliberate: chord() does setOffset(degree + intervals.getOffset())
+    // before select() on the scale (chord.h), and modalMatrix().rotate() keeps that offset on
+    // each mode row — so the starting cumulative index shifts which rototranslation row is
+    // closest to target {67,71,74} (this fixture expects translation_index 0, distance 2, …).
+    IntervalVector criterion({2, 2, 3}, 35, 12);
     PositionVector reference({60, 64, 67});
     PositionVector target({67, 71, 74});
     std::vector<int> notes = {63};
