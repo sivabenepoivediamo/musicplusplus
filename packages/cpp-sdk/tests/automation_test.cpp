@@ -30,7 +30,12 @@ void assert_position_sequence_eq(
 
 TEST_CASE("automation_row_examples", "[automation]") {
     position_vector scale({0, 2, 4, 5, 7, 9, 11});
-    interval_vector criterion({2, 2, 3}, 35);
+    // Same stacked-thirds pattern as matrix_test / selection_test ({2,2,3}, offset 0), but a
+    // non-zero offset here is deliberate: chord() applies degree + criterion offset via
+    // set_offset (chord.h), and modalMatrix rows rotate the criterion while keeping that offset,
+    // which shifts which rototranslation row is closest to target {67,71,74}. Mod 12 is explicit
+    // so the criterion matches the chromatic scale (this fixture expects translation_index 0, …).
+    interval_vector criterion({2, 2, 3}, 35, 12);
     position_vector reference({60, 64, 67});
     position_vector target({67, 71, 74});
     std::vector<int> notes = {63};
