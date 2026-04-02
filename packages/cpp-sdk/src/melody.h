@@ -73,6 +73,9 @@ std::vector<int> diminution(int degree, int length, bool up, bool left) {
 }
 
 std::vector<int> run(int degree, int length, bool direction) {
+    if (length <= 0) {
+        throw std::invalid_argument("run: length must be positive");
+    }
     const int step  = direction ? 1 : -1;
     const int start = direction ? degree - (length - 1) : degree + (length - 1);
     std::vector<int> result(length);
