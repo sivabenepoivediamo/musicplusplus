@@ -134,13 +134,14 @@ private:
         position_vector tempScalePos = intervals_to_positions(scaleIntervals);
         position_vector offsetDegrees = criterionPositions + params.shift;
         interval_vector tempResult = select(scaleIntervals, offsetDegrees, params.criterion_mode, params.preVoices);
-        resultIntervals = tempResult.relative_mode(params.relative_mode);
+        resultIntervals = tempResult;
         if (params.invert) {
             resultIntervals = resultIntervals.inversion(params.axis);
         }
         if (params.negativeOrMirror) {
             resultIntervals = resultIntervals.singleMirror(params.negativeOrMirrorPos, true);
         }
+        resultIntervals = resultIntervals.relative_mode(params.relative_mode);
         isResultPositions = false;
     }
 
@@ -149,13 +150,14 @@ private:
         int off = criterionIntervals.offset();
         offsetIntervals.set_offset(params.shift + off);
         interval_vector tempResult = select(scaleIntervals, offsetIntervals, params.criterion_mode, params.preVoices);
-        resultIntervals = tempResult.relative_mode(params.relative_mode);
+        resultIntervals = tempResult;
         if (params.invert) {
             resultIntervals = resultIntervals.inversion(params.axis);
         }
         if (params.negativeOrMirror) {
             resultIntervals = resultIntervals.singleMirror(params.negativeOrMirrorPos, true);
         }
+        resultIntervals = resultIntervals.relative_mode(params.relative_mode);
         isResultPositions = false;
     }
 
@@ -343,7 +345,7 @@ public:
  * 
  */
 
-position_vector chord(position_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10) {
+inline position_vector chord(position_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10) {
     position_vector offsetDegrees = degrees + shift;
     position_vector result = select(scale, offsetDegrees, criterion_relative_mode, preVoices);
     result = (invert) ? result.inversion(axis, true) : result;
@@ -366,7 +368,7 @@ position_vector chord(position_vector& scale, position_vector& degrees, int shif
  * @return position_vector representing the generated chord
  * 
  */
-position_vector chord(position_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10){
+inline position_vector chord(position_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10){
     interval_vector offsetIntervals = intervals;
     offsetIntervals.set_offset(shift);
     position_vector result = select(scale, offsetIntervals, criterion_parallel_mode, preVoices);
@@ -390,7 +392,7 @@ position_vector chord(position_vector& scale, interval_vector& intervals, int sh
  * @return interval_vector representing the generated chord
  * 
  */
-interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
+inline interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
     //position_vector scalePositions = intervals_to_positions(scale);
     position_vector offsetDegrees = degrees + shift;
     interval_vector result = select(scale, offsetDegrees, criterion_relative_mode, preVoices);
@@ -418,7 +420,7 @@ interval_vector chord(interval_vector& scale, position_vector& degrees, int shif
  * @return interval_vector representing the generated chord
  * 
  */
-interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
+inline interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
     //position_vector scalePositions = intervals_to_positions(scale);
     interval_vector offsetIntervals = intervals;
     int off = intervals.offset();
