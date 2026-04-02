@@ -23,8 +23,7 @@
             return IntervalVector({}, 0, mod);
         }
 
-        vector<int> posData = positions.getData();
-        const size_t n = posData.size();
+        const size_t n = positions.size();
         vector<int> intervalData;
         intervalData.reserve(n);
 
@@ -33,11 +32,14 @@
         }
 
         for (size_t i = 0; i + 1 < n; ++i) {
-            intervalData.emplace_back(posData[i + 1] - posData[i]);
+            intervalData.emplace_back(
+                positions[static_cast<int>(i + 1)] - positions[static_cast<int>(i)]);
         }
-        const int closureRaw = posData[0] - posData[static_cast<size_t>(n - 1)];
-        if (mod > 0) {
-            intervalData.emplace_back(euclideanDivision(closureRaw, mod).remainder);
+        const int closureRaw =
+            positions[0] - positions[static_cast<int>(n - 1)];
+        const int closurePeriod = positions.getRange();
+        if (closurePeriod > 0) {
+            intervalData.emplace_back(euclideanDivision(closureRaw, closurePeriod).remainder);
         } else {
             intervalData.emplace_back(closureRaw);
         }
@@ -55,7 +57,7 @@
         vector<int> intervalData = intervals.getData();
         
         if (intervalData.empty()) {
-            return PositionVector({0}, mod, 0, true, false);
+            return PositionVector({intervals.getOffset()}, mod, 0, true, false);
         }
         
         // Calculate positions from intervals (starting from offset)
