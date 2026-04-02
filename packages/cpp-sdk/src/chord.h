@@ -393,15 +393,11 @@ inline position_vector chord(position_vector& scale, interval_vector& intervals,
  * 
  */
 inline interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
-    //position_vector scalePositions = intervals_to_positions(scale);
     position_vector offsetDegrees = degrees + shift;
     interval_vector result = select(scale, offsetDegrees, criterion_relative_mode, preVoices);
-    //interval_vector result = positions_to_intervals(resultPositions.relative_mode(relative_mode));
     result = (invert) ? result.inversion(axis) : result;
     result = (mirror) ? result.singleMirror(mirrorPos, true) : result;
     result = result.relative_mode(relative_mode);
-    //position_vector out = intervals_to_positions(result).relative_mode(relative_mode);
-    //result = positions_to_intervals(out);
     return result;
 };
 
@@ -421,16 +417,12 @@ inline interval_vector chord(interval_vector& scale, position_vector& degrees, i
  * 
  */
 inline interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
-    //position_vector scalePositions = intervals_to_positions(scale);
     interval_vector offsetIntervals = intervals;
     int off = intervals.offset();
     offsetIntervals.set_offset(shift + off);
     interval_vector result = select(scale, offsetIntervals, criterion_parallel_mode, preVoices);
-    //interval_vector result = positions_to_intervals(resultPos.relative_mode(relative_mode));
     result = (invert) ? result.inversion(axis) : result;
     result = (mirror) ? result.singleMirror(mirrorPos, true) : result;
-   // position_vector out = intervals_to_positions(result).relative_mode(relative_mode);
-   // result = positions_to_intervals(out);
     result = result.relative_mode(relative_mode);
     return result;
 };
