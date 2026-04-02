@@ -26,7 +26,7 @@
 
 namespace musicpp {
 
-std::vector<int> differences(std::vector<int>& in) {
+inline std::vector<int> differences(std::vector<int>& in) {
     std::vector<int> out;
 
     if (in.size() < 2) {
@@ -51,7 +51,7 @@ std::vector<int> differences(std::vector<int>& in) {
  * @param mod Modulus (cycle length)
  * @return Minimal distance between a and b on the cycle
  */
-int geodesicDistance(int a, int b, int mod) {
+inline int geodesicDistance(int a, int b, int mod) {
     int distance = (b - a + mod) % mod;
     if (distance > mod / 2) 
         distance = mod - distance;
@@ -64,7 +64,7 @@ int geodesicDistance(int a, int b, int mod) {
  * @param in Input position_vector
  * @return Flattened vector of pairwise geodesic distances (i<j order)
  */
-std::vector<int> geodesicDistances(position_vector& in) {
+inline std::vector<int> geodesicDistances(position_vector& in) {
     std::vector<int> distances;
     for (size_t i = 0; i < in.size(); ++i) {
         for (size_t j = i + 1; j < in.size(); ++j) {
@@ -86,7 +86,7 @@ std::vector<int> geodesicDistances(position_vector& in) {
  * @param mod Modulus used for normalization (not always required)
  * @return true if the interval vector is Euclidean, false otherwise
  */
-bool isEuclidean(position_vector in, int mod) {
+inline bool isEuclidean(position_vector in, int mod) {
     
     interval_vector j = positions_to_intervals(in);
     std::vector<int> temp = j.data();
@@ -111,7 +111,7 @@ bool isEuclidean(position_vector in, int mod) {
  * @param in Input integer vector
  * @return map where key = value from `in` and value = frequency
  */
-std::map<int, int> calculateOccurrences(std::vector<int>& in) {
+inline std::map<int, int> calculateOccurrences(std::vector<int>& in) {
     std::map<int, int> occurrences;
     for (int occurrence : in) {
         occurrences[occurrence]++;
@@ -129,17 +129,14 @@ std::map<int, int> calculateOccurrences(std::vector<int>& in) {
  * @param size Number of tones (n)
  * @return true if Winograd-deep, false otherwise
  */
-bool isWinogradDeep(std::map<int, int>& in, int size) {
-    std::set<int> seen;
-    for (int i = 1; i < size; ++i) {
-        if (in.find(i) == in.end()) {
-            return false;
-        }
-        if (!seen.insert(in.at(i)).second) {
-            return false;
-        }
+inline bool isWinogradDeep(std::map<int, int>& in, int size) {
+    std::set<int> counts;
+    for (auto& entry : in) {
+        int count = entry.second;
+        if (count < 1 || count >= size) continue;
+        if (!counts.insert(count).second) return false;
     }
-    return true;
+    return static_cast<int>(counts.size()) == size - 1;
 }
 
 /**
@@ -150,7 +147,7 @@ bool isWinogradDeep(std::map<int, int>& in, int size) {
  * @param in Map of occurrences (distance -> frequency)
  * @return true if Erdos-deep, false otherwise
  */
-bool isErdosDeep(std::map<int, int>& in) {
+inline bool isErdosDeep(std::map<int, int>& in) {
     std::set<int> seen;
     for (auto& pair : in) {
         if (!seen.insert(pair.second).second) {
@@ -170,7 +167,7 @@ bool isErdosDeep(std::map<int, int>& in) {
  * @param totalTimeUnits Total cycle length (e.g., steps)
  * @return Sum of absolute deviations from ideal equally spaced positions
  */
-double calculateRegressionEvenness(std::vector<int>& rhythm, int totalTimeUnits) {
+inline double calculateRegressionEvenness(std::vector<int>& rhythm, int totalTimeUnits) {
     int numNotes = rhythm.size();
     double idealInterval = static_cast<double>(totalTimeUnits) / numNotes;
 
@@ -198,7 +195,7 @@ double calculateRegressionEvenness(std::vector<int>& rhythm, int totalTimeUnits)
  * @param in position_vector of onsets
  * @return Integer count of antipodal pairs
  */
-int calculateRhythmicOddity(position_vector& in) {
+inline int calculateRhythmicOddity(position_vector& in) {
     int k = in.size();
     int rhythmic_oddity = 0;
 
@@ -228,7 +225,7 @@ int calculateRhythmicOddity(position_vector& in) {
  * @param mod Modulus (used internally by conversion routines)
  * @return Number of transitions in the onset pattern
  */
-int computeTransitionComplexity(position_vector& in, int mod) {
+inline int computeTransitionComplexity(position_vector& in, int mod) {
     onset_vector onset_vec = positions_to_onset(in);
     if (onset_vec.size() == 0) {
         return 0;
@@ -239,6 +236,9 @@ int computeTransitionComplexity(position_vector& in, int mod) {
         if (onset_vec[i] != onset_vec[i - 1]) {
             ++complexity;
         }
+    }
+    if (onset_vec[onset_vec.size() - 1] != onset_vec[0]) {
+        ++complexity;
     }
 
     return complexity;
@@ -254,15 +254,15 @@ int computeTransitionComplexity(position_vector& in, int mod) {
  * @param in position_vector of onsets
  * @return Entropy in bits (base-2). Returns 0.0 for empty inputs.
  */
-double computeEntropy(position_vector& in) {
+inline double computeEntropy(position_vector& in) {
     onset_vector onset_vec = positions_to_onset(in);
     if (onset_vec.size() == 0) {
         return 0.0;
     }
 
     std::unordered_map<int, int> frequency;
-    for (int i = 0; i < onset_vec.size(); ++i) {
-        ++frequency[i];
+    for (int i = 0; i < static_cast<int>(onset_vec.size()); ++i) {
+        ++frequency[onset_vec[i]];
     }
 
     double entropy = 0.0;
@@ -284,7 +284,7 @@ double computeEntropy(position_vector& in) {
  * @param in position_vector of onsets
  * @return Length of the longest subsequence
  */
-int computeLongestSubsequence(position_vector& in) {
+inline int computeLongestSubsequence(position_vector& in) {
     onset_vector onset_vec = positions_to_onset(in);
     if (onset_vec.size() == 0) {
         return 0;
@@ -313,7 +313,7 @@ int computeLongestSubsequence(position_vector& in) {
  * @param in position_vector of positions
  * @param distances Flattened vector of distances in i<j order (same order as produced by geodesicDistances)
  */
-void printDistances(position_vector& in, std::vector<int>& distances) {
+inline void printDistances(position_vector& in, std::vector<int>& distances) {
     size_t index = 0;
     for (size_t i = 0; i < in.size(); ++i) {
         for (size_t j = i + 1; j < in.size(); ++j) {
@@ -327,7 +327,7 @@ void printDistances(position_vector& in, std::vector<int>& distances) {
  *
  * @param occurrences Map from value to frequency
  */
-void printOccurrences(std::map<int, int>& occurrences) {
+inline void printOccurrences(std::map<int, int>& occurrences) {
     for (auto& pair : occurrences) {
         std::cout << "Distance " << pair.first << " appears " << pair.second << " times" << std::endl;
     }
@@ -339,7 +339,7 @@ void printOccurrences(std::map<int, int>& occurrences) {
  * @param occurrences Map from distance to frequency
  * @param size Number of tones in the original set
  */
-void printDeepness(std::map<int, int>& occurrences, int size) {
+inline void printDeepness(std::map<int, int>& occurrences, int size) {
     bool winogradDeep = isWinogradDeep(occurrences, size);
     bool erdosDeep = isErdosDeep(occurrences);
 
@@ -356,8 +356,11 @@ void printDeepness(std::map<int, int>& occurrences, int size) {
  * @param in Input position_vector (scale)
  * @return Vector of sets where element k-1 contains the specific intervals for generic interval k
  */
-std::vector<std::set<int>> calculateDistributionSpectra(position_vector& in) {
+inline std::vector<std::set<int>> calculateDistributionSpectra(position_vector& in) {
     std::vector<int> normalizedScale = in.data();
+    if (normalizedScale.empty()) {
+        return std::vector<std::set<int>>{};
+    }
     
     std::vector<std::set<int>> distributionSpectra(normalizedScale.size() - 1);
 
@@ -378,7 +381,7 @@ std::vector<std::set<int>> calculateDistributionSpectra(position_vector& in) {
  * @param spectra Vector of sets (as returned by calculateDistributionSpectra)
  * @return Vector of widths (0 for empty spectra)
  */
-std::vector<int> calculateSpectrumWidths(std::vector<std::set<int>>& spectra) {
+inline std::vector<int> calculateSpectrumWidths(std::vector<std::set<int>>& spectra) {
     std::vector<int> widths;
     
     for (auto& spectrum : spectra) {
@@ -404,7 +407,7 @@ std::vector<int> calculateSpectrumWidths(std::vector<std::set<int>>& spectra) {
  * @param numberOfTones Number of tones in the scale
  * @return Average spectrum variation
  */
-double calculateSpectrumVariation(std::vector<int>& widths, int numberOfTones) {
+inline double calculateSpectrumVariation(std::vector<int>& widths, int numberOfTones) {
     int sumOfWidths = 0;
     for (int width : widths) {
         sumOfWidths += width;
@@ -420,7 +423,7 @@ double calculateSpectrumVariation(std::vector<int>& widths, int numberOfTones) {
  * @param scale Input position_vector representing the scale
  * @return Vector of integer transposition offsets that are symmetries
  */
-std::vector<int> findRotationalSymmetryAxes(position_vector& scale) {
+inline std::vector<int> findRotationalSymmetryAxes(position_vector& scale) {
     std::vector<int> normalizedScale = scale.data();
 
     std::vector<int> axes;
@@ -447,7 +450,7 @@ std::vector<int> findRotationalSymmetryAxes(position_vector& scale) {
  * @param scale Input position_vector representing the scale
  * @return Vector of axes where the scale is symmetric under reflection
  */
-std::vector<double> findReflectiveSymmetryAxes(position_vector& scale) {
+inline std::vector<double> findReflectiveSymmetryAxes(position_vector& scale) {
     std::vector<int> normalizedScale = scale.data();
     std::vector<double> axes;
     int n = normalizedScale.size();
@@ -485,7 +488,7 @@ std::vector<double> findReflectiveSymmetryAxes(position_vector& scale) {
  * @param num Integer to test
  * @return true if num is prime, false otherwise
  */
-bool isPrime(int num) {
+inline bool isPrime(int num) {
     if (num <= 1) return false;
     if (num == 2) return true;
     if (num % 2 == 0) return false;
@@ -504,7 +507,7 @@ bool isPrime(int num) {
  *
  * @param mod Modulus (number of time units)
  */
-void classifyAksakRhythm(int mod) {
+inline void classifyAksakRhythm(int mod) {
     if (isPrime(mod)) {
         std::cout << "The rhythm is authentic aksak" << std::endl;
     } else if (mod % 2 != 0) {
@@ -520,7 +523,7 @@ void classifyAksakRhythm(int mod) {
  * @param scale Input position_vector
  * @return true if reflective symmetry axis includes 0
  */
-bool isPalindrome(position_vector& scale) {
+inline bool isPalindrome(position_vector& scale) {
     std::vector<double> reflectiveAxes = findReflectiveSymmetryAxes(scale);
     return find(reflectiveAxes.begin(), reflectiveAxes.end(), 0) != reflectiveAxes.end();
 }
@@ -531,7 +534,7 @@ bool isPalindrome(position_vector& scale) {
  * @param scale Input position_vector
  * @return true if the scale is chiral (not superposable with its mirror)
  */
-bool isChiral(position_vector& scale) {
+inline bool isChiral(position_vector& scale) {
     std::vector<int> normalizedScale = scale.data();
 
     std::vector<int> mirroredScale = normalizedScale;
@@ -569,7 +572,7 @@ bool isChiral(position_vector& scale) {
  * @param scale Input position_vector
  * @return true if the scale is balanced
  */
-bool isBalanced(position_vector& scale) {
+inline bool isBalanced(position_vector& scale) {
     double x_sum = 0.0;
     double y_sum = 0.0;
     double angle_step = 2 * 3.141592653589793 / scale.mod();
@@ -594,7 +597,7 @@ bool isBalanced(position_vector& scale) {
  * @param printSteps If true prints each generated step
  * @return Generated sequence of length k
  */
-std::vector<int> generate(int m, int k, int n, bool printSteps = false) {
+inline std::vector<int> generate(int m, int k, int n, bool printSteps = false) {
     std::vector<int> sequence;
     for (int i = 0; i < k; ++i) {
         int value = (i * m) % n;
@@ -616,7 +619,7 @@ std::vector<int> generate(int m, int k, int n, bool printSteps = false) {
  * @param n Modulus
  * @return pair(found, multiplier)
  */
-std::pair<bool, int> isGenerated(std::vector<int>& in, int n) {
+inline std::pair<bool, int> isGenerated(std::vector<int>& in, int n) {
     int k = in.size();
     
     for (int m = 1; m < n; ++m) {
@@ -636,7 +639,7 @@ std::pair<bool, int> isGenerated(std::vector<int>& in, int n) {
  * @param in Input vector
  * @param mod Modulus
  */
-void printGenerators(std::vector<int>& in, int mod) {
+inline void printGenerators(std::vector<int>& in, int mod) {
     std::pair<bool, int> result = isGenerated(in, mod);
     if (result.first) {
         std::cout << "The vector is generated by multiples of m = " << result.second << " mod " << mod << std::endl;
@@ -653,7 +656,7 @@ void printGenerators(std::vector<int>& in, int mod) {
  *
  * @param spectra Vector of sets representing distribution spectra
  */
-void printDistributionSpectra(std::vector<std::set<int>>& spectra) {
+inline void printDistributionSpectra(std::vector<std::set<int>>& spectra) {
     for (size_t i = 0; i < spectra.size(); ++i) {
         std::cout << "<" << i + 1 << "> = {";
         for (auto it = spectra[i].begin(); it != spectra[i].end(); ++it) {
@@ -671,7 +674,7 @@ void printDistributionSpectra(std::vector<std::set<int>>& spectra) {
  *
  * @param widths Vector of spectrum widths as returned by calculateSpectrumWidths
  */
-void printSpectrumWidths(std::vector<int>& widths) {
+inline void printSpectrumWidths(std::vector<int>& widths) {
     for (size_t i = 0; i < widths.size(); ++i) {
         std::cout << "Width of <" << i + 1 << "> = " << widths[i] << "\n";
     }
@@ -683,7 +686,7 @@ void printSpectrumWidths(std::vector<int>& widths) {
  * @param axes Integer-valued axes
  * @param symmetryType Label for the symmetry type (e.g., "Rotational")
  */
-void printSymmetryAxes(std::vector<int>& axes, const std::string& symmetryType) {
+inline void printSymmetryAxes(std::vector<int>& axes, const std::string& symmetryType) {
     std::cout << symmetryType << " symmetry axes: ";
     for (size_t i = 0; i < axes.size(); ++i) {
         if (i > 0) {
@@ -700,7 +703,7 @@ void printSymmetryAxes(std::vector<int>& axes, const std::string& symmetryType) 
  * @param axes Floating-point axes (half-integer possible)
  * @param symmetryType Label for the symmetry type (e.g., "Reflective")
  */
-void printSymmetryAxes(std::vector<double>& axes, const std::string& symmetryType) {
+inline void printSymmetryAxes(std::vector<double>& axes, const std::string& symmetryType) {
     std::cout << symmetryType << " symmetry axes: ";
     for (size_t i = 0; i < axes.size(); ++i) {
         if (i > 0) {
@@ -720,7 +723,7 @@ void printSymmetryAxes(std::vector<double>& axes, const std::string& symmetryTyp
  *
  * @param p Input position_vector to analyze
  */
-void printAnalysis(position_vector p) {
+inline void printAnalysis(position_vector p) {
     std::vector<int> in = p.data();
     int mod = p.mod();
     interval_vector j = positions_to_intervals(p);
