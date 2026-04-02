@@ -7,58 +7,59 @@
 
 **music++** is a C++ library for the vectorial representation and manipulation of musical phenomena. It provides a unified framework for working with musical structures such as scales, chords, rhythms, and transformations using mathematical and algorithmic tools. The library is designed for music theorists, computational musicologists, composers, and developers interested in algorithmic and generative music.
 
+The implementation is **header-only** (C++17). Public types and free functions live in **`namespace musicpp`**; headers use **snake_case** file names (for example `position_vector.h`) and **`MUSICPP_*_H`** guards. For a short map from older CamelCase names, see [CPP_SDK_REFACTOR.md](../../CPP_SDK_REFACTOR.md).
+
 ## Features
 
-- Unified vector classes for positions, intervals, and binary patterns (`PositionVector`, `IntervalVector`, `BinaryVector`).
-- A unified `Vectors` container that keeps the three representations synchronized and provides convenient conversions and high-level operations.
+- Unified vector classes for positions, intervals, and binary patterns (`position_vector`, `interval_vector`, `binary_vector`).
+- A unified `vector_set` container (in `vectors.h`) that keeps the three representations synchronized and provides convenient conversions and high-level operations.
 - Meta-operators for selection and transformation (position/interval selection, modal selection, modal interchange).
 - Chord and scale utilities for generating chords from scales/degrees and transforming them (transposition, inversion, rototranslation, mirroring).
 - Rich distance and similarity metrics (Euclidean, Manhattan, Hamming, Levenshtein/edit distance, weighted transformation distance) with matrix-based search utilities for best matches.
-- Matrix utilities: modal matrices, transposition matrices, and rototranslation matrices plus helpers to compute distances between a reference and all matrix rows (`matrix.h`, `matrixDistance.h`).
-- Rhythmic utilities and generators: Euclidean rhythms, Clough–Douthett, deep rhythms, tihai and conversion helpers (`rhythmGen.h`).
-- Note naming and mapping utilities to convert MIDI/position vectors to human-readable note names with enharmonic handling (`noteNames.h`).
+- Matrix utilities: modal matrices, transposition matrices, and rototranslation matrices plus helpers to compute distances between a reference and all matrix rows (`matrix.h`, `matrix_distance.h`).
+- Rhythmic utilities and generators: Euclidean rhythms, Clough–Douthett, deep rhythms, tihai and conversion helpers (`rhythm_gen.h`).
+- Note naming and mapping utilities to convert MIDI/position vectors to human-readable note names with enharmonic handling (`note_names.h`).
 - Analysis and measurement helpers (spectrum, symmetry, entropy, deepness checks, geodesic distances) in `measures.h`.
 - Automation helpers for voice-leading, degree-based automations, modal interchange and modulation (`automations.h`).
-- Examples covering most features are provided under `examples/` to serve as usage references and simple tests.
+- Catch2 tests under `tests/` cover most features and serve as usage references and simple tests (build with CMake / `npm run test`).
 
 ## Library Structure
 
 ```
 src/
 	automations.h          # High-level automation helpers (voice leading, degree automation, modal interchange, modulation)
-	binaryVector.h        # BinaryVector class for rhythmic patterns and logical operations
-	chord.h               # Chord class and ChordParams: generate chords from scales or intervals
-	distances.h           # Distance and transformation metrics and helpers
-	intervalVector.h      # IntervalVector class (intervallic representations and operations)
-	mathUtil.h            # Math helpers (Euclidean division, GCD, LCM)
-	matrixDistance.h      # Distance calculation wrappers for matrix result rows and utilities
-	matrix.h              # Modal, transposition and rototranslation matrix generators
-	measures.h            # Analytical measures: spectra, symmetry, entropy, deepness, etc.
-	noteNames.h           # Mapping position vectors / MIDI numbers to note names (enharmonic handling)
-	positionVector.h      # PositionVector class (positional representations and geometric ops)
-	quantizeTranspose.h   # Quantize/transposition helpers between scales
-	rhythmGen.h           # Rhythmic pattern generators (Euclidean, Clough-Douthett, deep rhythms, tihai)
-	scale.h               # Scale class and ScaleParams
-	selection.h           # Selection meta-operators for position/interval sources
-	utility.h             # Common includes and project-wide using declarations
-	Vector.h              # Vectors: unified representation and convenience constructors
-	vectors.h             # Standalone conversion helpers between representations
+	binary_vector.h        # binary_vector for rhythmic patterns and logical operations
+	chord.h                # Chord types and parameters: generate chords from scales or intervals
+	chord_names.h          # Chord naming helpers
+	distances.h            # Distance and transformation metrics and helpers
+	interval_vector.h      # interval_vector (intervallic representations and operations)
+	math_util.h            # Math helpers (Euclidean division, GCD, LCM)
+	matrix_distance.h      # Distance calculation wrappers for matrix result rows and utilities
+	matrix.h               # Modal, transposition and rototranslation matrix generators
+	measures.h             # Analytical measures: spectra, symmetry, entropy, deepness, etc.
+	melody.h               # Melodic note info, analysis, and modification helpers
+	note_names.h           # Mapping position vectors / MIDI numbers to note names (enharmonic handling)
+	position_vector.h      # position_vector (positional representations and geometric ops)
+	quantize_transpose.h   # Quantize/transposition helpers between scales
+	rhythm_gen.h           # Rhythmic pattern generators (Euclidean, Clough–Douthett, deep rhythms, tihai)
+	scale.h                # Scale types and parameters
+	scale_dictionary.h     # Scale catalogue / dictionary access
+	selection.h            # Selection meta-operators for position/interval sources
+	slonimsky.h            # Slonimsky-style pattern utilities
+	utility.h              # Common includes shared across project headers
+	vectors.h              # vector_set: unified representation and convenience constructors
 
-examples/
-	automations.cpp       # Examples: automation helpers (degree/voice-leading/modulation)
-	automationsSeq.cpp    # Sequential voice-leading and degree automation example
-	chordClass.cpp        # Chord class usage and examples
-	chordTest.cpp         # Chord helper tests
-	classtest.cpp         # Core class test suite (PositionVector/IntervalVector/BinaryVector)
-	distances.cpp         # Distance metrics and transformation examples
-	matrixDistances.cpp   # Matrix-distance examples
-	matrix.cpp            # Matrix generation and utilities examples
-	measures.cpp          # Example usage of measures/analysis helpers
-	noteNames.cpp         # Note naming system examples and tests
-	rhythmGen.cpp         # Rhythmic generators demonstration
-	scale.cpp             # Scale class demonstrations
-	selection.cpp         # Selection meta-operators demo
-	vectortest.cpp        # Demonstration of Vectors unified API
+tests/
+	vectors_test.cpp       # vector_set and core vector types
+	chord_test.cpp         # Chords
+	scale_test.cpp         # Scales, dictionary, related automation paths
+	automation_test.cpp    # Automation helpers
+	matrix_test.cpp        # Matrices and matrix distances
+	selection_test.cpp     # Selection meta-operators
+	analysis_test.cpp      # Distances and measures
+	rhythm_test.cpp        # Rhythm generators and melody helpers
+	note_names_test.cpp    # Note naming
+	slonimsky_test.cpp     # Slonimsky utilities
 
 LICENSE
 README.md
@@ -67,10 +68,10 @@ README.md
 ## Main Components
 
 ### Vector Classes
-- **PositionVector**: Cyclic positional vectors for pitch sets, supports rotation, inversion, complement, and more.
-- **IntervalVector**: Intervallic structures with cyclic access, rotation, inversion, and scalar/vector operations.
-- **BinaryVector**: Binary (0/1) vectors for rhythmic patterns, logical operations, and cyclic transformations.
-- **Vectors**: Unified class maintaining synchronized position, interval, and binary representations.
+- **position_vector**: Cyclic positional vectors for pitch sets, supports rotation, inversion, complement, and more.
+- **interval_vector**: Intervallic structures with cyclic access, rotation, inversion, and scalar/vector operations.
+- **binary_vector**: Binary (0/1) vectors for rhythmic patterns, logical operations, and cyclic transformations.
+- **vector_set**: Unified type maintaining synchronized position, interval, and binary representations.
 
 ### Meta-Operators & Algorithms
 - **Selection**: Meta-operators for extracting or generating new vectors from source vectors using position or interval criteria.
@@ -80,7 +81,7 @@ README.md
 
 ### Rhythmic Generators
 - **Euclidean rhythms**: Evenly distributed pulses in a given number of steps.
-- **Clough-Douthett patterns**: Rhythmic patterns based on the Clough-Douthett Algorithm.
+- **Clough-Douthett patterns**: Rhythmic patterns based on the Clough–Douthett algorithm.
 - **Deep rhythms**: Patterns with multiplicity and distributed onsets.
 - **Tihai**: North Indian rhythmic patterns with repetition and offset.
 
@@ -91,9 +92,9 @@ README.md
 
 ### Automation Functions
 - **Voice Leading**: Computes the best inversion for the transition between two chords, based on a complexity factor.
--**Degree Selection**: Computes the best degree of a chord in a transition based on a reference intervallic structure and a complexity factor. 
--**Modal Interchange**: Selection of a mode of the parent scale based on a note vector input and a complexity factor. 
--**Modulation**: Selection of a transposition of a scale, based on a note vector input and a complexity factor.
+- **Degree Selection**: Computes the best degree of a chord in a transition based on a reference intervallic structure and a complexity factor.
+- **Modal Interchange**: Selection of a mode of the parent scale based on a note vector input and a complexity factor.
+- **Modulation**: Selection of a transposition of a scale, based on a note vector input and a complexity factor.
 
 ### Vector analysis and measures
 
@@ -116,16 +117,16 @@ README.md
 
 ### As a Header-Only Library
 
-1. Include the `src/` directory in your C++ project.
-2. All headers are self-contained and can be included as needed.
+1. Include the `src/` directory in your C++ project (or depend on the CMake `musicplusplus` `INTERFACE` target from this package’s `CMakeLists.txt`).
+2. All headers are self-contained and can be included as needed; use the `musicpp::` prefix for types and call free functions from that namespace.
 3. Requires C++17 or later.
 
-### Building Examples (Monorepo)
+### Building (Monorepo)
 
 From the monorepo root:
 
 ```bash
-# Build all packages (including cpp-sdk examples)
+# Build all packages (includes cpp-sdk test executables)
 npm run build
 
 # Build only cpp-sdk
@@ -142,26 +143,33 @@ npm run build
 npm run clean
 ```
 
-### Running Examples
+### Running tests
 
-After building, executables are in the `build/` directory:
+After building, test executables are in the `build/` directory (names match the `tests/*.cpp` stems):
 
 ```powershell
 # Windows
-.\build\autoscale.exe
-.\build\vectortest.exe
+.\build\vectors_test.exe
+.\build\chord_test.exe
 
 # Linux/macOS
-./build/autoscale
-./build/vectortest
+./build/vectors_test
+./build/chord_test
+```
+
+Or run the full suite:
+
+```bash
+npm run test
+# or, from packages/cpp-sdk after configuring: ctest --preset unix   # use "windows" on Windows
 ```
 
 ### Debugging in VS Code
 
 **Quick Start:**
-1. Open any example file from `examples/` (e.g., `autoscale.cpp`)
-2. Press **F5** to build and debug
-3. Set breakpoints and inspect variables
+1. Open a test file from `tests/` (for example `vectors_test.cpp`).
+2. Press **F5** to build and debug the matching target.
+3. Set breakpoints and inspect variables.
 
 The workspace is configured with CMake-based build and debug tasks. See [DEBUGGING.md](DEBUGGING.md) for:
 - Detailed debugging instructions
@@ -189,19 +197,24 @@ You can also build manually with CMake presets:
 # Configure (use "windows" preset on Windows)
 cmake --preset unix
 
-# Build all examples
+# Build all test executables
 cmake --build --preset unix
 
-# Build a specific example
-cmake --build build --target autoscale --config Debug
+# Build a specific test target
+cmake --build build --target vectors_test --config Debug
 ```
 
 ```powershell
-# Run an example (Windows)
-.\build\autoscale.exe
+# Run a test (Windows)
+.\build\vectors_test.exe
 
-# Run an example (Linux/macOS)
-./build/autoscale
+# Run a test (Linux/macOS)
+./build/vectors_test
+```
+
+```bash
+# Run all tests registered with CTest
+ctest --preset unix --output-on-failure
 ```
 
 ## License
