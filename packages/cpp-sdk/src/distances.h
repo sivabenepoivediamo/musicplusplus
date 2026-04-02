@@ -28,15 +28,15 @@
 
 namespace musicpp {
 
-std::vector<double> normalize(std::vector<int>& in) {
+inline std::vector<double> normalize(std::vector<int>& in) {
     double sum = std::accumulate(in.begin(), in.end(), 0.0);
     if (sum == 0) {
         throw std::invalid_argument("Sum of vector elements is zero, cannot normalize");
     }
 
     std::vector<double> out(in.size());
-    std::transform(in.begin(), in.end(), in.begin(), [sum](int val) {
-        return val / sum;
+    std::transform(in.begin(), in.end(), out.begin(), [sum](int val) {
+        return static_cast<double>(val) / sum;
     });
 
     return out;
@@ -47,7 +47,7 @@ std::vector<double> normalize(std::vector<int>& in) {
  * @param pdf Input vector representing the PDF (should sum to 1)
  *  @return Vector representing the CDF
  */
-std::vector<double> computeCDF(std::vector<double>& pdf) {
+inline std::vector<double> computeCDF(std::vector<double>& pdf) {
     std::vector<double> cdf(pdf.size());
     std::partial_sum(pdf.begin(), pdf.end(), cdf.begin());
     return cdf;
@@ -58,7 +58,7 @@ std::vector<double> computeCDF(std::vector<double>& pdf) {
  * @param v2 Second input vector
  * @return Euclidean distance as a double
  */
-double euclideanDistance(std::vector<int> v1, std::vector<int> v2) {
+inline double euclideanDistance(std::vector<int> v1, std::vector<int> v2) {
     int length = std::min(v1.size(), v2.size());
     
     double out = 0.0;
@@ -75,7 +75,7 @@ double euclideanDistance(std::vector<int> v1, std::vector<int> v2) {
  * @param v2 Second input vector
  * @return Edit distance as an integer
  */
-int editDistance(std::vector<int>& v1, std::vector<int>& v2) {
+inline int editDistance(std::vector<int>& v1, std::vector<int>& v2) {
     int n = v1.size();
     int m = v2.size();
     std::vector<std::vector<int>> dp(n + 1, std::vector<int>(m + 1, 0));
@@ -103,7 +103,7 @@ int editDistance(std::vector<int>& v1, std::vector<int>& v2) {
  * @details The Hamming distance is the number of positions at which the corresponding elements are different.
  *          If the vectors are of different lengths, the comparison is done up to the length of the shorter vector.
  */
-int hammingDistance(std::vector<int>& v1, std::vector<int>& v2) {
+inline int hammingDistance(std::vector<int>& v1, std::vector<int>& v2) {
     int length = std::min(v1.size(), v2.size());
     int distance = 0;
     for (size_t i = 0; i < length; ++i) {
@@ -121,7 +121,7 @@ int hammingDistance(std::vector<int>& v1, std::vector<int>& v2) {
  * @details The Manhattan distance is the sum of the absolute differences of their corresponding elements.
  *          If the vectors are of different lengths, the comparison is done up to the length of the shorter vector.
  */
-int manhattanDistance(std::vector<int>& v1, std::vector<int>& v2){
+inline int manhattanDistance(std::vector<int>& v1, std::vector<int>& v2){
     int length = std::min(v1.size(), v2.size());
     int sum = 0;
     for (size_t i = 0; i < length; ++i){
@@ -137,7 +137,7 @@ int manhattanDistance(std::vector<int>& v1, std::vector<int>& v2){
  * @details The difference is calculated as the sum of (v1[i] - v2[i]) for each corresponding element.
  *          If the vectors are of different lengths, the comparison is done up to the length of the shorter vector.
  */
-int difference(std::vector<int>& v1, std::vector<int>& v2) {
+inline int difference(std::vector<int>& v1, std::vector<int>& v2) {
     int length = std::min(v1.size(), v2.size());
     int diff = 0;
     for (size_t i = 0; i < length; ++i) {
@@ -164,7 +164,7 @@ int difference(std::vector<int>& v1, std::vector<int>& v2) {
  *
  * @throws std::invalid_argument If exactly one of the two vectors is empty.
  */
-double variationDistance(std::vector<int> a, std::vector<int> b) {
+inline double variationDistance(std::vector<int> a, std::vector<int> b) {
     if (a.empty() && b.empty()) return 0.0;
     if (a.empty() || b.empty())
         throw std::invalid_argument("Empty vector, distance calculation is impossible.");
@@ -206,7 +206,7 @@ double variationDistance(std::vector<int> a, std::vector<int> b) {
  * @return New vector with the transformation applied
  * @details The transformation modifies the element at the specified position by adding the shift value.
  */
-std::vector<int> generalizedNeoRiemann(const std::vector<int>& input, int position, int shift) {
+inline std::vector<int> generalizedNeoRiemann(const std::vector<int>& input, int position, int shift) {
     std::vector<int> output = input;
     if (position >= 0 && position < static_cast<int>(input.size())) {
         output[position] += shift;
@@ -224,7 +224,7 @@ std::vector<int> generalizedNeoRiemann(const std::vector<int>& input, int positi
  * @details The function identifies the minimal set of operations needed to transform the start vector into the end vector.
  *          It handles element shifts, additions, and removals.
  */
-std::vector<std::pair<int, std::pair<int, int>>> transformationSteps(const std::vector<int>& start, const std::vector<int>& end) {
+inline std::vector<std::pair<int, std::pair<int, int>>> transformationSteps(const std::vector<int>& start, const std::vector<int>& end) {
     std::vector<std::pair<int, std::pair<int, int>>> steps;
     int startLength = start.size();
     int endLength = end.size();
@@ -258,7 +258,7 @@ std::vector<std::pair<int, std::pair<int, int>>> transformationSteps(const std::
     return steps;
 }
 // Print transformation steps
-void printSteps(const std::vector<std::pair<int, std::pair<int, int>>>& steps) {
+inline void printSteps(const std::vector<std::pair<int, std::pair<int, int>>>& steps) {
     for (const auto& step : steps) {
         int type = step.first;
         int position = step.second.first;
@@ -282,7 +282,7 @@ void printSteps(const std::vector<std::pair<int, std::pair<int, int>>>& steps) {
  * @return Weighted transformation distance as an integer
  * @details The distance is calculated as the sum of the absolute values of the shifts applied during the transformation.
  */
-int weightedTransformationDistance(std::vector<int>& start, std::vector<int>& end) {
+inline int weightedTransformationDistance(std::vector<int>& start, std::vector<int>& end) {
     std::vector<std::pair<int, std::pair<int, int>>> steps = transformationSteps(start, end);
     int distance = 0;
     for (const auto& step : steps) {
@@ -299,48 +299,48 @@ int weightedTransformationDistance(std::vector<int>& start, std::vector<int>& en
  * @details These functions extract the underlying data vectors and call the corresponding distance functions.
  */
 
-double euclideanDistance(position_vector a, position_vector b){
+inline double euclideanDistance(position_vector a, position_vector b){
     return euclideanDistance(a.data(), b.data());
 }
-int manhattanDistance(position_vector a, position_vector b){
+inline int manhattanDistance(position_vector a, position_vector b){
     return manhattanDistance(a.data(), b.data());
 }
 
-int editDistance(position_vector a, position_vector b){
+inline int editDistance(position_vector a, position_vector b){
     return editDistance(a.data(), b.data());
 }
 
-int weightedTransformationDistance(position_vector a, position_vector b){
+inline int weightedTransformationDistance(position_vector a, position_vector b){
     return weightedTransformationDistance(a.data(), b.data());
 }
 
-int difference(position_vector a, position_vector b){
+inline int difference(position_vector a, position_vector b){
     return difference(a.data(), b.data());
 }
 
-int hammingDistance(position_vector a, position_vector b){
+inline int hammingDistance(position_vector a, position_vector b){
     return hammingDistance(a.data(), b.data());
 }
 
-int difference(interval_vector a, interval_vector b){
+inline int difference(interval_vector a, interval_vector b){
     return difference(a.data(), b.data());
 }
-int hammingDistance(interval_vector a, interval_vector b){
+inline int hammingDistance(interval_vector a, interval_vector b){
     return hammingDistance(a.data(), b.data());
 }
-int manhattanDistance(interval_vector a, interval_vector b){
+inline int manhattanDistance(interval_vector a, interval_vector b){
     return manhattanDistance(a.data(), b.data());
 }
-double euclideanDistance(interval_vector a, interval_vector b){
+inline double euclideanDistance(interval_vector a, interval_vector b){
     return euclideanDistance(a.data(), b.data());
 }
-int editDistance(interval_vector a, interval_vector b){
+inline int editDistance(interval_vector a, interval_vector b){
     return editDistance(a.data(), b.data());
 }
-int weightedTransformationDistance(interval_vector a, interval_vector b){
+inline int weightedTransformationDistance(interval_vector a, interval_vector b){
     return weightedTransformationDistance(a.data(), b.data());
 }
-double variationDistance(position_vector a, position_vector b){
+inline double variationDistance(position_vector a, position_vector b){
     return variationDistance(a.data(), b.data());
 }
 
