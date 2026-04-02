@@ -53,6 +53,14 @@ TEST_CASE("normalize_notes_empty", "[melody]") {
     ASSERT_TRUE(normalizeNotes({}, 12).empty());
 }
 
+TEST_CASE("hierarchy_negative_note_matches_pitch_class", "[melody]") {
+    std::vector<int> chord = {0, 4, 7};
+    std::vector<int> scale = {0, 2, 4, 5, 7, 9, 11};
+    std::vector<int> chrom = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    Analysis a = hierarchy(-1, chord, scale, chrom, 12);
+    ASSERT_EQ(a.chromatic.degree, 11);
+}
+
 TEST_CASE("hierarchy_and_triple_select", "[melody]") {
     std::vector<int> chord = {0, 4, 7};
     std::vector<int> scale = {0, 2, 4, 5, 7, 9, 11};

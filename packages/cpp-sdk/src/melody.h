@@ -104,12 +104,19 @@ std::vector<int> normalizeNotes(const std::vector<int>& notes, int mod) {
 }
 
 static NoteInfo info(int inputNote, const std::vector<int>& vector, int mod) {
-    const int normalizedNote = inputNote % mod;
+    int normalizedNote = inputNote % mod;
+    if (normalizedNote < 0) {
+        normalizedNote += mod;
+    }
     const int baseOctave     = static_cast<int>(std::floor(static_cast<double>(inputNote) / mod));
 
     int degree = -1;
     for (size_t i = 0; i < vector.size(); ++i) {
-        if (vector[i] % mod == normalizedNote) {
+        int v = vector[static_cast<size_t>(i)] % mod;
+        if (v < 0) {
+            v += mod;
+        }
+        if (v == normalizedNote) {
             degree = static_cast<int>(i);
             break;
         }
