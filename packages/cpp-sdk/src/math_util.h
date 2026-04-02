@@ -19,7 +19,7 @@ inline division_result euclidean_division(int dividend, int divisor) {
     int quotient = dividend / divisor;
     int remainder = dividend - quotient * divisor;
     if (remainder < 0) {
-        return {quotient - 1, remainder + divisor};
+        return {quotient - 1, remainder + std::abs(divisor)};
     }
     return {quotient, remainder};
 }
@@ -40,8 +40,10 @@ inline int lcm(const std::vector<int>& values) {
     }
     int result = std::abs(values[0]);
     for (size_t i = 1; i < values.size(); ++i) {
-        int g = gcd(result, values[i]);
-        result = (result * std::abs(values[i])) / g;
+        int ai = std::abs(values[i]);
+        if (ai == 0) return 0;
+        int g = gcd(result, ai);
+        result = (result / g) * ai;
     }
     return result;
 }
