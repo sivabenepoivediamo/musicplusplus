@@ -42,7 +42,7 @@ struct ChordParams {
                 bool invert = false,
                 int axis = 0,
                 bool negativeOrMirror = false,
-                int negativeOrMirrorPos = 0)
+                int negativeOrMirrorPos = 10)
         : shift(shift),
           criterion_mode(criterion_mode),
           preVoices(preVoices),
@@ -392,7 +392,7 @@ inline position_vector chord(position_vector& scale, interval_vector& intervals,
  * @return interval_vector representing the generated chord
  * 
  */
-inline interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
+inline interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 10) {
     position_vector offsetDegrees = degrees + shift;
     interval_vector result = select(scale, offsetDegrees, criterion_relative_mode, preVoices);
     result = (invert) ? result.inversion(axis) : result;
@@ -416,7 +416,7 @@ inline interval_vector chord(interval_vector& scale, position_vector& degrees, i
  * @return interval_vector representing the generated chord
  * 
  */
-inline interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
+inline interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 10) {
     interval_vector offsetIntervals = intervals;
     int off = intervals.offset();
     offsetIntervals.set_offset(shift + off);

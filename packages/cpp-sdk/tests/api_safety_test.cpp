@@ -52,6 +52,14 @@ TEST_CASE("onset_vector_scalar_multiply_non_positive_throws", "[onset_vector][sa
     REQUIRE_THROWS_AS(bv * -1, std::invalid_argument);
 }
 
+TEST_CASE("onset_vector_scalar_multiply_one_is_identity", "[onset_vector][safety]") {
+    onset_vector bv({1, 0, 1, 0}, 0, 4);
+    onset_vector scaled = bv * 1;
+    REQUIRE(scaled.data() == bv.data());
+    REQUIRE(scaled.offset() == bv.offset());
+    REQUIRE(scaled.mod() == bv.mod());
+}
+
 TEST_CASE("onset_vector_scalar_divide_invalid_throws", "[onset_vector][safety]") {
     onset_vector bv({1, 0, 1, 0}, 0, 4);
     REQUIRE_THROWS_AS(bv / 0, std::invalid_argument);

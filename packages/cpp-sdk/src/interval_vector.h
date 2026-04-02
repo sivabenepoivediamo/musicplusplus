@@ -1177,6 +1177,9 @@ public:
     interval_vector crossMirror(int position, bool left) const {
         std::vector<int> out = data_;
         int n = static_cast<int>(data_.size());
+        if (n == 0 || position < 0 || position >= n) {
+            return interval_vector(out, offset_, mod_);
+        }
 
         if (left) {
             for (int i = 0; i < position && i < n; i++) {

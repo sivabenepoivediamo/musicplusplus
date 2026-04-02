@@ -41,11 +41,11 @@ struct TripleSelectResult {
 };
 
 
-static NoteInfo invalidNote() {
+inline NoteInfo invalidNote() {
     return { -666, -666, -666, -666 };
 }
 
-std::vector<int> diminution(int degree, int length, bool up, bool left) {
+inline std::vector<int> diminution(int degree, int length, bool up, bool left) {
     if (length <= 0) return {};
     if (length == 1) return { degree };
 
@@ -72,7 +72,7 @@ std::vector<int> diminution(int degree, int length, bool up, bool left) {
     return result;
 }
 
-std::vector<int> run(int degree, int length, bool direction) {
+inline std::vector<int> run(int degree, int length, bool direction) {
     if (length <= 0) {
         throw std::invalid_argument("run: length must be positive");
     }
@@ -84,7 +84,7 @@ std::vector<int> run(int degree, int length, bool direction) {
     return result;
 }
 
-std::vector<int> run2(int start, int end) {
+inline std::vector<int> run2(int start, int end) {
     std::vector<int> result;
     if (start <= end) {
         for (int i = start; i <= end; ++i) result.push_back(i);
@@ -94,7 +94,10 @@ std::vector<int> run2(int start, int end) {
     return result;
 }
 
-std::vector<int> normalizeNotes(const std::vector<int>& notes, int mod) {
+inline std::vector<int> normalizeNotes(const std::vector<int>& notes, int mod) {
+    if (mod <= 0) {
+        throw std::invalid_argument("normalizeNotes: mod must be positive");
+    }
     std::vector<int> result(notes.size());
     for (size_t i = 0; i < notes.size(); ++i) {
         int n = notes[i] % mod;
@@ -103,7 +106,10 @@ std::vector<int> normalizeNotes(const std::vector<int>& notes, int mod) {
     return result;
 }
 
-static NoteInfo info(int inputNote, const std::vector<int>& vector, int mod) {
+inline NoteInfo info(int inputNote, const std::vector<int>& vector, int mod) {
+    if (mod <= 0) {
+        throw std::invalid_argument("info: mod must be positive");
+    }
     int normalizedNote = inputNote % mod;
     if (normalizedNote < 0) {
         normalizedNote += mod;
@@ -130,13 +136,16 @@ static NoteInfo info(int inputNote, const std::vector<int>& vector, int mod) {
     return { position, degree, baseOctave + octaveAdjustment, inputNote };
 }
 
-Analysis hierarchy(
+inline Analysis hierarchy(
     int note,
     const std::vector<int>& chord,
     const std::vector<int>& scale,
     const std::vector<int>& chromatic,
     int mod)
 {
+    if (mod <= 0) {
+        throw std::invalid_argument("hierarchy: mod must be positive");
+    }
     const std::vector<int> normChord = normalizeNotes(chord, mod);
     return {
         info(note, normChord,   mod),
@@ -145,14 +154,20 @@ Analysis hierarchy(
     };
 }
 
-static int getNoteFromPosition(int position, const std::vector<int>& vector, int mod) {
+inline int getNoteFromPosition(int position, const std::vector<int>& vector, int mod) {
+    if (vector.empty()) {
+        throw std::invalid_argument("getNoteFromPosition: vector must be non-empty");
+    }
+    if (mod <= 0) {
+        throw std::invalid_argument("getNoteFromPosition: mod must be positive");
+    }
     const int vlen   = static_cast<int>(vector.size());
     const int octave = static_cast<int>(std::floor(static_cast<double>(position) / vlen));
     const int degree = ((position % vlen) + vlen) % vlen;   // safe mod for negatives
     return vector[degree] + octave * mod;
 }
 
-TripleSelectResult tripleSelect(
+inline TripleSelectResult tripleSelect(
     const Analysis&                       analysis,
     const std::vector<VectorModification>& modifications,
     const std::vector<int>&               chord,
@@ -160,6 +175,9 @@ TripleSelectResult tripleSelect(
     const std::vector<int>&               chromatic,
     int                                   mod)
 {
+    if (mod <= 0) {
+        throw std::invalid_argument("tripleSelect: mod must be positive");
+    }
     TripleSelectResult out;
 
     for (const auto& mod_ : modifications) {
@@ -197,7 +215,7 @@ TripleSelectResult tripleSelect(
     return out;
 }
 
-std::vector<VectorModification> parseModifications(
+inline std::vector<VectorModification> parseModifications(
     const std::vector<int>&                         deltas,
     std::vector<VectorModification::Type>           types)
 {
@@ -216,7 +234,7 @@ std::vector<VectorModification> parseModifications(
     return mods;
 }
 
-std::vector<int> ornamentLoop(const std::vector<int>& in, int length) {
+inline std::vector<int> ornamentLoop(const std::vector<int>& in, int length) {
     if (length <= 0) return {};
     std::vector<int> result;
     const int n = static_cast<int>(in.size());
@@ -232,7 +250,7 @@ std::vector<int> ornamentLoop(const std::vector<int>& in, int length) {
     return result;
 }
 
-std::vector<VectorModification::Type> ornamentTypesLoop(
+inline std::vector<VectorModification::Type> ornamentTypesLoop(
     const std::vector<VectorModification::Type>& types,
     int length)
 {
@@ -251,7 +269,7 @@ std::vector<VectorModification::Type> ornamentTypesLoop(
     return result;
 }
 
-std::string join(const std::vector<int>& v) {
+inline std::string join(const std::vector<int>& v) {
     std::ostringstream oss;
     for (size_t i = 0; i < v.size(); ++i) {
         if (i) oss << ", ";
@@ -260,7 +278,7 @@ std::string join(const std::vector<int>& v) {
     return oss.str();
 }
 
-void applyTripleSelect(
+inline void applyTripleSelect(
     const std::vector<int>&                notes,
     const std::vector<int>&                chord,
     const std::vector<int>&                scale,
@@ -269,6 +287,9 @@ void applyTripleSelect(
     const std::vector<int>&                ornaments,
     const std::vector<VectorModification::Type>& types)
 {
+    if (mod <= 0) {
+        throw std::invalid_argument("applyTripleSelect: mod must be positive");
+    }
     const auto expandedTypes = ornamentTypesLoop(types, static_cast<int>(ornaments.size()));
     const auto modifications = parseModifications(ornaments, expandedTypes);
 

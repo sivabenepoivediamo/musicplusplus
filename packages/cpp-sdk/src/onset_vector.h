@@ -107,11 +107,8 @@ public:
     int n = static_cast<int>(data_.size());
     std::vector<int> out(scalar * n, 0);
 
-    for (int i = 0; i < scalar * n; i++) {
-        if ((i + 1) % scalar == 1) {
-            int index = i / scalar;
-            out[i] = data_[index];
-        }
+    for (int j = 0; j < n; ++j) {
+        out[j * scalar] = data_[j];
     }
 
     int new_mod = mod_ * scalar;
@@ -559,7 +556,10 @@ onset_vector divide(int divisor) const {
         // Bjorklund's algorithm
         while (groups.size() > 1) {
             int minSize = std::min(pulses, steps - pulses);
-            
+            if (minSize <= 0) {
+                break;
+            }
+
             // Combine first minSize groups with last minSize groups
             for (int i = 0; i < minSize; ++i) {
                 groups[i].insert(groups[i].end(), 

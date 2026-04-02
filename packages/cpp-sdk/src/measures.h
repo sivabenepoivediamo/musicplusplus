@@ -416,6 +416,9 @@ inline std::vector<int> calculateSpectrumWidths(std::vector<std::set<int>>& spec
  * @return Average spectrum variation
  */
 inline double calculateSpectrumVariation(std::vector<int>& widths, int numberOfTones) {
+    if (numberOfTones <= 0) {
+        return 0.0;
+    }
     int sumOfWidths = 0;
     for (int width : widths) {
         sumOfWidths += width;
