@@ -118,7 +118,7 @@ private:
 
     void generatePosInt() {
         interval_vector offsetIntervals = criterionIntervals;
-        offsetIntervals.set_offset(params.shift);
+        offsetIntervals.set_offset(offsetIntervals.offset() + params.shift);
         resultPositions = select(scalePositions, offsetIntervals, params.criterion_mode, params.preVoices);
         if (params.invert) {
             resultPositions = resultPositions.inversion(params.axis, true);

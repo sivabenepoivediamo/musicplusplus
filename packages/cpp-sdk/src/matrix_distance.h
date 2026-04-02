@@ -709,7 +709,7 @@ using DistanceFuncIV = int (*)(interval_vector, interval_vector);
  * @param sort If true, sort results by distance (default: true)
  * @return ModalMatrixDistance with computed distances
  */
-ModalMatrixDistance<position_vector> calculateDistances(
+inline ModalMatrixDistance<position_vector> calculateDistances(
     const position_vector& reference,
     const ModalMatrix<position_vector>& matrix,
     DistanceFuncPV distFunc = manhattanDistance,
@@ -739,7 +739,7 @@ ModalMatrixDistance<position_vector> calculateDistances(
  * @param sort If true, sort results by distance (default: true)
  * @return ModalMatrixDistance with computed distances
  */
-ModalMatrixDistance<interval_vector> calculateDistances(
+inline ModalMatrixDistance<interval_vector> calculateDistances(
     const interval_vector& reference,
     const ModalMatrix<interval_vector>& matrix,
     DistanceFuncIV distFunc = manhattanDistance,
@@ -769,7 +769,7 @@ ModalMatrixDistance<interval_vector> calculateDistances(
  * @param sort If true, sort results by distance (default: true)
  * @return TranspositionMatrixDistance with computed distances
  */
-TranspositionMatrixDistance calculateDistances(
+inline TranspositionMatrixDistance calculateDistances(
     const position_vector& reference,
     const TranspositionMatrix& matrix,
     DistanceFuncPV distFunc = manhattanDistance,
@@ -826,7 +826,7 @@ int align(position_vector reference, position_vector target){
  * @param sort If true, sort results by distance (default: true)
  * @return RelativeModeMatrixDistance with computed distances
  */
-RelativeModeMatrixDistance calculateDistances(
+inline RelativeModeMatrixDistance calculateDistances(
     const position_vector& reference,
     const RelativeModeMatrix& matrix,
     DistanceFuncPV distFunc = manhattanDistance,
@@ -855,7 +855,7 @@ RelativeModeMatrixDistance calculateDistances(
  * @param sort If true, sort results by distance (default: true)
  * @return ModalSelectionMatrixDistance with computed distances
  */
-ModalSelectionMatrixDistance<position_vector> calculateDistances(
+inline ModalSelectionMatrixDistance<position_vector> calculateDistances(
     const position_vector& reference,
     const ModalSelectionMatrix<position_vector>& matrix,
     DistanceFuncPV distFunc = manhattanDistance,
@@ -885,7 +885,7 @@ ModalSelectionMatrixDistance<position_vector> calculateDistances(
  * @param sort If true, sort results by distance (default: true)
  * @return ModalSelectionMatrixDistance with computed distances
  */
-ModalSelectionMatrixDistance<interval_vector> calculateDistances(
+inline ModalSelectionMatrixDistance<interval_vector> calculateDistances(
     const interval_vector& reference,
     const ModalSelectionMatrix<interval_vector>& matrix,
     DistanceFuncIV distFunc = manhattanDistance,
@@ -1049,7 +1049,7 @@ public:
  * @details Computes the distance from the reference to every relative-mode variant
  *          in every mode, storing mode index, relative-mode index, vector, and distance.
  */
-ModalRelativeModeMatrixDistance calculateDistances(
+inline ModalRelativeModeMatrixDistance calculateDistances(
     const position_vector& reference,
     const ModalRelativeModeMatrix<position_vector>& matrix,
     DistanceFuncPV distFunc = manhattanDistance,

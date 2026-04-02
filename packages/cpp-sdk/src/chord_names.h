@@ -3,9 +3,9 @@
 
 
 /**
- * * @file chordNames.h
- * @brief Chord name analysis and construction  
- * Provides functionality to analyze a set of MIDI notes and construct a chord name based on standard music theory conventions. 
+ * @file chord_names.h
+ * @brief Chord name analysis and construction
+ * @details Analyze MIDI note sets and build chord names from standard music-theory conventions.
  */
 
 #include "utility.h"
@@ -16,7 +16,7 @@
 namespace musicpp {
 
 struct ChordAnalysis {
-    int root;
+    int root = 0;
     std::string chordName;
     
     // Thirds

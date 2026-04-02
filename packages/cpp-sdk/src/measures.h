@@ -476,8 +476,14 @@ inline std::vector<double> findReflectiveSymmetryAxes(position_vector& scale) {
             // Reflect note across axis: reflected = 2*axis - note
             double reflected = 2 * axis - normalizedScale[i];
             
-            // Normalize to [0, mod) range
-            int reflectedNote = (int)(std::fmod(reflected + 10 * scale.mod(), scale.mod()));
+            // Normalize to [0, mod) range (round to reduce float drift at boundaries)
+            const double mod_d = static_cast<double>(scale.mod());
+            double wrapped = std::fmod(reflected, mod_d);
+            if (wrapped < 0.0) {
+                wrapped += mod_d;
+            }
+            int reflectedNote = static_cast<int>(std::lround(wrapped));
+            reflectedNote = ((reflectedNote % scale.mod()) + scale.mod()) % scale.mod();
             
             if (std::find(normalizedScale.begin(), normalizedScale.end(), reflectedNote) ==
                 normalizedScale.end()) {
@@ -548,6 +554,8 @@ inline bool isPalindrome(position_vector& scale) {
  */
 inline bool isChiral(position_vector& scale) {
     std::vector<int> normalizedScale = scale.data();
+    std::vector<int> sortedNormalized = normalizedScale;
+    std::sort(sortedNormalized.begin(), sortedNormalized.end());
 
     std::vector<int> mirroredScale = normalizedScale;
     for (int& note : mirroredScale) {
@@ -556,7 +564,7 @@ inline bool isChiral(position_vector& scale) {
 
     std::sort(mirroredScale.begin(), mirroredScale.end());
 
-    if (normalizedScale == mirroredScale) {
+    if (sortedNormalized == mirroredScale) {
         return false;
     }
 
@@ -567,7 +575,7 @@ inline bool isChiral(position_vector& scale) {
             transposedMirroredScale[i] = (mirroredScale[i] + interval) % scale.mod();
         }
         std::sort(transposedMirroredScale.begin(), transposedMirroredScale.end());
-        if (transposedMirroredScale == normalizedScale) {
+        if (transposedMirroredScale == sortedNormalized) {
             return false;
         }
     }
@@ -633,12 +641,14 @@ inline std::vector<int> generate(int m, int k, int n, bool printSteps = false) {
  */
 inline std::pair<bool, int> isGenerated(std::vector<int>& in, int n) {
     int k = in.size();
-    
+    std::vector<int> sortedIn = in;
+    std::sort(sortedIn.begin(), sortedIn.end());
+
     for (int m = 1; m < n; ++m) {
         std::vector<int> generatedSeq = generate(m, k, n);
         std::sort(generatedSeq.begin(), generatedSeq.end());
-        
-        if (generatedSeq == in) {
+
+        if (generatedSeq == sortedIn) {
             return std::make_pair(true, m);
         }
     }

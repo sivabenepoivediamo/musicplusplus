@@ -14,6 +14,7 @@
  */
 #include "matrix_distance.h"
 
+#include <cstdlib>
 #include <stdexcept>
 
 namespace musicpp {
@@ -430,9 +431,12 @@ inline std::vector<position_vector> degreeAutomationSequentialBackward(
  */
 
 inline int getMaxInterval(std::vector<int>& scale) {
+    if (scale.size() < 2) {
+        return 0;
+    }
     int maxInterval = 0;
     for (size_t i = 1; i < scale.size(); i++) {
-        int interval = scale[i] - scale[i-1];
+        int interval = std::abs(scale[i] - scale[i - 1]);
         maxInterval = std::max(maxInterval, interval);
     }
     return maxInterval;
@@ -463,7 +467,11 @@ inline position_vector autoScale(position_vector& scale, std::vector<int>& notes
     
     std::vector<int> pitchClasses;
     for (int note : notes) {
-        pitchClasses.push_back(note % mod);
+        int pc = note % mod;
+        if (pc < 0) {
+            pc += mod;
+        }
+        pitchClasses.push_back(pc);
     }
     
     std::vector<bool> used(scaleData.size(), false);
