@@ -107,7 +107,8 @@ public:
         }
     }
 
-    return onset_vector(out, offset_, mod_);
+    int new_mod = mod_ * scalar;
+    return onset_vector(out, offset_, new_mod);
 }
 
 
@@ -123,15 +124,19 @@ onset_vector operator/(int scalar) const {
     int n = static_cast<int>(data_.size());
 
     if (scalar <= 0) {
-        throw std::invalid_argument("k must be positive");
+        throw std::invalid_argument("scalar must be positive");
     }
 
     if (scalar > n) {
-        throw std::invalid_argument("k must be less than or equal to vector size");
+        throw std::invalid_argument("scalar must be less than or equal to vector size");
     }
 
     if (n % scalar != 0) {
-        throw std::invalid_argument("Vector size must be divisible by k");
+        throw std::invalid_argument("Vector size must be divisible by scalar");
+    }
+
+    if (mod_ % scalar != 0) {
+        throw std::invalid_argument("mod must be divisible by scalar");
     }
 
     std::vector<int> out(n / scalar);
@@ -139,7 +144,8 @@ onset_vector operator/(int scalar) const {
         int index = i * scalar;
         out[i] = data_[index];
     }
-    return onset_vector(out, offset_, mod_);
+    int new_mod = mod_ / scalar;
+    return onset_vector(out, offset_, new_mod);
 }
 
     onset_vector& operator*=(int scalar) {
