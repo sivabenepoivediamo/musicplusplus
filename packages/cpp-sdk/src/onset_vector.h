@@ -76,6 +76,13 @@ public:
     // ==================== GETTERS ====================
 
     const std::vector<int>& data() const { return data_; }
+
+    /**
+     * @brief Mutable access to the underlying 0/1 pattern.
+     * @warning After modifying elements, values must remain 0 or 1 or all onset logic
+     *          (distances, entropy, operators) becomes invalid. Prefer constructing a new
+     *          `onset_vector` or call `validate_onset_pattern()` before use if unsure.
+     */
     std::vector<int>& data() { return data_; }
     int offset() const { return offset_; }
     int mod() const { return mod_; }
