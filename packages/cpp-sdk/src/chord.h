@@ -355,9 +355,9 @@ inline position_vector chord(position_vector& scale, position_vector& degrees, i
 
 /**
  * @brief Generates a chord from a scale and intervals using interval_vectors
- * @param scale interval_vector representing the scale
+ * @param scale position_vector representing the scale
  * @param intervals interval_vector representing the intervals to select
- * @param shift Integer to shift the intervals
+ * @param shift Integer added to the intervals' offset (preserves intervals.offset())
  * @param criterion_parallel_mode Integer parallel-mode step for the interval criterion
  * @param preVoices Integer to predefine the number of voices in the output
  * @param relative_mode Integer relative-mode offset applied to the result
@@ -370,7 +370,7 @@ inline position_vector chord(position_vector& scale, position_vector& degrees, i
  */
 inline position_vector chord(position_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10){
     interval_vector offsetIntervals = intervals;
-    offsetIntervals.set_offset(shift);
+    offsetIntervals.set_offset(offsetIntervals.offset() + shift);
     position_vector result = select(scale, offsetIntervals, criterion_parallel_mode, preVoices);
     result = (invert) ? result.inversion(axis, true) : result;
     result = (negative) ? result.negative(negativePos) : result;

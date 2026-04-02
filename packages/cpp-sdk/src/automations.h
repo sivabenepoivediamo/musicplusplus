@@ -485,6 +485,9 @@ inline position_vector autoScale(position_vector& scale, std::vector<int>& notes
             if (used[i]) continue;
             
             int scalePc = scaleData[i] % mod;
+            if (scalePc < 0) {
+                scalePc += mod;
+            }
             int upDist = (pc - scalePc + mod) % mod;
             int downDist = (scalePc - pc + mod) % mod;
             int dist = std::min(upDist, downDist);

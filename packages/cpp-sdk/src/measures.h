@@ -5,8 +5,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <numeric>
 #include <set>
+#include <unordered_map>
 
 /**
  * @file measures.h
@@ -294,21 +296,39 @@ inline double computeEntropy(position_vector& in) {
  */
 inline int computeLongestSubsequence(position_vector& in) {
     onset_vector onset_vec = positions_to_onset(in);
-    if (onset_vec.size() == 0) {
+    const int n = static_cast<int>(onset_vec.size());
+    if (n == 0) {
         return 0;
     }
 
     int longest = 1;
     int currentRun = 1;
 
-    for (size_t i = 1; i < onset_vec.size(); ++i) {
-        if (onset_vec[i] == onset_vec[i - 1]) {
+    for (int i = 1; i < n; ++i) {
+        if (onset_vec[static_cast<size_t>(i)] == onset_vec[static_cast<size_t>(i) - 1]) {
             ++currentRun;
             if (currentRun > longest) {
                 longest = currentRun;
             }
         } else {
             currentRun = 1;
+        }
+    }
+
+    if (n >= 2 && onset_vec.front() == onset_vec.back()) {
+        int prefix = 0;
+        while (prefix < n && onset_vec[static_cast<size_t>(prefix)] == onset_vec.front()) {
+            ++prefix;
+        }
+        int suffix = 0;
+        while (suffix < n &&
+               onset_vec[static_cast<size_t>(n - 1 - suffix)] == onset_vec.back()) {
+            ++suffix;
+        }
+        if (prefix == n) {
+            longest = n;
+        } else {
+            longest = std::max(longest, prefix + suffix);
         }
     }
 
@@ -436,16 +456,19 @@ inline double calculateSpectrumVariation(std::vector<int>& widths, int numberOfT
  */
 inline std::vector<int> findRotationalSymmetryAxes(position_vector& scale) {
     std::vector<int> normalizedScale = scale.data();
+    std::vector<int> sortedNormalized = normalizedScale;
+    std::sort(sortedNormalized.begin(), sortedNormalized.end());
 
     std::vector<int> axes;
-    int n = normalizedScale.size();
+    int n = static_cast<int>(normalizedScale.size());
     for (int interval = 1; interval < scale.mod(); ++interval) {
-        std::vector<int> transposedScale(n);
+        std::vector<int> transposedScale(static_cast<size_t>(n));
         for (int i = 0; i < n; ++i) {
-            transposedScale[i] = (normalizedScale[i] + interval) % scale.mod();
+            transposedScale[static_cast<size_t>(i)] =
+                (normalizedScale[static_cast<size_t>(i)] + interval) % scale.mod();
         }
         std::sort(transposedScale.begin(), transposedScale.end());
-        if (transposedScale == normalizedScale) {
+        if (transposedScale == sortedNormalized) {
             axes.push_back(interval);
         }
     }

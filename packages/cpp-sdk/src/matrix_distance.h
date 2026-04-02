@@ -791,7 +791,7 @@ inline TranspositionMatrixDistance calculateDistances(
     return tmd;
 }
 
-int align(position_vector reference, position_vector target){
+inline int align(position_vector reference, position_vector target){
   if (reference.size() == 0 || target.size() == 0) {
     throw std::invalid_argument("align: reference and target must be non-empty");
   }
@@ -803,7 +803,7 @@ int align(position_vector reference, position_vector target){
   int minV = reference[0];
   division_result referenceDiv = euclidean_division(reference[0], refRange);
   division_result targetDiv = euclidean_division(target[0], tgtRange);
-  int diffOct = referenceDiv.quotient - targetDiv.remainder;
+  int diffOct = referenceDiv.quotient - targetDiv.quotient;
   int size = target.size();
   int i = diffOct * size;
 
