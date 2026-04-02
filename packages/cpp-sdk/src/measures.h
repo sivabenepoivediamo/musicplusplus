@@ -8,6 +8,7 @@
 #include <iostream>
 #include <numeric>
 #include <set>
+#include <stdexcept>
 #include <unordered_map>
 
 /**
@@ -56,6 +57,9 @@ inline std::vector<int> differences(std::vector<int>& in) {
  * @return Minimal distance between a and b on the cycle
  */
 inline int geodesicDistance(int a, int b, int mod) {
+    if (mod <= 0) {
+        throw std::invalid_argument("geodesicDistance: mod must be positive");
+    }
     int distance = (b - a + mod) % mod;
     if (distance > mod / 2) 
         distance = mod - distance;
@@ -315,14 +319,14 @@ inline int computeLongestSubsequence(position_vector& in) {
         }
     }
 
-    if (n >= 2 && onset_vec.front() == onset_vec.back()) {
+    if (n >= 2 && onset_vec[0] == onset_vec[n - 1]) {
+        const int wrapVal = onset_vec[0];
         int prefix = 0;
-        while (prefix < n && onset_vec[static_cast<size_t>(prefix)] == onset_vec.front()) {
+        while (prefix < n && onset_vec[prefix] == wrapVal) {
             ++prefix;
         }
         int suffix = 0;
-        while (suffix < n &&
-               onset_vec[static_cast<size_t>(n - 1 - suffix)] == onset_vec.back()) {
+        while (suffix < n && onset_vec[n - 1 - suffix] == wrapVal) {
             ++suffix;
         }
         if (prefix == n) {
@@ -641,6 +645,12 @@ inline bool isBalanced(position_vector& scale) {
  * @return Generated sequence of length k
  */
 inline std::vector<int> generate(int m, int k, int n, bool printSteps = false) {
+    if (n <= 0) {
+        throw std::invalid_argument("generate: modulus n must be positive");
+    }
+    if (k < 0) {
+        throw std::invalid_argument("generate: k must be non-negative");
+    }
     std::vector<int> sequence;
     for (int i = 0; i < k; ++i) {
         int value = (i * m) % n;

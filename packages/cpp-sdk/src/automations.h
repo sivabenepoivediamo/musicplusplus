@@ -497,13 +497,13 @@ inline position_vector autoScale(position_vector& scale, std::vector<int>& notes
                 closest = i;
 
                 std::vector<int> tempScale = scaleData;
-                int octave = tempScale[i] / mod;
+                int octave = euclidean_division(tempScale[i], mod).quotient;
                 tempScale[i] = octave * mod + pc;
                 bestMaxInterval = getMaxInterval(tempScale);
             } else if (dist == minDist) {
 
                 std::vector<int> tempScale = scaleData;
-                int octave = tempScale[i] / mod;
+                int octave = euclidean_division(tempScale[i], mod).quotient;
                 tempScale[i] = octave * mod + pc;
                 int maxInterval = getMaxInterval(tempScale);
                 
@@ -523,7 +523,7 @@ inline position_vector autoScale(position_vector& scale, std::vector<int>& notes
         
         if (closest != -1) {
 
-            int octave = scaleData[closest] / mod;
+            int octave = euclidean_division(scaleData[closest], mod).quotient;
             scaleData[closest] = octave * mod + pc;
             used[closest] = true;
         }
