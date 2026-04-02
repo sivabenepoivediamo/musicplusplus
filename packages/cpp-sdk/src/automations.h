@@ -152,7 +152,7 @@ std::vector<position_vector> voiceLeadingAutomationVectorReference(
     result.reserve(targets.size());
     
     for (size_t i = 0; i < targets.size(); ++i) {
-        RelativeModeMatrixRow selected = voiceLeadingAutomation(targets[i], references[i], normalizedComplexities[i]);
+        RelativeModeMatrixRow selected = voiceLeadingAutomation(references[i], targets[i], normalizedComplexities[i]);
         result.push_back(selected.getVector());
     }
     
