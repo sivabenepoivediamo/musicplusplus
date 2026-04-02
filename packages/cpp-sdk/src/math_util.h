@@ -16,10 +16,15 @@ inline division_result euclidean_division(int dividend, int divisor) {
     if (divisor == 0) {
         throw std::invalid_argument("euclidean_division: divisor is zero");
     }
-    int quotient = dividend / divisor;
-    int remainder = dividend - quotient * divisor;
+    const int b = std::abs(divisor);
+    int quotient = dividend / b;
+    int remainder = dividend - quotient * b;
     if (remainder < 0) {
-        return {quotient - 1, remainder + std::abs(divisor)};
+        quotient -= 1;
+        remainder += b;
+    }
+    if (divisor < 0) {
+        quotient = -quotient;
     }
     return {quotient, remainder};
 }

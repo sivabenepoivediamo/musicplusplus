@@ -42,6 +42,13 @@ TEST_CASE("euclidean_division_negative_dividend", "[math_util]") {
 TEST_CASE("euclidean_division_negative_divisor_identity", "[math_util]") {
     division_result r = euclidean_division(17, -5);
     ASSERT_EQ(r.quotient * (-5) + r.remainder, 17);
+    ASSERT_TRUE(r.remainder >= 0);
+    ASSERT_TRUE(r.remainder < 5);
+
+    division_result r2 = euclidean_division(-7, -3);
+    ASSERT_EQ(r2.quotient * (-3) + r2.remainder, -7);
+    ASSERT_TRUE(r2.remainder >= 0);
+    ASSERT_TRUE(r2.remainder < 3);
 }
 
 TEST_CASE("gcd_cases", "[math_util]") {
@@ -61,6 +68,8 @@ TEST_CASE("lcm_cases", "[math_util]") {
     ASSERT_EQ(lcm({4, 6}), 12);
     ASSERT_EQ(lcm({3, 4, 5}), 60);
     ASSERT_EQ(lcm({8, 12, 15}), 120);
+    ASSERT_EQ(lcm({0, 5}), 0);
+    ASSERT_EQ(lcm({5, 0}), 0);
 }
 
 } // namespace
