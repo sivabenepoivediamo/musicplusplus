@@ -36,6 +36,15 @@ inline interval_vector positions_to_intervals(const position_vector& positions) 
     return interval_vector(intervalData, positions[0], m);
 }
 
+/**
+ * @brief Reconstructs pitch positions from an interval string and starting offset.
+ *
+ * @note When @p intervals has no interval steps (empty `data()`), the result is a
+ *       single-element `position_vector` holding only `intervals.offset()`. This is
+ *       not symmetric with `positions_to_intervals` on a one-note scale (which yields
+ *       an empty interval list); round-trips across empty/singleton cases may change
+ *       element counts by design.
+ */
 inline position_vector intervals_to_positions(const interval_vector& intervals) {
     const int m = intervals.mod();
     std::vector<int> intervalData = intervals.data();
@@ -57,6 +66,11 @@ inline position_vector intervals_to_positions(const interval_vector& intervals) 
     return position_vector(posData, m, 0, true, false);
 }
 
+/**
+ * @brief Converts pitch positions to a binary onset pattern over one cycle.
+ * @details Onset indices use each pitch relative to the minimum pitch in @p positions
+ *          (not the first stored element), so unsorted position lists map correctly.
+ */
 inline onset_vector positions_to_onset(position_vector& positions) {
     if (positions.size() == 0) {
         return onset_vector({}, 0, positions.mod());
@@ -72,7 +86,7 @@ inline onset_vector positions_to_onset(position_vector& positions) {
 
     const int minPos = *std::min_element(posData.begin(), posData.end());
     for (int pos : posData) {
-        const int normalizedPos = pos - posData[0];
+        const int normalizedPos = pos - minPos;
         const division_result div = euclidean_division(normalizedPos, range);
         onsetData[static_cast<size_t>(div.remainder)] = 1;
     }
@@ -132,7 +146,18 @@ public:
     onset_vector& onset() { return onset_; }
 
     int mod() const { return mod_; }
-    void set_mod(int m) { mod_ = m; }
+
+    /**
+     * @brief Sets the musical modulus for this set and all three representations.
+     * @details Updates `mod_` and propagates the same modulus to positions, intervals,
+     *          and onset so the trio stays consistent.
+     */
+    void set_mod(int m) {
+        mod_ = m;
+        positions_.set_mod(m);
+        intervals_.set_mod(m);
+        onset_.set_mod(m);
+    }
 
     void update_from_positions() {
         intervals_ = positions_to_intervals(positions_);

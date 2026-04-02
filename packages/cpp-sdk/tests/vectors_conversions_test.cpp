@@ -43,6 +43,16 @@ TEST_CASE("intervals_to_positions_roundtrip", "[vectors][conversion]") {
     ASSERT_POSITION_VECTOR_EQ(pv0, musicpp_test::ints({3}), 12);
 }
 
+TEST_CASE("positions_to_onset_uses_minimum_pitch_not_first_element", "[vectors][conversion]") {
+    position_vector unsorted({5, 2, 9}, 12, 12);
+    auto o = positions_to_onset(unsorted);
+    ASSERT_EQ(o.offset(), 2);
+    ASSERT_EQ(o.countPulses(), 3);
+    ASSERT_EQ(o.data()[0], 1);
+    ASSERT_EQ(o.data()[3], 1);
+    ASSERT_EQ(o.data()[7], 1);
+}
+
 TEST_CASE("positions_to_onset_and_roundtrip_positions", "[vectors][conversion]") {
     position_vector empty(std::vector<int>{}, 12, 12, true, false);
     auto bin = positions_to_onset(empty);
@@ -55,6 +65,15 @@ TEST_CASE("positions_to_onset_and_roundtrip_positions", "[vectors][conversion]")
     auto iv_back = positions_to_intervals(triad);
     position_vector pv_back = intervals_to_positions(iv_back);
     ASSERT_VECTOR_EQ(pv_back.data(), triad.data());
+}
+
+TEST_CASE("vector_set_set_mod_propagates_to_representations", "[vectors][conversion]") {
+    vector_set s = vector_set::from_positions({0, 4, 7});
+    s.set_mod(24);
+    ASSERT_EQ(s.mod(), 24);
+    ASSERT_EQ(s.positions().mod(), 24);
+    ASSERT_EQ(s.intervals().mod(), 24);
+    ASSERT_EQ(s.onset().mod(), 24);
 }
 
 TEST_CASE("vector_set_constructors_and_equality", "[vectors][conversion]") {

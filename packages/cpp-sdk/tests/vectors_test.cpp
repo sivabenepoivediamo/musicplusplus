@@ -84,10 +84,10 @@ TEST_CASE("vectors_operator_examples", "[vectors]") {
         majorTriad.complement_onset().positions(),
         musicpp_test::ints({1, 2, 3, 5, 6, 8, 9, 10, 11}),
         12);
-    ASSERT_POSITION_VECTOR_EQ(majorTriad.multiply_onset(2).positions(), musicpp_test::ints({0, 8, 14}), 12);
+    ASSERT_POSITION_VECTOR_EQ(majorTriad.multiply_onset(2).positions(), musicpp_test::ints({0, 8, 14}), 24);
 
     vector_set pentatonic = vector_set::from_positions({0, 2, 4, 7, 9});
-    ASSERT_POSITION_VECTOR_EQ(pentatonic.divide_onset(2).positions(), musicpp_test::ints({0, 1, 2}), 12);
+    ASSERT_POSITION_VECTOR_EQ(pentatonic.divide_onset(2).positions(), musicpp_test::ints({0, 1, 2}), 6);
 
     vector_set setA = vector_set::from_positions({0, 2, 4, 6});
     vector_set setB = vector_set::from_positions({0, 3, 6, 9});
