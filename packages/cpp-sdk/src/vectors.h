@@ -64,6 +64,10 @@ inline binary_vector positions_to_binary(position_vector& positions) {
 
     std::vector<int> posData = positions.data();
     const int range = positions.effective_range();
+    if (range <= 0) {
+        return binary_vector({}, 0, positions.mod());
+    }
+
     std::vector<int> binaryData(static_cast<size_t>(range), 0);
 
     const int minPos = *std::min_element(posData.begin(), posData.end());

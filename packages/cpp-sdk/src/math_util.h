@@ -3,6 +3,8 @@
 
 #include "utility.h"
 
+#include <stdexcept>
+
 namespace musicpp {
 
 struct division_result {
@@ -11,6 +13,9 @@ struct division_result {
 };
 
 inline division_result euclidean_division(int dividend, int divisor) {
+    if (divisor == 0) {
+        throw std::invalid_argument("euclidean_division: divisor is zero");
+    }
     int quotient = dividend / divisor;
     int remainder = dividend - quotient * divisor;
     if (remainder < 0) {

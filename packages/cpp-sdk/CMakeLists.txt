@@ -67,5 +67,6 @@ add_musicpp_test(interval_binary_extended_test tests/interval_binary_extended_te
 add_musicpp_test(matrix_filter_rototranslation_test tests/matrix_filter_rototranslation_test.cpp)
 add_musicpp_test(automation_extended_test tests/automation_extended_test.cpp)
 add_musicpp_test(matrix_print_test tests/matrix_print_test.cpp)
+add_musicpp_test(api_safety_test tests/api_safety_test.cpp)
 
 

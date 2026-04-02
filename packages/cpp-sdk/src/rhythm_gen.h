@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 /**
@@ -30,6 +31,9 @@
 namespace musicpp {
 
 std::vector<int> euclidean(int steps, int events) {
+    if (steps <= 0 || events <= 0) {
+        throw std::invalid_argument("euclidean: steps and events must be positive");
+    }
     std::vector<int> out;
     out.reserve(events);
     division_result div = euclidean_division(steps, events);

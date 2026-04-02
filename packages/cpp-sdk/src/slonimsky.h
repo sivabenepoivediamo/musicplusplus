@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -29,15 +30,21 @@ using Seq = std::vector<int>;
 inline Seq intervals(const Seq& x)
 {
     const int n = static_cast<int>(x.size());
-    Seq d(n - 1);
+    if (n < 2) {
+        return {};
+    }
+    Seq d(static_cast<size_t>(n - 1));
     for (int i = 0; i < n - 1; ++i)
-        d[i] = x[i + 1] - x[i];
+        d[static_cast<size_t>(i)] = x[static_cast<size_t>(i + 1)] - x[static_cast<size_t>(i)];
     return d;
 }
 
 inline int minInterval(const Seq& x)
 {
     const Seq d = intervals(x);
+    if (d.empty()) {
+        throw std::invalid_argument("minInterval: need at least two ascending pitch positions");
+    }
     return *std::min_element(d.begin(), d.end());
 }
 
@@ -63,8 +70,11 @@ inline std::vector<int> infrapolationPermutation(int m)
 inline Seq interpolation(const Seq& x, int k)
 {
     const int n = static_cast<int>(x.size());
+    if (n == 0) {
+        return {};
+    }
     Seq out;
-    out.reserve(2 * n - 1);
+    out.reserve(static_cast<size_t>(std::max(0, 2 * n - 1)));
     for (int i = 0; i < n - 1; ++i) {
         out.push_back(x[i]);
         out.push_back(x[i] + k);

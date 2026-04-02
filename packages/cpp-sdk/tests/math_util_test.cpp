@@ -4,12 +4,19 @@
 
 #include "../src/math_util.h"
 
+#include <stdexcept>
+
 namespace {
 
 using musicpp::division_result;
 using musicpp::euclidean_division;
 using musicpp::gcd;
 using musicpp::lcm;
+
+TEST_CASE("euclidean_division_zero_divisor_throws", "[math_util][safety]") {
+    REQUIRE_THROWS_AS(euclidean_division(1, 0), std::invalid_argument);
+    REQUIRE_THROWS_AS(euclidean_division(0, 0), std::invalid_argument);
+}
 
 TEST_CASE("euclidean_division_positive_divisor", "[math_util]") {
     division_result r = euclidean_division(17, 5);

@@ -792,9 +792,17 @@ TranspositionMatrixDistance calculateDistances(
 }
 
 int align(position_vector reference, position_vector target){
+  if (reference.size() == 0 || target.size() == 0) {
+    throw std::invalid_argument("align: reference and target must be non-empty");
+  }
+  const int refRange = reference.effective_range();
+  const int tgtRange = target.effective_range();
+  if (refRange <= 0 || tgtRange <= 0) {
+    throw std::invalid_argument("align: effective range must be positive");
+  }
   int minV = reference[0];
-  division_result referenceDiv = euclidean_division(reference[0], reference.effective_range());
-  division_result targetDiv = euclidean_division(target[0], target.effective_range());
+  division_result referenceDiv = euclidean_division(reference[0], refRange);
+  division_result targetDiv = euclidean_division(target[0], tgtRange);
   int diffOct = referenceDiv.quotient - targetDiv.remainder;
   int size = target.size();
   int i = diffOct * size;
