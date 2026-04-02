@@ -11,6 +11,16 @@ namespace {
 
 using namespace musicpp;
 
+TEST_CASE("modal_matrix_row_toString_wrapped_in_parentheses", "[matrix][print]") {
+    position_vector a({0, 4, 7}, 12, 12);
+    ModalMatrixRow<position_vector> row(a, 2, 1.25);
+    const std::string s = row.toString();
+    REQUIRE(s.size() >= 2u);
+    ASSERT_EQ(s.front(), '(');
+    ASSERT_EQ(s.back(), ')');
+    ASSERT_TRUE(s.find("Mode = ") != std::string::npos);
+}
+
 TEST_CASE("print_matrix_distance_modal_position_smoke", "[matrix][print]") {
     position_vector a({0, 4, 7}, 12, 12);
     ModalMatrixDistance<position_vector> mmd({{a, 0, 1.5}});

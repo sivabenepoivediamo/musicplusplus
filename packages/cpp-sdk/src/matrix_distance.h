@@ -61,7 +61,7 @@ public:
     // String representation
     std::string toString() const {
         std::ostringstream oss;
-        oss << "Mode = " << index_ 
+        oss << "(Mode = " << index_ 
             << ", Distance = " << distance_ 
             << ", Vector = " << vector_ << ")";
         return oss.str();
@@ -104,7 +104,7 @@ public:
     
     std::string toString() const {
         std::ostringstream oss;
-        oss << "Transposition = " << transposition_ 
+        oss << "(Transposition = " << transposition_ 
             << ", Distance = " << distance_ 
             << ", Vector = " << vector_ << ")";
         return oss.str();
@@ -149,7 +149,7 @@ public:
     
     std::string toString() const {
         std::ostringstream oss;
-        oss << "Relative mode offset = " << relative_mode_offset_ 
+        oss << "(Relative mode offset = " << relative_mode_offset_ 
             << ", Center = " << center_
             << ", Distance = " << distance_ 
             << ", Vector = " << vector_ << ")";
@@ -195,7 +195,7 @@ public:
     
     std::string toString() const {
         std::ostringstream oss;
-        oss << "Degree = " << modeIndex_ 
+        oss << "(Degree = " << modeIndex_ 
             << ", Distance = " << distance_ 
             << ", Vector = " << chord_ << ")";
         return oss.str();
@@ -241,7 +241,7 @@ public:
     
     std::string toString() const {
         std::ostringstream oss;
-        oss << "Degree = " << modeIndex_ 
+        oss << "(Degree = " << modeIndex_ 
             << ", Relative mode = " << relative_mode_index_
             << ", Distance = " << distance_ 
             << ", Vector = " << vector_ << ")";
