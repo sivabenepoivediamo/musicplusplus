@@ -1,7 +1,20 @@
-#ifndef MELODY_H
-#define MELODY_H
+#ifndef MUSICPP_MELODY_H
+#define MUSICPP_MELODY_H
 
-#include "./utility.h"
+#include "utility.h"
+
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+
+
+namespace musicpp {
 
 struct NoteInfo {
     int position;
@@ -23,8 +36,8 @@ struct VectorModification {
 };
 
 struct TripleSelectResult {
-    vector<int>  results;
-    vector<bool> isOut;
+    std::vector<int>  results;
+    std::vector<bool> isOut;
 };
 
 
@@ -32,26 +45,26 @@ static NoteInfo invalidNote() {
     return { -666, -666, -666, -666 };
 }
 
-vector<int> diminution(int degree, int length, bool up, bool left) {
+std::vector<int> diminution(int degree, int length, bool up, bool left) {
     if (length <= 0) return {};
     if (length == 1) return { degree };
 
-    vector<int> result(length);
+    std::vector<int> result(length);
     result[0]          = degree;
     result[length - 1] = degree;
 
     const int distance = length - 2;
     const int firstNum = up ? degree - distance : degree + distance;
 
-    vector<int> middle;
+    std::vector<int> middle;
     for (int i = 1; i < length - 1; ++i) {
         middle.push_back(up ? firstNum + (i - 1) : firstNum - (i - 1));
     }
 
     if (left)
-        sort(middle.begin(), middle.end());
+        std::sort(middle.begin(), middle.end());
     else
-        sort(middle.begin(), middle.end(), greater<int>());
+        std::sort(middle.begin(), middle.end(), std::greater<int>());
 
     for (size_t i = 0; i < middle.size(); ++i)
         result[i + 1] = middle[i];
@@ -59,17 +72,17 @@ vector<int> diminution(int degree, int length, bool up, bool left) {
     return result;
 }
 
-vector<int> run(int degree, int length, bool direction) {
+std::vector<int> run(int degree, int length, bool direction) {
     const int step  = direction ? 1 : -1;
     const int start = direction ? degree - (length - 1) : degree + (length - 1);
-    vector<int> result(length);
+    std::vector<int> result(length);
     for (int i = 0; i < length; ++i)
         result[i] = start + i * step;
     return result;
 }
 
-vector<int> run2(int start, int end) {
-    vector<int> result;
+std::vector<int> run2(int start, int end) {
+    std::vector<int> result;
     if (start <= end) {
         for (int i = start; i <= end; ++i) result.push_back(i);
     } else {
@@ -78,8 +91,8 @@ vector<int> run2(int start, int end) {
     return result;
 }
 
-vector<int> normalizeNotes(const vector<int>& notes, int mod) {
-    vector<int> result(notes.size());
+std::vector<int> normalizeNotes(const std::vector<int>& notes, int mod) {
+    std::vector<int> result(notes.size());
     for (size_t i = 0; i < notes.size(); ++i) {
         int n = notes[i] % mod;
         result[i] = n < 0 ? n + mod : n;
@@ -87,9 +100,9 @@ vector<int> normalizeNotes(const vector<int>& notes, int mod) {
     return result;
 }
 
-static NoteInfo info(int inputNote, const vector<int>& vector, int mod) {
+static NoteInfo info(int inputNote, const std::vector<int>& vector, int mod) {
     const int normalizedNote = inputNote % mod;
-    const int baseOctave     = static_cast<int>(floor(static_cast<double>(inputNote) / mod));
+    const int baseOctave     = static_cast<int>(std::floor(static_cast<double>(inputNote) / mod));
 
     int degree = -1;
     for (size_t i = 0; i < vector.size(); ++i) {
@@ -101,7 +114,7 @@ static NoteInfo info(int inputNote, const vector<int>& vector, int mod) {
 
     if (degree == -1) return invalidNote();
 
-    const int octaveAdjustment = static_cast<int>(floor(static_cast<double>(vector[degree]) / mod));
+    const int octaveAdjustment = static_cast<int>(std::floor(static_cast<double>(vector[degree]) / mod));
     const int position         = (baseOctave + octaveAdjustment) * static_cast<int>(vector.size()) + degree;
 
     return { position, degree, baseOctave + octaveAdjustment, inputNote };
@@ -109,12 +122,12 @@ static NoteInfo info(int inputNote, const vector<int>& vector, int mod) {
 
 Analysis hierarchy(
     int note,
-    const vector<int>& chord,
-    const vector<int>& scale,
-    const vector<int>& chromatic,
+    const std::vector<int>& chord,
+    const std::vector<int>& scale,
+    const std::vector<int>& chromatic,
     int mod)
 {
-    const vector<int> normChord = normalizeNotes(chord, mod);
+    const std::vector<int> normChord = normalizeNotes(chord, mod);
     return {
         info(note, normChord,   mod),
         info(note, scale,       mod),
@@ -122,26 +135,26 @@ Analysis hierarchy(
     };
 }
 
-static int getNoteFromPosition(int position, const vector<int>& vector, int mod) {
+static int getNoteFromPosition(int position, const std::vector<int>& vector, int mod) {
     const int vlen   = static_cast<int>(vector.size());
-    const int octave = static_cast<int>(floor(static_cast<double>(position) / vlen));
+    const int octave = static_cast<int>(std::floor(static_cast<double>(position) / vlen));
     const int degree = ((position % vlen) + vlen) % vlen;   // safe mod for negatives
     return vector[degree] + octave * mod;
 }
 
 TripleSelectResult tripleSelect(
     const Analysis&                       analysis,
-    const vector<VectorModification>& modifications,
-    const vector<int>&               chord,
-    const vector<int>&               scale,
-    const vector<int>&               chromatic,
+    const std::vector<VectorModification>& modifications,
+    const std::vector<int>&               chord,
+    const std::vector<int>&               scale,
+    const std::vector<int>&               chromatic,
     int                                   mod)
 {
     TripleSelectResult out;
 
     for (const auto& mod_ : modifications) {
         int                    basePosition;
-        const vector<int>* vec;
+        const std::vector<int>* vec;
 
         switch (mod_.type) {
             case VectorModification::Type::CHORD:
@@ -157,7 +170,7 @@ TripleSelectResult tripleSelect(
                 vec          = &chromatic;
                 break;
             default:
-                throw runtime_error("Invalid modification type");
+                throw std::runtime_error("Invalid modification type");
         }
 
         if (basePosition == -666) {
@@ -174,26 +187,26 @@ TripleSelectResult tripleSelect(
     return out;
 }
 
-vector<VectorModification> parseModifications(
-    const vector<int>&                         deltas,
-    vector<VectorModification::Type>           types)
+std::vector<VectorModification> parseModifications(
+    const std::vector<int>&                         deltas,
+    std::vector<VectorModification::Type>           types)
 {
     if (types.size() == 1)
         types.assign(deltas.size(), types[0]);
 
     if (deltas.size() != types.size())
-        throw runtime_error("Deltas and types must have the same length.");
+        throw std::runtime_error("Deltas and types must have the same length.");
 
-    vector<VectorModification> mods(deltas.size());
+    std::vector<VectorModification> mods(deltas.size());
     for (size_t i = 0; i < deltas.size(); ++i)
         mods[i] = { types[i], deltas[i] };
 
     return mods;
 }
 
-vector<int> ornamentLoop(const vector<int>& in, int length) {
+std::vector<int> ornamentLoop(const std::vector<int>& in, int length) {
     if (length <= 0) return {};
-    vector<int> result;
+    std::vector<int> result;
     const int n = static_cast<int>(in.size());
 
     while (static_cast<int>(result.size()) < length) {
@@ -207,12 +220,12 @@ vector<int> ornamentLoop(const vector<int>& in, int length) {
     return result;
 }
 
-vector<VectorModification::Type> ornamentTypesLoop(
-    const vector<VectorModification::Type>& types,
+std::vector<VectorModification::Type> ornamentTypesLoop(
+    const std::vector<VectorModification::Type>& types,
     int length)
 {
     if (length <= 0) return {};
-    vector<VectorModification::Type> result;
+    std::vector<VectorModification::Type> result;
     const int n = static_cast<int>(types.size());
 
     while (static_cast<int>(result.size()) < length) {
@@ -226,8 +239,8 @@ vector<VectorModification::Type> ornamentTypesLoop(
     return result;
 }
 
-string join(const vector<int>& v) {
-    ostringstream oss;
+std::string join(const std::vector<int>& v) {
+    std::ostringstream oss;
     for (size_t i = 0; i < v.size(); ++i) {
         if (i) oss << ", ";
         oss << v[i];
@@ -236,13 +249,13 @@ string join(const vector<int>& v) {
 }
 
 void applyTripleSelect(
-    const vector<int>&                notes,
-    const vector<int>&                chord,
-    const vector<int>&                scale,
-    const vector<int>&                chromatic,
+    const std::vector<int>&                notes,
+    const std::vector<int>&                chord,
+    const std::vector<int>&                scale,
+    const std::vector<int>&                chromatic,
     int                                    mod,
-    const vector<int>&                ornaments,
-    const vector<VectorModification::Type>& types)
+    const std::vector<int>&                ornaments,
+    const std::vector<VectorModification::Type>& types)
 {
     const auto expandedTypes = ornamentTypesLoop(types, static_cast<int>(ornaments.size()));
     const auto modifications = parseModifications(ornaments, expandedTypes);
@@ -250,11 +263,13 @@ void applyTripleSelect(
     for (int note : notes) {
         const Analysis analysis = hierarchy(note, chord, scale, chromatic, mod);
         const TripleSelectResult res = tripleSelect(analysis, modifications, chord, scale, chromatic, mod);
-        const vector<int>&  selectedNotes = res.results;
+        const std::vector<int>&  selectedNotes = res.results;
 
-        cout << "\nMIDI note " << note << ":\n";
-        cout << "Selected notes: [" << join(selectedNotes) << "]\n";
+        std::cout << "\nMIDI note " << note << ":\n";
+        std::cout << "Selected notes: [" << join(selectedNotes) << "]\n";
     }
 }
 
-#endif // MELODY_H
+} // namespace musicpp
+
+#endif // MUSICPP_MELODY_H

@@ -1,7 +1,14 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef MUSICPP_MATRIX_H
+#define MUSICPP_MATRIX_H
 
-#include "./chord.h"
+#include "chord.h"
+
+#include <algorithm>
+#include <iomanip>
+#include <ostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 /**    
  * @file matrix.h
@@ -9,12 +16,15 @@
  * @author [not251]
  * @date 2025
  * @details This file contains functions to generate various musical matrices:
- * - Modal Matrix: Generates all rotations of an IntervalVector or PositionVector.
- * - Transposition Matrix: Generates all transpositions of a PositionVector.
- * - Rototranslation Matrix: Generates rototranslations of a PositionVector around a center.
+ * - Modal Matrix: Generates all rotations of an interval_vector or position_vector.
+ * - Transposition Matrix: Generates all transpositions of a position_vector.
+ * - Rototranslation Matrix: Generates rototranslations of a position_vector around a center.
  * - Modal Selection: Selects chords from a source vector based on modal criteria.
  * @note All operations respect cyclic properties and use Euclidean division where applicable.
  **/
+
+
+namespace musicpp {
 
 // Forward declarations for ostream operators
 template<typename T> class ModalMatrix;
@@ -26,28 +36,28 @@ template<typename T> class ModalRototranslationMatrix;
 // ==================== MATRIX CLASSES ====================
 
 /**
- * @brief Class representing a modal matrix for IntervalVectors or PositionVectors
- * @tparam T Type of the vector (IntervalVector or PositionVector)
+ * @brief Class representing a modal matrix for interval_vectors or position_vectors
+ * @tparam T Type of the vector (interval_vector or position_vector)
  */
 template<typename T>
 class ModalMatrix {
 private:
-    vector<pair<T, int>> data_;
+    std::vector<std::pair<T, int>> data_;
 
 public:
     ModalMatrix() = default;
     
-    explicit ModalMatrix(const vector<pair<T, int>>& data) : data_(data) {}
+    explicit ModalMatrix(const std::vector<std::pair<T, int>>& data) : data_(data) {}
     
     // Access methods
     size_t size() const { return data_.size(); }
     bool empty() const { return data_.empty(); }
     
-    pair<T, int>& operator[](size_t i) { return data_[i]; }
-    const pair<T, int>& operator[](size_t i) const { return data_[i]; }
+    std::pair<T, int>& operator[](size_t i) { return data_[i]; }
+    const std::pair<T, int>& operator[](size_t i) const { return data_[i]; }
     
-    pair<T, int>& at(size_t i) { return data_.at(i); }
-    const pair<T, int>& at(size_t i) const { return data_.at(i); }
+    std::pair<T, int>& at(size_t i) { return data_.at(i); }
+    const std::pair<T, int>& at(size_t i) const { return data_.at(i); }
     
     // Iterator support
     auto begin() { return data_.begin(); }
@@ -56,11 +66,11 @@ public:
     auto end() const { return data_.end(); }
     
     // Get the underlying data
-    const vector<pair<T, int>>& getData() const { return data_; }
+    const std::vector<std::pair<T, int>>& getData() const { return data_; }
     
     // Get only the vectors (without indices)
-    vector<T> getVectors() const {
-        vector<T> result;
+    std::vector<T> getVectors() const {
+        std::vector<T> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.first);
@@ -69,8 +79,8 @@ public:
     }
     
     // Get only the indices
-    vector<int> getIndices() const {
-        vector<int> result;
+    std::vector<int> getIndices() const {
+        std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.second);
@@ -79,37 +89,37 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend ostream& operator<<(ostream& os, const ModalMatrix<T>& mm) {
-        os << setw(6) << "Row" << " | " << setw(4) << "Mode" << " | Vector\n";
-        os << string(60, '-') << "\n";
+    friend std::ostream& operator<<(std::ostream& os, const ModalMatrix<T>& mm) {
+        os << std::setw(6) << "Row" << " | " << std::setw(4) << "Mode" << " | Vector\n";
+        os << std::string(60, '-') << "\n";
         for (size_t i = 0; i < mm.size(); ++i) {
-            os << setw(6) << i + 1 << " | " << setw(4) << mm[i].second << " | " << mm[i].first << "\n";
+            os << std::setw(6) << i + 1 << " | " << std::setw(4) << mm[i].second << " | " << mm[i].first << "\n";
         }
         return os;
     }
 };
 
 /**
- * @brief Class representing a transposition matrix for PositionVectors
+ * @brief Class representing a transposition matrix for position_vectors
  */
 class TranspositionMatrix {
 private:
-    vector<pair<PositionVector, int>> data_;
+    std::vector<std::pair<position_vector, int>> data_;
 
 public:
     TranspositionMatrix() = default;
     
-    explicit TranspositionMatrix(const vector<pair<PositionVector, int>>& data) : data_(data) {}
+    explicit TranspositionMatrix(const std::vector<std::pair<position_vector, int>>& data) : data_(data) {}
     
     // Access methods
     size_t size() const { return data_.size(); }
     bool empty() const { return data_.empty(); }
     
-    pair<PositionVector, int>& operator[](size_t i) { return data_[i]; }
-    const pair<PositionVector, int>& operator[](size_t i) const { return data_[i]; }
+    std::pair<position_vector, int>& operator[](size_t i) { return data_[i]; }
+    const std::pair<position_vector, int>& operator[](size_t i) const { return data_[i]; }
     
-    pair<PositionVector, int>& at(size_t i) { return data_.at(i); }
-    const pair<PositionVector, int>& at(size_t i) const { return data_.at(i); }
+    std::pair<position_vector, int>& at(size_t i) { return data_.at(i); }
+    const std::pair<position_vector, int>& at(size_t i) const { return data_.at(i); }
     
     // Iterator support
     auto begin() { return data_.begin(); }
@@ -118,11 +128,11 @@ public:
     auto end() const { return data_.end(); }
     
     // Get the underlying data
-    const vector<pair<PositionVector, int>>& getData() const { return data_; }
+    const std::vector<std::pair<position_vector, int>>& getData() const { return data_; }
     
     // Get only the vectors (without indices)
-    vector<PositionVector> getVectors() const {
-        vector<PositionVector> result;
+    std::vector<position_vector> getVectors() const {
+        std::vector<position_vector> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.first);
@@ -131,8 +141,8 @@ public:
     }
     
     // Get only the transposition indices
-    vector<int> getTranspositions() const {
-        vector<int> result;
+    std::vector<int> getTranspositions() const {
+        std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.second);
@@ -141,42 +151,42 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend ostream& operator<<(ostream& os, const TranspositionMatrix& tm);
+    friend std::ostream& operator<<(std::ostream& os, const TranspositionMatrix& tm);
 };
 
 // ostream operator for TranspositionMatrix
-inline ostream& operator<<(ostream& os, const TranspositionMatrix& tm) {
-    os << setw(6) << "Row" << " | " << setw(4) << "Transposition" << " | Vector\n";
-    os << string(60, '-') << "\n";
+inline std::ostream& operator<<(std::ostream& os, const TranspositionMatrix& tm) {
+    os << std::setw(6) << "Row" << " | " << std::setw(4) << "Transposition" << " | Vector\n";
+    os << std::string(60, '-') << "\n";
     for (size_t i = 0; i < tm.size(); ++i) {
-        os << setw(6) << i << " | " << setw(4) << tm[i].second << " | " << tm[i].first << "\n";
+        os << std::setw(6) << i << " | " << std::setw(4) << tm[i].second << " | " << tm[i].first << "\n";
     }
     return os;
 }
 
 /**
- * @brief Class representing a rototranslation matrix for PositionVectors
+ * @brief Class representing a rototranslation matrix for position_vectors
  */
 class RototranslationMatrix {
 private:
-    vector<pair<PositionVector, int>> data_;
+    std::vector<std::pair<position_vector, int>> data_;
     int center_;
 
 public:
     RototranslationMatrix() : center_(0) {}
     
-    explicit RototranslationMatrix(const vector<pair<PositionVector, int>>& data, int center = 0) 
+    explicit RototranslationMatrix(const std::vector<std::pair<position_vector, int>>& data, int center = 0) 
         : data_(data), center_(center) {}
     
     // Access methods
     size_t size() const { return data_.size(); }
     bool empty() const { return data_.empty(); }
     
-    pair<PositionVector, int>& operator[](size_t i) { return data_[i]; }
-    const pair<PositionVector, int>& operator[](size_t i) const { return data_[i]; }
+    std::pair<position_vector, int>& operator[](size_t i) { return data_[i]; }
+    const std::pair<position_vector, int>& operator[](size_t i) const { return data_[i]; }
     
-    pair<PositionVector, int>& at(size_t i) { return data_.at(i); }
-    const pair<PositionVector, int>& at(size_t i) const { return data_.at(i); }
+    std::pair<position_vector, int>& at(size_t i) { return data_.at(i); }
+    const std::pair<position_vector, int>& at(size_t i) const { return data_.at(i); }
     
     // Iterator support
     auto begin() { return data_.begin(); }
@@ -185,14 +195,14 @@ public:
     auto end() const { return data_.end(); }
     
     // Get the underlying data
-    const vector<pair<PositionVector, int>>& getData() const { return data_; }
+    const std::vector<std::pair<position_vector, int>>& getData() const { return data_; }
     
     // Get the center used for rototranslation
     int getCenter() const { return center_; }
     
     // Get only the vectors (without indices)
-    vector<PositionVector> getVectors() const {
-        vector<PositionVector> result;
+    std::vector<position_vector> getVectors() const {
+        std::vector<position_vector> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.first);
@@ -201,8 +211,8 @@ public:
     }
     
     // Get only the translation indices
-    vector<int> getTranslations() const {
-        vector<int> result;
+    std::vector<int> getTranslations() const {
+        std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.second);
@@ -211,42 +221,42 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend ostream& operator<<(ostream& os, const RototranslationMatrix& rtm);
+    friend std::ostream& operator<<(std::ostream& os, const RototranslationMatrix& rtm);
 };
 
 // ostream operator for RototranslationMatrix
-inline ostream& operator<<(ostream& os, const RototranslationMatrix& rtm) {
-    os << setw(6) << "Row" << " | " << setw(4) << "Position" << " | Vector\n";
-    os << string(60, '-') << "\n";
+inline std::ostream& operator<<(std::ostream& os, const RototranslationMatrix& rtm) {
+    os << std::setw(6) << "Row" << " | " << std::setw(4) << "Position" << " | Vector\n";
+    os << std::string(60, '-') << "\n";
     for (size_t i = 0; i < rtm.size(); ++i) {
-        os << setw(6) << i << " | " << setw(4) << rtm[i].second << " | " << rtm[i].first << "\n";
+        os << std::setw(6) << i << " | " << std::setw(4) << rtm[i].second << " | " << rtm[i].first << "\n";
     }
     return os;
 }
 
 /**
  * @brief Class representing a modal selection matrix
- * @tparam T Type of the vector (IntervalVector or PositionVector)
+ * @tparam T Type of the vector (interval_vector or position_vector)
  */
 template<typename T>
 class ModalSelectionMatrix {
 private:
-    vector<pair<T, int>> data_;
+    std::vector<std::pair<T, int>> data_;
 
 public:
     ModalSelectionMatrix() = default;
     
-    explicit ModalSelectionMatrix(const vector<pair<T, int>>& data) : data_(data) {}
+    explicit ModalSelectionMatrix(const std::vector<std::pair<T, int>>& data) : data_(data) {}
     
     // Access methods
     size_t size() const { return data_.size(); }
     bool empty() const { return data_.empty(); }
     
-    pair<T, int>& operator[](size_t i) { return data_[i]; }
-    const pair<T, int>& operator[](size_t i) const { return data_[i]; }
+    std::pair<T, int>& operator[](size_t i) { return data_[i]; }
+    const std::pair<T, int>& operator[](size_t i) const { return data_[i]; }
     
-    pair<T, int>& at(size_t i) { return data_.at(i); }
-    const pair<T, int>& at(size_t i) const { return data_.at(i); }
+    std::pair<T, int>& at(size_t i) { return data_.at(i); }
+    const std::pair<T, int>& at(size_t i) const { return data_.at(i); }
     
     // Iterator support
     auto begin() { return data_.begin(); }
@@ -255,11 +265,11 @@ public:
     auto end() const { return data_.end(); }
     
     // Get the underlying data
-    const vector<pair<T, int>>& getData() const { return data_; }
+    const std::vector<std::pair<T, int>>& getData() const { return data_; }
     
     // Get only the chords (without indices)
-    vector<T> getChords() const {
-        vector<T> result;
+    std::vector<T> getChords() const {
+        std::vector<T> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.first);
@@ -268,8 +278,8 @@ public:
     }
     
     // Get only the mode indices
-    vector<int> getModeIndices() const {
-        vector<int> result;
+    std::vector<int> getModeIndices() const {
+        std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.second);
@@ -278,11 +288,11 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend ostream& operator<<(ostream& os, const ModalSelectionMatrix<T>& msm) {
-        os << setw(6) << "Mode" << " | " << setw(4) << "Degree" << " | Vector\n";
-        os << string(60, '-') << "\n";
+    friend std::ostream& operator<<(std::ostream& os, const ModalSelectionMatrix<T>& msm) {
+        os << std::setw(6) << "Mode" << " | " << std::setw(4) << "Degree" << " | Vector\n";
+        os << std::string(60, '-') << "\n";
         for (size_t i = 0; i < msm.size(); ++i) {
-            os << setw(6) << i + 1 << " | " << setw(4) << msm[i].second << " | " << msm[i].first << "\n";
+            os << std::setw(6) << i + 1 << " | " << std::setw(4) << msm[i].second << " | " << msm[i].first << "\n";
         }
         return os;
     }
@@ -292,28 +302,28 @@ public:
 
 /**
  * @brief Class representing a modal selection where each row contains a rototranslation matrix
- * @tparam T Type of the vector (IntervalVector or PositionVector)
+ * @tparam T Type of the vector (interval_vector or position_vector)
  */
 template<typename T>
 class ModalRototranslationMatrix {
 private:
-    vector<pair<RototranslationMatrix, int>> data_; // (rototranslation matrix, mode index)
+    std::vector<std::pair<RototranslationMatrix, int>> data_; // (rototranslation matrix, mode index)
 
 public:
     ModalRototranslationMatrix() = default;
     
-    explicit ModalRototranslationMatrix(const vector<pair<RototranslationMatrix, int>>& data) 
+    explicit ModalRototranslationMatrix(const std::vector<std::pair<RototranslationMatrix, int>>& data) 
         : data_(data) {}
     
     // Access methods
     size_t size() const { return data_.size(); }
     bool empty() const { return data_.empty(); }
     
-    pair<RototranslationMatrix, int>& operator[](size_t i) { return data_[i]; }
-    const pair<RototranslationMatrix, int>& operator[](size_t i) const { return data_[i]; }
+    std::pair<RototranslationMatrix, int>& operator[](size_t i) { return data_[i]; }
+    const std::pair<RototranslationMatrix, int>& operator[](size_t i) const { return data_[i]; }
     
-    pair<RototranslationMatrix, int>& at(size_t i) { return data_.at(i); }
-    const pair<RototranslationMatrix, int>& at(size_t i) const { return data_.at(i); }
+    std::pair<RototranslationMatrix, int>& at(size_t i) { return data_.at(i); }
+    const std::pair<RototranslationMatrix, int>& at(size_t i) const { return data_.at(i); }
     
     // Iterator support
     auto begin() { return data_.begin(); }
@@ -322,11 +332,11 @@ public:
     auto end() const { return data_.end(); }
     
     // Get the underlying data
-    const vector<pair<RototranslationMatrix, int>>& getData() const { return data_; }
+    const std::vector<std::pair<RototranslationMatrix, int>>& getData() const { return data_; }
     
     // Get only the rototranslation matrices
-    vector<RototranslationMatrix> getRototranslationMatrices() const {
-        vector<RototranslationMatrix> result;
+    std::vector<RototranslationMatrix> getRototranslationMatrices() const {
+        std::vector<RototranslationMatrix> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.first);
@@ -335,8 +345,8 @@ public:
     }
     
     // Get only the mode indices
-    vector<int> getModeIndices() const {
-        vector<int> result;
+    std::vector<int> getModeIndices() const {
+        std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.second);
@@ -354,7 +364,7 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend ostream& operator<<(ostream& os, const ModalRototranslationMatrix<T>& mrtm) {
+    friend std::ostream& operator<<(std::ostream& os, const ModalRototranslationMatrix<T>& mrtm) {
         for (size_t i = 0; i < mrtm.size(); ++i) {
             os << "Rotation " << i + 1 << " (degree " << mrtm[i].second << "):\n";
             os << mrtm[i].first;
@@ -367,88 +377,88 @@ public:
 // ==================== MATRIX GENERATION FUNCTIONS ====================
 
 /**
- * @brief Generates the modal matrix of an IntervalVector    
- * @param iv Input IntervalVector
+ * @brief Generates the modal matrix of an interval_vector    
+ * @param iv Input interval_vector
  * @return ModalMatrix containing rotations and indices
- * @details Each row is a rotation of the input IntervalVector.  
+ * @details Each row is a rotation of the input interval_vector.  
  */ 
-ModalMatrix<IntervalVector> modalMatrix(IntervalVector iv) {
+ModalMatrix<interval_vector> modalMatrix(interval_vector iv) {
     int n = iv.size();
-    vector<pair<IntervalVector, int>> matrix;
+    std::vector<std::pair<interval_vector, int>> matrix;
     matrix.reserve(n);
     
     for (int i = 0; i < n; ++i) {
-        IntervalVector rotated = iv.rotate(i);
-        matrix.emplace_back(make_pair(rotated, i));
+        interval_vector rotated = iv.rotate(i);
+        matrix.emplace_back(std::make_pair(rotated, i));
     }
     
-    return ModalMatrix<IntervalVector>(matrix);
+    return ModalMatrix<interval_vector>(matrix);
 }
 
 /**
- * @brief Generates the rototranslation matrix of a PositionVector
- * @param in Input PositionVector
+ * @brief Generates the rototranslation matrix of a position_vector
+ * @param in Input position_vector
  * @param center Center position for rototranslation
  * @return RototranslationMatrix containing rototranslations and indices
- * @details Each row is a rototranslation of the input PositionVector around the specified center.
+ * @details Each row is a rototranslation of the input position_vector around the specified center.
  *         The translation index indicates the offset applied.
  *         The number of rows is determined by the size of the input vector.
  *         The center can be any integer, allowing for flexible translation.
  */
-RototranslationMatrix rototranslationMatrix(PositionVector& in, int center) {
-    vector<pair<PositionVector, int>> matrix;
+RototranslationMatrix rototranslationMatrix(position_vector& in, int center) {
+    std::vector<std::pair<position_vector, int>> matrix;
     int n = in.size();
 
     for (int i = center - n; i < center + n+1; i++) {
-        PositionVector row = in.rotoTranslate(i);
-        matrix.emplace_back(make_pair(row, i));
+        position_vector row = in.roto_translate(i);
+        matrix.emplace_back(std::make_pair(row, i));
     }
     return RototranslationMatrix(matrix, center);
 }
 
 /**
- * @brief Generates the modal matrix of a PositionVector
- * @param pv Input PositionVector
+ * @brief Generates the modal matrix of a position_vector
+ * @param pv Input position_vector
  * @return ModalMatrix containing rotations and indices
- * @details Each row is a rotation of the input PositionVector.
+ * @details Each row is a rotation of the input position_vector.
  *         The rotation index indicates the amount of rotation applied.
  *         The number of rows is determined by the size of the input vector.
- *         Internally converts the PositionVector to an IntervalVector for rotation,
- *         then back to PositionVector.
+ *         Internally converts the position_vector to an interval_vector for rotation,
+ *         then back to position_vector.
  */
-ModalMatrix<PositionVector> modalMatrix(PositionVector pv) {
-    IntervalVector iv = positionsToIntervals(pv);
-    ModalMatrix<IntervalVector> ivMatrix = modalMatrix(iv);
+ModalMatrix<position_vector> modalMatrix(position_vector pv) {
+    interval_vector iv = positions_to_intervals(pv);
+    ModalMatrix<interval_vector> ivMatrix = modalMatrix(iv);
     
-    vector<pair<PositionVector, int>> pvMatrix;
+    std::vector<std::pair<position_vector, int>> pvMatrix;
     pvMatrix.reserve(ivMatrix.size());
     for (size_t i = 0; i < ivMatrix.size(); ++i) {
-        PositionVector posVec = intervalsToPositions(ivMatrix[i].first);
-        pvMatrix.emplace_back(make_pair(posVec, ivMatrix[i].second));
+        position_vector posVec = intervals_to_positions(ivMatrix[i].first);
+        pvMatrix.emplace_back(std::make_pair(posVec, ivMatrix[i].second));
     }
 
-    return ModalMatrix<PositionVector>(pvMatrix);
+    return ModalMatrix<position_vector>(pvMatrix);
 }
 
 /**
- * @brief Generates the transposition matrix of a PositionVector
- * @param pv Input PositionVector
+ * @brief Generates the transposition matrix of a position_vector
+ * @param pv Input position_vector
  * @return TranspositionMatrix containing transpositions and indices
- * @details Each row is a transposition of the input PositionVector.
+ * @details Each row is a transposition of the input position_vector.
  *         The transposition index indicates the amount of transposition applied.
  *         The number of rows is determined by the modulo of the input vector.
  *         Internally uses modular arithmetic to ensure values wrap around the modulo.
- *         The resulting PositionVectors are sorted in ascending order for consistency.
+ *         The resulting position_vectors are sorted in ascending order for consistency.
  */
-TranspositionMatrix transpositionMatrix(PositionVector pv) {
-    int n = pv.getMod();
-    vector<pair<PositionVector, int>> matrix;
+TranspositionMatrix transpositionMatrix(position_vector pv) {
+    int n = pv.mod();
+    std::vector<std::pair<position_vector, int>> matrix;
     matrix.reserve(n);
     
     for (int i = 0; i < n; ++i) {
-        PositionVector transposed = (pv + i) % n;
-        sort(transposed.data.begin(), transposed.data.end());
-        matrix.emplace_back(make_pair(transposed, i));
+        position_vector transposed = (pv + i) % n;
+        std::sort(transposed.data().begin(), transposed.data().end());
+        matrix.emplace_back(std::make_pair(transposed, i));
     }
     
     return TranspositionMatrix(matrix);
@@ -456,62 +466,62 @@ TranspositionMatrix transpositionMatrix(PositionVector pv) {
 
 /**
  * @brief Generates a selection from a source vector based on the modal matrix of the criterion
- * @param source Source IntervalVector
- * @param criterion IntervalVector defining the modal structure
+ * @param source Source interval_vector
+ * @param criterion interval_vector defining the modal structure
  * @param degree Degree of selection (default 0)
  * @return ModalSelectionMatrix containing chords and rotation indices
  * @details For each mode defined by the criterion, generates a chord from the source
  *          starting at the specified degree. The rotation index indicates the mode used.
  *          The degree is adjusted based on the sum of intervals in the criterion.
  */
-ModalSelectionMatrix<IntervalVector> modalSelection(IntervalVector source, IntervalVector criterion, int degree = 0){
-    ModalMatrix<IntervalVector> modes = modalMatrix(criterion);
+ModalSelectionMatrix<interval_vector> modalSelection(interval_vector source, interval_vector criterion, int degree = 0){
+    ModalMatrix<interval_vector> modes = modalMatrix(criterion);
     int rows = modes.size();
-    vector<pair<IntervalVector, int>> selection;
+    std::vector<std::pair<interval_vector, int>> selection;
     selection.reserve(rows);
     for (int i = 0; i < rows; ++i) {
-        IntervalVector candidate = chord(source, modes[i].first, degree);
+        interval_vector candidate = chord(source, modes[i].first, degree);
         int sum = 0;
         for (int k = 0; k < i; ++k) {
-            sum += criterion.data[k];
+            sum += criterion.data()[k];
         }
-        DivisionResult div = euclideanDivision(degree - sum, source.size());
+        division_result div = euclidean_division(degree - sum, source.size());
         int g = div.remainder;
-        selection.emplace_back(make_pair(candidate, g));
+        selection.emplace_back(std::make_pair(candidate, g));
     }
-    return ModalSelectionMatrix<IntervalVector>(selection);
+    return ModalSelectionMatrix<interval_vector>(selection);
 }
 
 /**
- * @brief Generates a selection from a source PositionVector based on the modal matrix of the criterion
- * @param source Source PositionVector
- * @param criterion IntervalVector defining the modal structure
+ * @brief Generates a selection from a source position_vector based on the modal matrix of the criterion
+ * @param source Source position_vector
+ * @param criterion interval_vector defining the modal structure
  * @param degree Degree of selection (default 0)
  * @return ModalSelectionMatrix containing chords and rotation indices
  * @details For each mode defined by the criterion, generates a chord from the source
  *          starting at the specified degree. The rotation index indicates the mode used.
  *          The degree is adjusted based on the sum of intervals in the criterion.
- * @note Converts the source PositionVector to an IntervalVector for chord generation,
- *       then back to PositionVector for the result.
+ * @note Converts the source position_vector to an interval_vector for chord generation,
+ *       then back to position_vector for the result.
  */
-ModalSelectionMatrix<PositionVector> modalSelection(PositionVector source, IntervalVector criterion, int degree = 0){
-    ModalMatrix<IntervalVector> modes = modalMatrix(criterion);
-    IntervalVector ivSource = positionsToIntervals(source);
+ModalSelectionMatrix<position_vector> modalSelection(position_vector source, interval_vector criterion, int degree = 0){
+    ModalMatrix<interval_vector> modes = modalMatrix(criterion);
+    interval_vector ivSource = positions_to_intervals(source);
     int rows = modes.size();
-    vector<pair<PositionVector, int>> selection;
+    std::vector<std::pair<position_vector, int>> selection;
     selection.reserve(rows);
     for (int i = 0; i < rows; ++i) {
-        IntervalVector candidate = chord(ivSource, modes[i].first, degree);
-        PositionVector pc = intervalsToPositions(candidate);
+        interval_vector candidate = chord(ivSource, modes[i].first, degree);
+        position_vector pc = intervals_to_positions(candidate);
         int sum = 0;
         for (int k = 0; k < i; ++k) {
-            sum += criterion.data[k];
+            sum += criterion.data()[k];
         }
-        DivisionResult div = euclideanDivision(degree - sum, source.size());
+        division_result div = euclidean_division(degree - sum, source.size());
         int g = div.remainder;
-        selection.emplace_back(make_pair(pc, g));
+        selection.emplace_back(std::make_pair(pc, g));
     }
-    return ModalSelectionMatrix<PositionVector>(selection);
+    return ModalSelectionMatrix<position_vector>(selection);
 }
 
 // ==================== GENERATION FUNCTIONS ====================
@@ -523,53 +533,53 @@ ModalSelectionMatrix<PositionVector> modalSelection(PositionVector source, Inter
  * @details For each chord in the modal selection, generates a full rototranslation matrix
  *          with center 0, preserving the mode index from the selection.
  */
-ModalRototranslationMatrix<PositionVector> modalRototranslation(
-    const ModalSelectionMatrix<PositionVector>& selection)
+ModalRototranslationMatrix<position_vector> modalRototranslation(
+    const ModalSelectionMatrix<position_vector>& selection)
 {
-    vector<pair<RototranslationMatrix, int>> result;
+    std::vector<std::pair<RototranslationMatrix, int>> result;
     result.reserve(selection.size());
     
     for (size_t i = 0; i < selection.size(); ++i) {
         const auto& [chord, mode_idx] = selection[i];
-        PositionVector pv = chord; // Make a copy since rototranslationMatrix takes non-const ref
+        position_vector pv = chord; // Make a copy since rototranslationMatrix takes non-const ref
         RototranslationMatrix rtm = rototranslationMatrix(pv, 0);
-        result.emplace_back(make_pair(rtm, mode_idx));
+        result.emplace_back(std::make_pair(rtm, mode_idx));
     }
     
-    return ModalRototranslationMatrix<PositionVector>(result);
+    return ModalRototranslationMatrix<position_vector>(result);
 }
 
 /**
- * @brief Filters a ModalMatrix<PositionVector> to keep only rows containing all specified MIDI notes
- * @param matrix Input ModalMatrix<PositionVector>
+ * @brief Filters a ModalMatrix<position_vector> to keep only rows containing all specified MIDI notes
+ * @param matrix Input ModalMatrix<position_vector>
  * @param notes Vector of MIDI note numbers to check for
- * @return ModalMatrix<PositionVector> with only rows containing all specified notes (mod checked)
- * @details Checks if each row's PositionVector contains all notes in the notes vector,
- *          comparing modulo the PositionVector's modulo value.
+ * @return ModalMatrix<position_vector> with only rows containing all specified notes (mod checked)
+ * @details Checks if each row's position_vector contains all notes in the notes vector,
+ *          comparing modulo the position_vector's modulo value.
  */
-ModalMatrix<PositionVector> filterModalMatrix(
-    const ModalMatrix<PositionVector>& matrix, 
-    const vector<int>& notes)
+ModalMatrix<position_vector> filterModalMatrix(
+    const ModalMatrix<position_vector>& matrix, 
+    const std::vector<int>& notes)
 {
     if (notes.empty()) {
         return matrix; // No filtering if no notes specified
     }
     
-    vector<pair<PositionVector, int>> filtered;
+    std::vector<std::pair<position_vector, int>> filtered;
     
     for (size_t i = 0; i < matrix.size(); ++i) {
-        const PositionVector& pv = matrix[i].first;
+        const position_vector& pv = matrix[i].first;
         int mode_idx = matrix[i].second;
-        int mod = pv.getMod();
+        int mod = pv.mod();
         
         // Check if this row contains all required notes (modulo mod)
         bool contains_all = true;
         for (int note : notes) {
             int note_mod = ((note % mod) + mod) % mod; // Euclidean modulo
             
-            // Check if note_mod exists in this PositionVector
+            // Check if note_mod exists in this position_vector
             bool found = false;
-            for (int pos : pv.data) {
+            for (int pos : pv.data()) {
                 if (((pos % mod) + mod) % mod == note_mod) {
                     found = true;
                     break;
@@ -583,11 +593,11 @@ ModalMatrix<PositionVector> filterModalMatrix(
         }
         
         if (contains_all) {
-            filtered.emplace_back(make_pair(pv, mode_idx));
+            filtered.emplace_back(std::make_pair(pv, mode_idx));
         }
     }
     
-    return ModalMatrix<PositionVector>(filtered);
+    return ModalMatrix<position_vector>(filtered);
 }
 
 /**
@@ -595,32 +605,32 @@ ModalMatrix<PositionVector> filterModalMatrix(
  * @param matrix Input TranspositionMatrix
  * @param notes Vector of MIDI note numbers to check for
  * @return TranspositionMatrix with only rows containing all specified notes (mod checked)
- * @details Checks if each row's PositionVector contains all notes in the notes vector,
- *          comparing modulo the PositionVector's modulo value.
+ * @details Checks if each row's position_vector contains all notes in the notes vector,
+ *          comparing modulo the position_vector's modulo value.
  */
 TranspositionMatrix filterTranspositionMatrix(
     const TranspositionMatrix& matrix, 
-    const vector<int>& notes)
+    const std::vector<int>& notes)
 {
     if (notes.empty()) {
         return matrix; // No filtering if no notes specified
     }
     
-    vector<pair<PositionVector, int>> filtered;
+    std::vector<std::pair<position_vector, int>> filtered;
     
     for (size_t i = 0; i < matrix.size(); ++i) {
-        const PositionVector& pv = matrix[i].first;
+        const position_vector& pv = matrix[i].first;
         int trans_idx = matrix[i].second;
-        int mod = pv.getMod();
+        int mod = pv.mod();
         
         // Check if this row contains all required notes (modulo mod)
         bool contains_all = true;
         for (int note : notes) {
             int note_mod = ((note % mod) + mod) % mod; // Euclidean modulo
             
-            // Check if note_mod exists in this PositionVector
+            // Check if note_mod exists in this position_vector
             bool found = false;
-            for (int pos : pv.data) {
+            for (int pos : pv.data()) {
                 if (((pos % mod) + mod) % mod == note_mod) {
                     found = true;
                     break;
@@ -634,7 +644,7 @@ TranspositionMatrix filterTranspositionMatrix(
         }
         
         if (contains_all) {
-            filtered.emplace_back(make_pair(pv, trans_idx));
+            filtered.emplace_back(std::make_pair(pv, trans_idx));
         }
     }
     
@@ -642,14 +652,14 @@ TranspositionMatrix filterTranspositionMatrix(
 }
 
 /**
- * @brief In-place filters a ModalMatrix<PositionVector> to keep only rows containing all specified MIDI notes
- * @param matrix ModalMatrix<PositionVector> to be modified
+ * @brief In-place filters a ModalMatrix<position_vector> to keep only rows containing all specified MIDI notes
+ * @param matrix ModalMatrix<position_vector> to be modified
  * @param notes Vector of MIDI note numbers to check for
  * @details Modifies the input matrix in place, removing rows that don't contain all specified notes.
  */
 void filterModalMatrixInPlace(
-    ModalMatrix<PositionVector>& matrix, 
-    const vector<int>& notes)
+    ModalMatrix<position_vector>& matrix, 
+    const std::vector<int>& notes)
 {
     matrix = filterModalMatrix(matrix, notes);
 }
@@ -662,10 +672,12 @@ void filterModalMatrixInPlace(
  */
 void filterTranspositionMatrixInPlace(
     TranspositionMatrix& matrix, 
-    const vector<int>& notes)
+    const std::vector<int>& notes)
 {
     matrix = filterTranspositionMatrix(matrix, notes);
 }
 
 
-#endif // MATRIX_H
+} // namespace musicpp
+
+#endif // MUSICPP_MATRIX_H

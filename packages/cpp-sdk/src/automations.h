@@ -1,18 +1,22 @@
-#ifndef AUTOMATIONS_H
-#define AUTOMATIONS_H
+#ifndef MUSICPP_AUTOMATIONS_H
+#define MUSICPP_AUTOMATIONS_H
 
 /**
  * @file automations.h
  * @brief High-level automation utilities for voice-leading and degree-based operations
  *
  * Provides convenience wrappers to compute best-fit rototranslations, transpositions,
- * modal selections, and degree-based automations for sequences of `PositionVector`.
+ * modal selections, and degree-based automations for sequences of `position_vector`.
  *
  * These functions are thin helpers built on top of the distance and matrix utilities.
  *
- * @see matrixDistance.h
+ * @see matrix_distance.h
  */
-#include "./matrixDistance.h"
+#include "matrix_distance.h"
+
+#include <stdexcept>
+
+namespace musicpp {
 
 /**
  * @brief Find best rototranslation row for a given degree using a criterion
@@ -21,15 +25,15 @@
  * `criterion`, computes the rototranslation matrix for those selections and
  * returns the best matching row to `reference` according to `complexity`.
  *
- * @param scale Scale as a PositionVector
- * @param criterion IntervalVector used as a selection criterion
+ * @param scale Scale as a position_vector
+ * @param criterion interval_vector used as a selection criterion
  * @param degree Degree index within the modal selection
- * @param reference Reference PositionVector used for distance calculation
+ * @param reference Reference position_vector used for distance calculation
  * @param complexity Complexity index used to select among ties (default 0)
  * @return Best matching ModalRototranslationMatrixRow
  */
-ModalRototranslationMatrixRow degreeAutomation(PositionVector& scale, IntervalVector& criterion, int degree, PositionVector& reference, int complexity = 0){
-    ModalSelectionMatrix sel = modalSelection(scale, criterion, degree);
+ModalRototranslationMatrixRow degreeAutomation(position_vector& scale, interval_vector& criterion, int degree, position_vector& reference, int complexity = 0){
+    ModalSelectionMatrix<position_vector> sel = modalSelection(scale, criterion, degree);
     ModalRototranslationMatrix degrees = modalRototranslation(sel);
     ModalRototranslationMatrixDistance distances = calculateDistances(reference, degrees);
     ModalRototranslationMatrixRow out = distances.getByComplexity(complexity);
@@ -42,12 +46,12 @@ ModalRototranslationMatrixRow degreeAutomation(PositionVector& scale, IntervalVe
  * Aligns `target` with `reference` and computes rototranslation distances
  * returning the selected best row according to `complexity`.
  *
- * @param reference Reference PositionVector
- * @param target Target PositionVector to be voice-led
+ * @param reference Reference position_vector
+ * @param target Target position_vector to be voice-led
  * @param complexity Complexity index used for tie-breaking (default 0)
  * @return Best matching RototranslationMatrixRow
  */
-RototranslationMatrixRow voiceLeadingAutomation(PositionVector& reference, PositionVector& target, int complexity = 0){
+RototranslationMatrixRow voiceLeadingAutomation(position_vector& reference, position_vector& target, int complexity = 0){
     int center = align(reference, target);
     RototranslationMatrix positions = rototranslationMatrix(target, center);
     RototranslationMatrixDistance distances = calculateDistances(reference, positions);
@@ -61,16 +65,16 @@ RototranslationMatrixRow voiceLeadingAutomation(PositionVector& reference, Posit
  * Filters the modal matrix of `scale` to selections that contain `notes`,
  * computes distances and returns the best matching row for the given `complexity`.
  *
- * @param scale Input scale as PositionVector
+ * @param scale Input scale as position_vector
  * @param notes Vector of pitch classes (notes) used to filter modal selections
  * @param complexity Complexity index used to pick the result
- * @return Best matching ModalMatrixRow<PositionVector>
+ * @return Best matching ModalMatrixRow<position_vector>
  */
-ModalMatrixRow<PositionVector> modalInterchangeAutomation(PositionVector& scale, const vector<int>& notes, int complexity){
-    ModalMatrix<PositionVector> modes = modalMatrix(scale);
-    ModalMatrix<PositionVector> filter = filterModalMatrix(modes, notes);
-    ModalMatrixDistance<PositionVector> distances = calculateDistances(scale, filter);
-    ModalMatrixRow<PositionVector> out = distances.getByComplexity(complexity);
+ModalMatrixRow<position_vector> modalInterchangeAutomation(position_vector& scale, const std::vector<int>& notes, int complexity){
+    ModalMatrix<position_vector> modes = modalMatrix(scale);
+    ModalMatrix<position_vector> filter = filterModalMatrix(modes, notes);
+    ModalMatrixDistance<position_vector> distances = calculateDistances(scale, filter);
+    ModalMatrixRow<position_vector> out = distances.getByComplexity(complexity);
     return out;
 }
 
@@ -80,12 +84,12 @@ ModalMatrixRow<PositionVector> modalInterchangeAutomation(PositionVector& scale,
  * Builds the transposition matrix for `scale`, filters rows that contain
  * `notes`, computes distances and returns the best matching transposition row.
  *
- * @param scale Input scale as PositionVector
+ * @param scale Input scale as position_vector
  * @param notes Vector of pitch classes used to filter transpositions
  * @param complexity Complexity index for selecting among candidates
  * @return Best matching TranspositionMatrixRow
  */
-TranspositionMatrixRow modulationAutomation(PositionVector& scale, const vector<int>& notes, int complexity){
+TranspositionMatrixRow modulationAutomation(position_vector& scale, const std::vector<int>& notes, int complexity){
     TranspositionMatrix transpositions = transpositionMatrix(scale);
     TranspositionMatrix filter = filterTranspositionMatrix(transpositions, notes);
     TranspositionMatrixDistance distances = calculateDistances(scale, filter);
@@ -102,8 +106,8 @@ TranspositionMatrixRow modulationAutomation(PositionVector& scale, const vector<
  *          If smaller: cycles through elements until requiredSize
  *          If larger: truncates to requiredSize
  */
-vector<int> normalizeComplexityVector(const vector<int>& complexities, size_t requiredSize) {
-    vector<int> result;
+std::vector<int> normalizeComplexityVector(const std::vector<int>& complexities, size_t requiredSize) {
+    std::vector<int> result;
     result.reserve(requiredSize);
     
     if (complexities.empty()) {
@@ -127,24 +131,24 @@ vector<int> normalizeComplexityVector(const vector<int>& complexities, size_t re
 
 /**
  * @brief Performs voice leading with custom reference positions
- * @param targets Vector of target PositionVectors
- * @param references Vector of reference PositionVectors (must match targets size)
+ * @param targets Vector of target position_vectors
+ * @param references Vector of reference position_vectors (must match targets size)
  * @param complexities Vector of complexity values (will be normalized to match targets size)
- * @return Vector of PositionVectors with voice leading applied
+ * @return Vector of position_vectors with voice leading applied
  * @details Each target is compared against its corresponding reference position
  */
-vector<PositionVector> voiceLeadingAutomationVectorReference(
-    vector<PositionVector>& targets,
-    vector<PositionVector>& references,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> voiceLeadingAutomationVectorReference(
+    std::vector<position_vector>& targets,
+    std::vector<position_vector>& references,
+    const std::vector<int>& complexities = std::vector<int>())
 {
     if (targets.size() != references.size()) {
-        throw runtime_error("targets and references must have the same size");
+        throw std::runtime_error("targets and references must have the same size");
     }
     
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size());
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size());
     
-    vector<PositionVector> result;
+    std::vector<position_vector> result;
     result.reserve(targets.size());
     
     for (size_t i = 0; i < targets.size(); ++i) {
@@ -157,20 +161,20 @@ vector<PositionVector> voiceLeadingAutomationVectorReference(
 
 /**
  * @brief Performs voice leading with custom reference positions
- * @param targets Vector of target PositionVectors
- * @param references Reference PositionVector
+ * @param targets Vector of target position_vectors
+ * @param references Reference position_vector
  * @param complexities Vector of complexity values (will be normalized to match targets size)
- * @return Vector of PositionVectors with voice leading applied
+ * @return Vector of position_vectors with voice leading applied
  * @details Each target is compared against its corresponding reference position
  */
-vector<PositionVector> voiceLeadingAutomationReference(
-    vector<PositionVector>& targets,
-    PositionVector& reference,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> voiceLeadingAutomationReference(
+    std::vector<position_vector>& targets,
+    position_vector& reference,
+    const std::vector<int>& complexities = std::vector<int>())
 {
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size());
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size());
     
-    vector<PositionVector> result;
+    std::vector<position_vector> result;
     result.reserve(targets.size());
     
     for (size_t i = 0; i < targets.size(); ++i) {
@@ -183,22 +187,22 @@ vector<PositionVector> voiceLeadingAutomationReference(
 
 /**
  * @brief Performs sequential voice leading automation from start to end
- * @param targets Vector of target PositionVectors (first element is kept as-is)
+ * @param targets Vector of target position_vectors (first element is kept as-is)
  * @param complexities Vector of complexity values (will be normalized to targets.size() - 1)
- * @return Vector of PositionVectors with sequential voice leading applied
+ * @return Vector of position_vectors with sequential voice leading applied
  * @throws runtime_error if targets vector is empty
  * @details First element is unchanged. Each subsequent element is found by comparing
  *          the rototranslation of targets[i] with the result from the previous step.
  */
-vector<PositionVector> forwardVoiceLeading(
-    const vector<PositionVector>& targets,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> forwardVoiceLeading(
+    const std::vector<position_vector>& targets,
+    const std::vector<int>& complexities = std::vector<int>())
 {
     if (targets.empty()) {
-        throw runtime_error("targets vector cannot be empty");
+        throw std::runtime_error("targets vector cannot be empty");
     }
     
-    vector<PositionVector> result;
+    std::vector<position_vector> result;
     result.reserve(targets.size());
     
     // First element unchanged
@@ -208,12 +212,12 @@ vector<PositionVector> forwardVoiceLeading(
         return result;
     }
     
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size() - 1);
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size() - 1);
     
     // Sequential processing
     for (size_t i = 1; i < targets.size(); ++i) {
-        PositionVector target = targets[i]; // Copy for rototranslationMatrix
-        PositionVector& reference = result[i - 1]; // Previous result
+        position_vector target = targets[i]; // Copy for rototranslationMatrix
+        position_vector& reference = result[i - 1]; // Previous result
         RototranslationMatrixRow selected = voiceLeadingAutomation(reference, target, normalizedComplexities[i-1]);
         result.push_back(selected.getVector());
     }
@@ -223,22 +227,22 @@ vector<PositionVector> forwardVoiceLeading(
 
 /**
  * @brief Performs sequential voice leading automation from end to start
- * @param targets Vector of target PositionVectors (last element is kept as-is)
+ * @param targets Vector of target position_vectors (last element is kept as-is)
  * @param complexities Vector of complexity values (will be normalized to targets.size() - 1)
- * @return Vector of PositionVectors with sequential voice leading applied in reverse
+ * @return Vector of position_vectors with sequential voice leading applied in reverse
  * @throws runtime_error if targets vector is empty
  * @details Last element is unchanged. Each previous element is found by comparing
  *          the rototranslation of targets[i] with the result from the next step.
  */
-vector<PositionVector> voiceLeadingAutomationSequentialBackward(
-    const vector<PositionVector>& targets,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> voiceLeadingAutomationSequentialBackward(
+    const std::vector<position_vector>& targets,
+    const std::vector<int>& complexities = std::vector<int>())
 {
     if (targets.empty()) {
-        throw runtime_error("targets vector cannot be empty");
+        throw std::runtime_error("targets vector cannot be empty");
     }
     
-    vector<PositionVector> result(targets.size());
+    std::vector<position_vector> result(targets.size());
     
     // Last element unchanged
     result[targets.size() - 1] = targets[targets.size() - 1];
@@ -247,12 +251,12 @@ vector<PositionVector> voiceLeadingAutomationSequentialBackward(
         return result;
     }
     
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size() - 1);
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, targets.size() - 1);
     
     // Sequential processing backward
     for (int i = targets.size() - 2; i >= 0; --i) {
-        PositionVector target = targets[i]; // Copy for rototranslationMatrix
-        PositionVector& reference = result[i + 1]; // Next result
+        position_vector target = targets[i]; // Copy for rototranslationMatrix
+        position_vector& reference = result[i + 1]; // Next result
         RototranslationMatrixRow selected = voiceLeadingAutomation(reference, target, normalizedComplexities[i]);
         result[i] = selected.getVector();
     }
@@ -265,20 +269,20 @@ vector<PositionVector> voiceLeadingAutomationSequentialBackward(
  * @param scale The scale to use for modal selection
  * @param criterion The interval criterion for modal selection
  * @param degrees Vector of degree values
- * @param reference Reference PositionVector for distance calculation
+ * @param reference Reference position_vector for distance calculation
  * @param complexities Vector of complexity values (will be normalized to match degrees size)
- * @return Vector of PositionVectors with degree automation applied
+ * @return Vector of position_vectors with degree automation applied
  */
-vector<PositionVector> degreeAutomationReference(
-    PositionVector& scale,
-    IntervalVector& criterion,
-    const vector<int>& degrees,
-    PositionVector& reference,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> degreeAutomationReference(
+    position_vector& scale,
+    interval_vector& criterion,
+    const std::vector<int>& degrees,
+    position_vector& reference,
+    const std::vector<int>& complexities = std::vector<int>())
 {
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
     
-    vector<PositionVector> result;
+    std::vector<position_vector> result;
     result.reserve(degrees.size());
     
     for (size_t i = 0; i < degrees.size(); ++i) {
@@ -295,25 +299,25 @@ vector<PositionVector> degreeAutomationReference(
  * @param scale The scale to use for modal selection
  * @param criterion The interval criterion for modal selection
  * @param degrees Vector of degree values
- * @param references Vector of reference PositionVectors (must match degrees size)
+ * @param references Vector of reference position_vectors (must match degrees size)
  * @param complexities Vector of complexity values (will be normalized to match degrees size)
- * @return Vector of PositionVectors with degree automation applied
+ * @return Vector of position_vectors with degree automation applied
  * @details Each degree is compared against its corresponding reference position
  */
-vector<PositionVector> degreeAutomationVectorReference(
-    PositionVector& scale,
-    IntervalVector& criterion,
-    const vector<int>& degrees,
-    vector<PositionVector>& references,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> degreeAutomationVectorReference(
+    position_vector& scale,
+    interval_vector& criterion,
+    const std::vector<int>& degrees,
+    std::vector<position_vector>& references,
+    const std::vector<int>& complexities = std::vector<int>())
 {
     if (degrees.size() != references.size()) {
-        throw runtime_error("degrees and references must have the same size");
+        throw std::runtime_error("degrees and references must have the same size");
     }
     
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
     
-    vector<PositionVector> result;
+    std::vector<position_vector> result;
     result.reserve(degrees.size());
     
     for (size_t i = 0; i < degrees.size(); ++i) {
@@ -332,25 +336,25 @@ vector<PositionVector> degreeAutomationVectorReference(
  * @param degrees Vector of degree values (first degree's result is used as initial reference)
  * @param initialReference Initial reference position for the first degree
  * @param complexities Vector of complexity values (will be normalized to degrees size)
- * @return Vector of PositionVectors with sequential degree automation applied
+ * @return Vector of position_vectors with sequential degree automation applied
  * @throws runtime_error if degrees vector is empty
  * @details First result is calculated using initialReference. Each subsequent result
  *          uses the previous result as its reference.
  */
-vector<PositionVector> forwardDegreeAutomation(
-    PositionVector& scale,
-    IntervalVector& criterion,
-    const vector<int>& degrees,
-    PositionVector& initialReference,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> forwardDegreeAutomation(
+    position_vector& scale,
+    interval_vector& criterion,
+    const std::vector<int>& degrees,
+    position_vector& initialReference,
+    const std::vector<int>& complexities = std::vector<int>())
 {
     if (degrees.empty()) {
-        throw runtime_error("degrees vector cannot be empty");
+        throw std::runtime_error("degrees vector cannot be empty");
     }
     
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
     
-    vector<PositionVector> result;
+    std::vector<position_vector> result;
     result.reserve(degrees.size());
     
     // First element uses initial reference
@@ -360,7 +364,7 @@ vector<PositionVector> forwardDegreeAutomation(
     
     // Sequential processing - each uses previous result as reference
     for (size_t i = 1; i < degrees.size(); ++i) {
-        PositionVector& reference = result[i - 1];
+        position_vector& reference = result[i - 1];
         ModalRototranslationMatrixRow selected = degreeAutomation(
             scale, criterion, degrees[i], reference, normalizedComplexities[i]);
         result.push_back(selected.getVector());
@@ -376,25 +380,25 @@ vector<PositionVector> forwardDegreeAutomation(
  * @param degrees Vector of degree values (last degree's result is used as final reference)
  * @param finalReference Final reference position for the last degree
  * @param complexities Vector of complexity values (will be normalized to degrees size)
- * @return Vector of PositionVectors with sequential degree automation applied in reverse
+ * @return Vector of position_vectors with sequential degree automation applied in reverse
  * @throws runtime_error if degrees vector is empty
  * @details Last result is calculated using finalReference. Each previous result
  *          uses the next result as its reference.
  */
-vector<PositionVector> degreeAutomationSequentialBackward(
-    PositionVector& scale,
-    IntervalVector& criterion,
-    const vector<int>& degrees,
-    PositionVector& finalReference,
-    const vector<int>& complexities = vector<int>())
+std::vector<position_vector> degreeAutomationSequentialBackward(
+    position_vector& scale,
+    interval_vector& criterion,
+    const std::vector<int>& degrees,
+    position_vector& finalReference,
+    const std::vector<int>& complexities = std::vector<int>())
 {
     if (degrees.empty()) {
-        throw runtime_error("degrees vector cannot be empty");
+        throw std::runtime_error("degrees vector cannot be empty");
     }
     
-    vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
+    std::vector<int> normalizedComplexities = normalizeComplexityVector(complexities, degrees.size());
     
-    vector<PositionVector> result(degrees.size());
+    std::vector<position_vector> result(degrees.size());
     
     // Last element uses final reference
     ModalRototranslationMatrixRow last = degreeAutomation(
@@ -404,7 +408,7 @@ vector<PositionVector> degreeAutomationSequentialBackward(
     
     // Sequential processing backward - each uses next result as reference
     for (int i = degrees.size() - 2; i >= 0; --i) {
-        PositionVector& reference = result[i + 1];
+        position_vector& reference = result[i + 1];
         ModalRototranslationMatrixRow selected = degreeAutomation(
             scale, criterion, degrees[i], reference, normalizedComplexities[i]);
         result[i] = selected.getVector();
@@ -425,11 +429,11 @@ vector<PositionVector> degreeAutomationSequentialBackward(
  * @return The maximum interval between consecutive entries in `scale`
  */
 
-int getMaxInterval(vector<int>& scale) {
+int getMaxInterval(std::vector<int>& scale) {
     int maxInterval = 0;
     for (size_t i = 1; i < scale.size(); i++) {
         int interval = scale[i] - scale[i-1];
-        maxInterval = max(maxInterval, interval);
+        maxInterval = std::max(maxInterval, interval);
     }
     return maxInterval;
 }
@@ -447,22 +451,22 @@ int getMaxInterval(vector<int>& scale) {
  * This is useful to adapt a given diatonic (or other) scale so that a set of
  * sounded notes is represented within the scale with minimal distortion.
  *
- * @param scale Input scale as a `PositionVector` (will not be modified)
+ * @param scale Input scale as a `position_vector` (will not be modified)
  * @param notes Vector of absolute MIDI-like note numbers (integers). Values are reduced to pitch-classes using the scale modulus.
- * @return A new `PositionVector` with adjusted scale degrees matching the supplied notes when possible
+ * @return A new `position_vector` with adjusted scale degrees matching the supplied notes when possible
  *
- * @note The returned `PositionVector` preserves the input scale's modulus, user range and flags.
+ * @note The returned `position_vector` preserves the input scale's modulus, user range and flags.
  */
-PositionVector autoScale(PositionVector& scale, vector<int>& notes) {
-    vector<int> scaleData = scale.getData();
-    int mod = scale.getMod();
+position_vector autoScale(position_vector& scale, std::vector<int>& notes) {
+    std::vector<int> scaleData = scale.data();
+    int mod = scale.mod();
     
-    vector<int> pitchClasses;
+    std::vector<int> pitchClasses;
     for (int note : notes) {
         pitchClasses.push_back(note % mod);
     }
     
-    vector<bool> used(scaleData.size(), false);
+    std::vector<bool> used(scaleData.size(), false);
     
     for (int pc : pitchClasses) {
         int closest = -1;
@@ -475,19 +479,19 @@ PositionVector autoScale(PositionVector& scale, vector<int>& notes) {
             int scalePc = scaleData[i] % mod;
             int upDist = (pc - scalePc + mod) % mod;
             int downDist = (scalePc - pc + mod) % mod;
-            int dist = min(upDist, downDist);
+            int dist = std::min(upDist, downDist);
             
             if (dist < minDist) {
                 minDist = dist;
                 closest = i;
 
-                vector<int> tempScale = scaleData;
+                std::vector<int> tempScale = scaleData;
                 int octave = tempScale[i] / mod;
                 tempScale[i] = octave * mod + pc;
                 bestMaxInterval = getMaxInterval(tempScale);
             } else if (dist == minDist) {
 
-                vector<int> tempScale = scaleData;
+                std::vector<int> tempScale = scaleData;
                 int octave = tempScale[i] / mod;
                 tempScale[i] = octave * mod + pc;
                 int maxInterval = getMaxInterval(tempScale);
@@ -496,8 +500,8 @@ PositionVector autoScale(PositionVector& scale, vector<int>& notes) {
                     closest = i;
                     bestMaxInterval = maxInterval;
                 } else if (maxInterval == bestMaxInterval && closest != -1) {
-                    int toEdge = min(i, (int)scaleData.size() - 1 - i);
-                    int closestToEdge = min(closest, (int)scaleData.size() - 1 - closest);
+                    int toEdge = std::min(i, (int)scaleData.size() - 1 - i);
+                    int closestToEdge = std::min(closest, (int)scaleData.size() - 1 - closest);
                     if (toEdge < closestToEdge) {
                         closest = i;
                         bestMaxInterval = maxInterval;
@@ -514,8 +518,10 @@ PositionVector autoScale(PositionVector& scale, vector<int>& notes) {
         }
     }
 
-    return PositionVector(scaleData, scale.getMod(), scale.getUserRange(), 
-                         scale.getRangeUpdate(), scale.getUser());
+    return position_vector(scaleData, scale.mod(), scale.user_range(),
+                         scale.auto_range_updates(), scale.use_user_range());
 }
 
-#endif  
+} // namespace musicpp
+
+#endif // MUSICPP_AUTOMATIONS_H

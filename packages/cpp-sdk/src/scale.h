@@ -1,5 +1,5 @@
-#ifndef SCALE_H
-#define SCALE_H
+#ifndef MUSICPP_SCALE_H
+#define MUSICPP_SCALE_H
 
 #include "selection.h"
 
@@ -9,7 +9,7 @@
  * @author [not251]
  * @date 2025
  * @details This file contains the definition of the Scale class, which represents musical scales.
- *          The Scale class can be constructed from either a PositionVector or an IntervalVector,
+ *          The Scale class can be constructed from either a position_vector or an interval_vector,
  *          and supports various transformations such as transposition, mode selection, inversion,
  *          and mirroring. The class provides methods to retrieve the scale in both positional and
  *          intervallic forms, as well as access to its parameters and original generator.
@@ -21,6 +21,9 @@
  * @details This structure encapsulates the parameters used to define and transform a musical scale.
  *         It includes the root note, mode, degree, inversion settings, and mirroring settings.
  */
+
+namespace musicpp {
+
 struct ScaleParams {
     int root;
     int mode;
@@ -68,7 +71,7 @@ struct ScaleParams {
  * @brief Class to represent a musical scale with various transformations
  * 
  * @details The Scale class encapsulates a musical scale that can be defined
- *          using either a PositionVector or an IntervalVector as its generator.
+ *          using either a position_vector or an interval_vector as its generator.
  *          It supports transformations such as transposition (root), mode selection,
  *          inversion, and mirroring. The class provides methods to retrieve the scale
  *          in both positional and intervallic forms, as well as access to its parameters
@@ -78,15 +81,15 @@ struct ScaleParams {
  */
 class Scale {
 private:
-    IntervalVector intervals;
-    IntervalVector generator;
+    interval_vector intervals;
+    interval_vector generator;
     bool isFromPositions;
     ScaleParams params;
 
     // Apply transformations to the internal interval vector
     void applyTransformations() {
         intervals = generator;
-        intervals.setOffset(params.root);
+        intervals.set_offset(params.root);
         intervals = intervals.rotate(params.mode);
         if (params.invert) {
             intervals = intervals.inversion(params.inversionAxis);
@@ -97,8 +100,8 @@ private:
     }
 
 public:
-    // Constructor from IntervalVector
-    Scale(IntervalVector& generator, 
+    // Constructor from interval_vector
+    Scale(interval_vector& generator, 
           int root = 0, 
           int mode = 0, 
           int degree = 0, 
@@ -112,16 +115,16 @@ public:
         applyTransformations();
     }
 
-    // Constructor from IntervalVector with ScaleParams
-    Scale(IntervalVector& generator, const ScaleParams& params)
+    // Constructor from interval_vector with ScaleParams
+    Scale(interval_vector& generator, const ScaleParams& params)
         : generator(generator),
           isFromPositions(false),
           params(params) {
         applyTransformations();
     }
 
-    // Constructor from PositionVector
-    Scale(PositionVector& generator, 
+    // Constructor from position_vector
+    Scale(position_vector& generator, 
           int root = 0, 
           int mode = 0, 
           int degree = 0, 
@@ -129,38 +132,38 @@ public:
           int inversionAxis = 0, 
           bool mirror = false, 
           int mirrorAxis = 0)
-        : generator(positionsToIntervals(generator)),
+        : generator(positions_to_intervals(generator)),
           isFromPositions(true),
           params(root, mode, degree, invert, inversionAxis, mirror, mirrorAxis) {
         applyTransformations();
     }
 
-    // Constructor from PositionVector with ScaleParams
-    Scale(PositionVector& generator, const ScaleParams& params)
-        : generator(positionsToIntervals(generator)),
+    // Constructor from position_vector with ScaleParams
+    Scale(position_vector& generator, const ScaleParams& params)
+        : generator(positions_to_intervals(generator)),
           isFromPositions(true),
           params(params) {
         applyTransformations();
     }
 
-    // Get as PositionVector
-    PositionVector toPositions() const {
-        return intervalsToPositions(intervals);
+    // Get as position_vector
+    position_vector toPositions() const {
+        return intervals_to_positions(intervals);
     }
 
-    // Get as IntervalVector
-    IntervalVector toIntervals() const {
+    // Get as interval_vector
+    interval_vector toIntervals() const {
         return intervals;
     }
 
-    // Get original generator as IntervalVector
-    IntervalVector getGenerator() const {
+    // Get original generator as interval_vector
+    interval_vector getGenerator() const {
         return generator;
     }
 
-    // Get original generator as PositionVector (if applicable)
-    PositionVector getGeneratorAsPositions() const {
-        return intervalsToPositions(generator);
+    // Get original generator as position_vector (if applicable)
+    position_vector getGeneratorAsPositions() const {
+        return intervals_to_positions(generator);
     }
 
     // Get current parameters
@@ -175,7 +178,7 @@ public:
     bool getMirror() const { return params.mirror; }
     int getMirrorAxis() const { return params.mirrorAxis; }
     bool getIsFromPositions() const { return isFromPositions; }
-    IntervalVector getIntervals() const { return intervals; }
+    interval_vector getIntervals() const { return intervals; }
 
     // Individual setters
     void setRoot(int newRoot) { 
@@ -213,14 +216,14 @@ public:
         applyTransformations();
     }
 
-    void setGenerator(const IntervalVector& newGenerator) {
+    void setGenerator(const interval_vector& newGenerator) {
         generator = newGenerator;
         isFromPositions = false;
         applyTransformations();
     }
 
-    void setGenerator(const PositionVector& newGenerator) {
-        generator = positionsToIntervals(newGenerator);
+    void setGenerator(const position_vector& newGenerator) {
+        generator = positions_to_intervals(newGenerator);
         isFromPositions = true;
         applyTransformations();
     }
@@ -243,4 +246,6 @@ public:
     }
 };
 
-#endif // SCALE_H
+} // namespace musicpp
+
+#endif // MUSICPP_SCALE_H

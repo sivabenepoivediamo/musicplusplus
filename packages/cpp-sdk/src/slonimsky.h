@@ -1,7 +1,14 @@
-#ifndef SLONIMSKY_H
-#define SLONIMSKY_H
+#ifndef MUSICPP_SLONIMSKY_H
+#define MUSICPP_SLONIMSKY_H
 
-#include "./utility.h"
+#include "utility.h"
+
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+
+namespace musicpp {
 
 // ============================================================
 //  Slonimsky – Thesaurus of Musical Scales and Patterns
@@ -13,7 +20,7 @@
 
 namespace slonimsky {
 
-using Seq = vector<int>;
+using Seq = std::vector<int>;
 
 // ------------------------------------------------------------------
 // Helpers
@@ -31,16 +38,16 @@ inline Seq intervals(const Seq& x)
 inline int minInterval(const Seq& x)
 {
     const Seq d = intervals(x);
-    return *min_element(d.begin(), d.end());
+    return *std::min_element(d.begin(), d.end());
 }
 
 // Returns the permutation sigma for infrapolation (0-based).
 // Useful for verifying the ordering constraint on the offset vector.
-inline vector<int> infrapolationPermutation(int m)
+inline std::vector<int> infrapolationPermutation(int m)
 {
     const int h     = (m + 1) / 2;
     const int delta = (m % 2 == 0) ? 1 : 0;
-    vector<int> sigma(m);
+    std::vector<int> sigma(m);
     for (int i = 1; i <= m; ++i) {
         int val = (i <= h) ? m - 2 * (i - 1) : 2 * (i - h) - delta;
         sigma[i - 1] = val - 1;
@@ -382,11 +389,13 @@ inline Seq ultraInfraInterpolation(const Seq& x, int k, int l, int m)
 
 } // namespace slonimsky
 
-static void print(const string& label, const slonimsky::Seq& s)
+static void print(const std::string& label, const slonimsky::Seq& s)
 {
-    cout << label << ": [ ";
-    for (int v : s) cout << v << " ";
-    cout << "]\n";
+    std::cout << label << ": [ ";
+    for (int v : s) std::cout << v << " ";
+    std::cout << "]\n";
 }
 
-#endif // SLONIMSKY_H
+} // namespace musicpp
+
+#endif // MUSICPP_SLONIMSKY_H
