@@ -1,6 +1,10 @@
 #ifndef MUSICPP_TEST_SUPPORT_H
 #define MUSICPP_TEST_SUPPORT_H
 
+#if defined(_MSC_VER) && defined(_DEBUG) && !defined(__clang__)
+#include <crtdbg.h>
+#endif
+
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -315,5 +319,21 @@ inline void assert_binary_vector_eq_impl(
 
 #define TEST_OUTPUT(label, value) \
     ::musicpp_test::log_output_impl((label), (value))
+
+#if defined(_MSC_VER) && defined(_DEBUG) && !defined(__clang__)
+namespace {
+struct MusicppTestMsvcCrtToStderr {
+    MusicppTestMsvcCrtToStderr() {
+        _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+        _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+        _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+        _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+        _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+        _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+    }
+};
+static MusicppTestMsvcCrtToStderr musicpp_test_msvc_crt_to_stderr;
+} // namespace
+#endif
 
 #endif

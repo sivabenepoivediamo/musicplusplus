@@ -133,4 +133,11 @@ TEST_CASE("position_vector_note_name_examples", "[note_names]") {
     TEST_OUTPUT("note_names", system.positionVectorToNoteNames(pentatonic.complement(), sharps_non_diatonic).noteNames);
 }
 
+TEST_CASE("midi_numbers_empty_returns_empty_note_result", "[note_names]") {
+    NoteNamingSystem system;
+    NoteResult r = system.midiNumbersToNoteNames({}, NoteMapperOptions(true, false, 12));
+    ASSERT_TRUE(r.noteNames.empty());
+    ASSERT_TRUE(r.centsInfo.empty());
+}
+
 } // namespace

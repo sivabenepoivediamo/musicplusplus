@@ -6,6 +6,12 @@
 
 namespace {
 
+TEST_CASE("slonimsky_intervals_helper", "[slonimsky]") {
+    using namespace musicpp::slonimsky;
+    ASSERT_VECTOR_EQ(intervals({0, 6, 12}), std::vector<int>({6, 6}));
+    ASSERT_VECTOR_EQ(intervals({1, 3, 7}), std::vector<int>({2, 4}));
+}
+
 TEST_CASE("slonimsky_examples", "[slonimsky]") {
     using namespace musicpp::slonimsky;
 

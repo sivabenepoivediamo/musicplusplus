@@ -9,6 +9,7 @@
 
 using musicpp::Scale;
 using musicpp::ScaleDatabase;
+using musicpp::ScaleParams;
 using musicpp::autoScale;
 using musicpp::getRootNote;
 using musicpp::interval_vector;
@@ -218,6 +219,25 @@ TEST_CASE("scale_dictionary_examples", "[scale]") {
     TEST_CASE_LOG("dictionary_no_match");
     TEST_INPUT("query", no_match);
     TEST_OUTPUT("matches", scale_labels(no_match_results));
+}
+
+TEST_CASE("scale_params_chaining_and_merge", "[scale]") {
+    ScaleParams a;
+    ScaleParams b;
+    b.withRoot(7).withMode(3).withDegree(2).withInvert(true).withInversionAxis(4).withMirror(true).withMirrorAxis(1);
+    a.merge(b);
+    ASSERT_EQ(a.root, 7);
+    ASSERT_EQ(a.mode, 3);
+    ASSERT_EQ(a.degree, 2);
+    ASSERT_TRUE(a.invert);
+    ASSERT_EQ(a.inversionAxis, 4);
+    ASSERT_TRUE(a.mirror);
+    ASSERT_EQ(a.mirrorAxis, 1);
+
+    ScaleParams c;
+    c.withRoot(1).withMode(0);
+    ASSERT_EQ(c.root, 1);
+    ASSERT_EQ(c.mode, 0);
 }
 
 } // namespace

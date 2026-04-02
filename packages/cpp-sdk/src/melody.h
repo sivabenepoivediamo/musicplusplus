@@ -191,8 +191,10 @@ std::vector<VectorModification> parseModifications(
     const std::vector<int>&                         deltas,
     std::vector<VectorModification::Type>           types)
 {
-    if (types.size() == 1)
-        types.assign(deltas.size(), types[0]);
+    if (types.size() == 1) {
+        const VectorModification::Type broadcast = types[0];
+        types.assign(deltas.size(), broadcast);
+    }
 
     if (deltas.size() != types.size())
         throw std::runtime_error("Deltas and types must have the same length.");
