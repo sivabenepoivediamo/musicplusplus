@@ -4,6 +4,8 @@
 
 #include "../src/quantize_transpose.h"
 
+#include <stdexcept>
+
 namespace {
 
 using musicpp::position_vector;
@@ -57,6 +59,16 @@ TEST_CASE("transpose_negative_pitch_class_handling", "[quantize_transpose]") {
     position_vector outNotes;
     transpose(inScale, outScale, 0, 0, {-1}, outDeg, outNotes);
     ASSERT_TRUE(!outNotes.data().empty());
+}
+
+TEST_CASE("transpose_empty_output_scale_throws", "[quantize_transpose][safety]") {
+    position_vector inScale({0, 2, 4, 5, 7, 9, 11}, 12, 12);
+    position_vector outEmpty(std::vector<int>{}, 12, 12, true, false);
+    position_vector outDeg;
+    position_vector outNotes;
+    REQUIRE_THROWS_AS(
+        transpose(inScale, outEmpty, 0, 0, {0}, outDeg, outNotes),
+        std::invalid_argument);
 }
 
 TEST_CASE("transpose_empty_note_list", "[quantize_transpose]") {

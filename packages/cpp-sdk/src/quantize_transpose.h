@@ -4,6 +4,7 @@
 #include "position_vector.h"
 
 #include <algorithm>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -62,6 +63,7 @@ int quantize(int note, const std::vector<int>& scale, bool left = true) {
  * @param outDegrees Output position_vector that will contain the degree indices
  * @param outNotes Output position_vector that will contain the transposed notes
  * @return Pair of position_vectors: first contains degrees, second contains transposed notes
+ * @throw std::invalid_argument if the output scale has no pitch classes (empty `data()`)
  */
 std::pair<position_vector, position_vector> transpose(
     const position_vector& inputScale,
@@ -74,6 +76,9 @@ std::pair<position_vector, position_vector> transpose(
 {
     const std::vector<int>& inScale = inputScale.data();
     const std::vector<int>& outScale = outputscale.data();
+    if (outScale.empty()) {
+        throw std::invalid_argument("transpose: output scale must not be empty");
+    }
     int mod = inputScale.mod();
 
     std::vector<int> degreesData;
