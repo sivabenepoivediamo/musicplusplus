@@ -4,6 +4,8 @@
 
 #include "../src/chord_names.h"
 
+#include <stdexcept>
+
 namespace {
 
 using musicpp::analyzeChord;
@@ -17,10 +19,23 @@ TEST_CASE("note_to_string_octave_wrap", "[chord_names]") {
     ASSERT_EQ(noteToString(72), "C");
 }
 
+TEST_CASE("note_to_string_negative_midi_pitch_class", "[chord_names]") {
+    ASSERT_EQ(noteToString(-1), "B");
+    ASSERT_EQ(noteToString(-13), "B");
+    ASSERT_EQ(noteToString(-12), "C");
+}
+
 TEST_CASE("interval_to_string_known_and_fallback", "[chord_names]") {
     ASSERT_EQ(intervalToString(3), "m3");
     ASSERT_EQ(intervalToString(4), "M3");
     ASSERT_EQ(intervalToString(999), "999");
+}
+
+TEST_CASE("analyze_chord_invalid_root_throws", "[chord_names][safety]") {
+    REQUIRE_THROWS_AS(analyzeChord({}, 0), std::out_of_range);
+    std::vector<int> one = {60};
+    REQUIRE_THROWS_AS(analyzeChord(one, -1), std::out_of_range);
+    REQUIRE_THROWS_AS(analyzeChord(one, 1), std::out_of_range);
 }
 
 TEST_CASE("analyze_chord_nonzero_root_index", "[chord_names]") {

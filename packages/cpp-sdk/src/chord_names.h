@@ -69,16 +69,17 @@ struct ChordAnalysis {
 
 inline std::string noteToString(int midi) {
     const std::string notes[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-    return notes[midi % 12];
+    const int pc = ((midi % 12) + 12) % 12;
+    return notes[pc];
 }
 
 inline std::string intervalToString(int interval) {
-    std::map<int, std::string> intervalNames = {
+    static const std::map<int, std::string> intervalNames = {
         {1, "b2"}, {2, "2"}, {3, "m3"}, {4, "M3"}, {5, "4"}, {6, "b5/#4"}, 
         {7, "5"}, {8, "b6"}, {9, "6"}, {10, "7"}, {11, "maj7"},
         {13, "b9"}, {14, "9"}, {17, "11"}, {18, "#11"}, {20, "b13"}, {21, "13"}
     };
-    if (intervalNames.count(interval)) return intervalNames[interval];
+    if (intervalNames.count(interval)) return intervalNames.at(interval);
     return std::to_string(interval);
 }
 
@@ -93,7 +94,7 @@ inline ChordAnalysis analyzeChord(const std::vector<int>& midiNotes, int rootInd
     std::set<int> usedIntervals;
     
     for (size_t i = 0; i < midiNotes.size(); i++) {
-        if (i != rootIndex) {
+        if (static_cast<int>(i) != rootIndex) {
             int interval = midiNotes[i] - midiNotes[rootIndex];
             while (interval < 0) interval += 12;
             while (interval >= 24) interval -= 12;
