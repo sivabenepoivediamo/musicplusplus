@@ -3,6 +3,9 @@
 
 #include "position_vector.h"
 
+#include <algorithm>
+#include <climits>
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -132,10 +135,10 @@ private:
      * @brief Gets next consecutive note letter
      */
     char getNextNoteLetter(char currentNote) const {
-        auto it = find(noteOrder.begin(), noteOrder.end(), currentNote);
+        auto it = std::find(noteOrder.begin(), noteOrder.end(), currentNote);
         if (it == noteOrder.end()) return '\0';
         
-        size_t index = distance(noteOrder.begin(), it);
+        size_t index = std::distance(noteOrder.begin(), it);
         return noteOrder[(index + 1) % 7];
     }
     
@@ -258,7 +261,7 @@ private:
         }
         
         // Score all valid configurations and return the best one
-        int bestScore = INT_MIN;
+        int bestScore = std::numeric_limits<int>::min();
         std::vector<std::string> bestConfig;
         
         for (const auto& config : validConfigurations) {
@@ -279,7 +282,7 @@ private:
                                        char desiredBasicNote) const {
         // Find current note's group
         for (const auto& group : noteArrays) {
-            auto it = find(group.begin(), group.end(), currentNote);
+            auto it = std::find(group.begin(), group.end(), currentNote);
             if (it != group.end()) {
                 // Find alternative with desired basic note
                 for (const auto& note : group) {
@@ -312,12 +315,12 @@ private:
             }
             
             // Round to 2 decimal places
-            adjusted = round(adjusted * 100.0) / 100.0;
+            adjusted = std::round(adjusted * 100.0) / 100.0;
             
             // Separate integer and decimal parts
-            int intPart = static_cast<int>(floor(adjusted));
+            int intPart = static_cast<int>(std::floor(adjusted));
             double decPart = adjusted - intPart;
-            decPart = round(decPart * 100.0) / 100.0;
+            decPart = std::round(decPart * 100.0) / 100.0;
             
             processed.emplace_back(intPart, decPart);
         }
@@ -389,7 +392,7 @@ public:
                 const auto& possibleNotes = classifiedNotes[noteIndex];
                 
                 // Prefer natural notes
-                auto naturalIt = find_if(possibleNotes.begin(), possibleNotes.end(),
+                auto naturalIt = std::find_if(possibleNotes.begin(), possibleNotes.end(),
                     [](const ClassifiedNote& cn) { 
                         return cn.label == AlterationDirection::NATURAL; 
                     });
@@ -397,14 +400,14 @@ public:
                 if (naturalIt != possibleNotes.end()) {
                     result.push_back(naturalIt->note);
                 } else if (options.preferSharps) {
-                    auto sharpIt = find_if(possibleNotes.begin(), possibleNotes.end(),
+                    auto sharpIt = std::find_if(possibleNotes.begin(), possibleNotes.end(),
                         [](const ClassifiedNote& cn) { 
                             return cn.label == AlterationDirection::RIGHT; 
                         });
                     result.push_back(sharpIt != possibleNotes.end() ? 
                                           sharpIt->note : possibleNotes[0].note);
                 } else {
-                    auto flatIt = find_if(possibleNotes.begin(), possibleNotes.end(),
+                    auto flatIt = std::find_if(possibleNotes.begin(), possibleNotes.end(),
                         [](const ClassifiedNote& cn) { 
                             return cn.label == AlterationDirection::LEFT; 
                         });
@@ -418,7 +421,7 @@ public:
         std::vector<std::string> centsInfo;
         for (size_t i = 0; i < decimalParts.size(); ++i) {
             if (decimalParts[i] > 0.0) {
-                int cents = static_cast<int>(round(decimalParts[i] * 100.0));
+                int cents = static_cast<int>(std::round(decimalParts[i] * 100.0));
                 std::string finalNoteName = result[i];
                 int finalCents = cents;
                 
