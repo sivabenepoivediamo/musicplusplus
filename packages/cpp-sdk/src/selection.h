@@ -3,6 +3,20 @@
 
 #include "vectors.h"
 
+/**
+ * @file selection.h
+ * @brief `select` overloads: pick scale degrees or interval spans from a scale using a criterion.
+ *
+ * @par criterion_relative_mode / criterion_parallel_mode
+ * When non-zero, the criterion is stepped through `relative_mode` or `parallel_mode` before
+ * indexing, so you can read out a rotated or shifted criterion against the source.
+ *
+ * @par voices (`preVoices` in chord APIs)
+ * If `voices > 0`, the output length is exactly `voices` entries (padding or truncation
+ * follows the stepped criterion size). If `voices == 0`, the output length matches the
+ * stepped criterion length.
+ */
+
 namespace musicpp {
 
 inline position_vector select(const position_vector& source,
