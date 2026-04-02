@@ -135,7 +135,7 @@ npm run test --workspace=packages/cpp-sdk
 
 Public types live in **`namespace musicpp`** (see headers under `packages/cpp-sdk/src/`):
 
-- **Vectors**: `position_vector`, `interval_vector`, `binary_vector`, and **`vector_set`** (synchronized triple) in `vectors.h`; conversions **`positions_to_intervals`**, **`intervals_to_positions`**, **`positions_to_binary`**
+- **Vectors**: `position_vector`, `interval_vector`, `onset_vector`, and **`vector_set`** (synchronized triple) in `vectors.h`; conversions **`positions_to_intervals`**, **`intervals_to_positions`**, **`positions_to_onset`**
 - **Math**: `math_util.h` — `euclidean_division`, `gcd`, `lcm`
 - **Meta-operators**: `selection.h` — selection and modal operations
 - **Chord & scale**: `chord.h`, `scale.h`, `scale_dictionary.h`, `chord_names.h`

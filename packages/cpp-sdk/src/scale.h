@@ -90,7 +90,7 @@ private:
     void applyTransformations() {
         intervals = generator;
         intervals.set_offset(params.root);
-        intervals = intervals.rotate(params.mode);
+        intervals = intervals.parallel_mode(params.mode);
         if (params.invert) {
             intervals = intervals.inversion(params.inversionAxis);
         }

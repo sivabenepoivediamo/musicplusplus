@@ -12,13 +12,13 @@
 
 /**    
  * @file matrix.h
- * @brief Functions for generating musical matrices (modal, transposition, rototranslation)
+ * @brief Functions for generating musical matrices (modal, transposition, relative mode)
  * @author [not251]
  * @date 2025
  * @details This file contains functions to generate various musical matrices:
  * - Modal Matrix: Generates all rotations of an interval_vector or position_vector.
  * - Transposition Matrix: Generates all transpositions of a position_vector.
- * - Rototranslation Matrix: Generates rototranslations of a position_vector around a center.
+ * - Relative-mode matrix: All relative-mode extractions of a position_vector around a center.
  * - Modal Selection: Selects chords from a source vector based on modal criteria.
  * @note All operations respect cyclic properties and use Euclidean division where applicable.
  **/
@@ -29,9 +29,9 @@ namespace musicpp {
 // Forward declarations for ostream operators
 template<typename T> class ModalMatrix;
 class TranspositionMatrix;
-class RototranslationMatrix;
+class RelativeModeMatrix;
 template<typename T> class ModalSelectionMatrix;
-template<typename T> class ModalRototranslationMatrix;
+template<typename T> class ModalRelativeModeMatrix;
 
 // ==================== MATRIX CLASSES ====================
 
@@ -165,17 +165,17 @@ inline std::ostream& operator<<(std::ostream& os, const TranspositionMatrix& tm)
 }
 
 /**
- * @brief Class representing a rototranslation matrix for position_vectors
+ * @brief Class representing a relative-mode matrix for position_vectors
  */
-class RototranslationMatrix {
+class RelativeModeMatrix {
 private:
     std::vector<std::pair<position_vector, int>> data_;
     int center_;
 
 public:
-    RototranslationMatrix() : center_(0) {}
+    RelativeModeMatrix() : center_(0) {}
     
-    explicit RototranslationMatrix(const std::vector<std::pair<position_vector, int>>& data, int center = 0) 
+    explicit RelativeModeMatrix(const std::vector<std::pair<position_vector, int>>& data, int center = 0) 
         : data_(data), center_(center) {}
     
     // Access methods
@@ -197,7 +197,7 @@ public:
     // Get the underlying data
     const std::vector<std::pair<position_vector, int>>& getData() const { return data_; }
     
-    // Get the center used for rototranslation
+    // Get the center used for relative-mode rows
     int getCenter() const { return center_; }
     
     // Get only the vectors (without indices)
@@ -210,8 +210,8 @@ public:
         return result;
     }
     
-    // Get only the translation indices
-    std::vector<int> getTranslations() const {
+    // Get only the relative-mode offsets (row labels)
+    std::vector<int> get_relative_mode_offsets() const {
         std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
@@ -221,12 +221,12 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend std::ostream& operator<<(std::ostream& os, const RototranslationMatrix& rtm);
+    friend std::ostream& operator<<(std::ostream& os, const RelativeModeMatrix& rtm);
 };
 
-// ostream operator for RototranslationMatrix
-inline std::ostream& operator<<(std::ostream& os, const RototranslationMatrix& rtm) {
-    os << std::setw(6) << "Row" << " | " << std::setw(4) << "Position" << " | Vector\n";
+// ostream operator for RelativeModeMatrix
+inline std::ostream& operator<<(std::ostream& os, const RelativeModeMatrix& rtm) {
+    os << std::setw(6) << "Row" << " | " << std::setw(4) << "Rel." << " | Vector\n";
     os << std::string(60, '-') << "\n";
     for (size_t i = 0; i < rtm.size(); ++i) {
         os << std::setw(6) << i << " | " << std::setw(4) << rtm[i].second << " | " << rtm[i].first << "\n";
@@ -301,29 +301,29 @@ public:
 // ==================== MODAL ROTOTRANSLATION MATRIX CLASS ====================
 
 /**
- * @brief Class representing a modal selection where each row contains a rototranslation matrix
+ * @brief Class representing a modal selection where each row contains a relative-mode matrix
  * @tparam T Type of the vector (interval_vector or position_vector)
  */
 template<typename T>
-class ModalRototranslationMatrix {
+class ModalRelativeModeMatrix {
 private:
-    std::vector<std::pair<RototranslationMatrix, int>> data_; // (rototranslation matrix, mode index)
+    std::vector<std::pair<RelativeModeMatrix, int>> data_; // (relative-mode matrix, mode index)
 
 public:
-    ModalRototranslationMatrix() = default;
+    ModalRelativeModeMatrix() = default;
     
-    explicit ModalRototranslationMatrix(const std::vector<std::pair<RototranslationMatrix, int>>& data) 
+    explicit ModalRelativeModeMatrix(const std::vector<std::pair<RelativeModeMatrix, int>>& data) 
         : data_(data) {}
     
     // Access methods
     size_t size() const { return data_.size(); }
     bool empty() const { return data_.empty(); }
     
-    std::pair<RototranslationMatrix, int>& operator[](size_t i) { return data_[i]; }
-    const std::pair<RototranslationMatrix, int>& operator[](size_t i) const { return data_[i]; }
+    std::pair<RelativeModeMatrix, int>& operator[](size_t i) { return data_[i]; }
+    const std::pair<RelativeModeMatrix, int>& operator[](size_t i) const { return data_[i]; }
     
-    std::pair<RototranslationMatrix, int>& at(size_t i) { return data_.at(i); }
-    const std::pair<RototranslationMatrix, int>& at(size_t i) const { return data_.at(i); }
+    std::pair<RelativeModeMatrix, int>& at(size_t i) { return data_.at(i); }
+    const std::pair<RelativeModeMatrix, int>& at(size_t i) const { return data_.at(i); }
     
     // Iterator support
     auto begin() { return data_.begin(); }
@@ -332,11 +332,11 @@ public:
     auto end() const { return data_.end(); }
     
     // Get the underlying data
-    const std::vector<std::pair<RototranslationMatrix, int>>& getData() const { return data_; }
+    const std::vector<std::pair<RelativeModeMatrix, int>>& getData() const { return data_; }
     
-    // Get only the rototranslation matrices
-    std::vector<RototranslationMatrix> getRototranslationMatrices() const {
-        std::vector<RototranslationMatrix> result;
+    // Get only the relative-mode matrices
+    std::vector<RelativeModeMatrix> get_relative_mode_matrices() const {
+        std::vector<RelativeModeMatrix> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
             result.emplace_back(row.first);
@@ -354,7 +354,7 @@ public:
         return result;
     }
     
-    // Get total number of rototranslated vectors across all matrices
+    // Get total number of relative-mode rows across all matrices
     size_t getTotalVectorCount() const {
         size_t count = 0;
         for (const auto& [matrix, _] : data_) {
@@ -364,7 +364,7 @@ public:
     }
     
     // Friend declaration for ostream operator
-    friend std::ostream& operator<<(std::ostream& os, const ModalRototranslationMatrix<T>& mrtm) {
+    friend std::ostream& operator<<(std::ostream& os, const ModalRelativeModeMatrix<T>& mrtm) {
         for (size_t i = 0; i < mrtm.size(); ++i) {
             os << "Rotation " << i + 1 << " (degree " << mrtm[i].second << "):\n";
             os << mrtm[i].first;
@@ -379,8 +379,8 @@ public:
 /**
  * @brief Generates the modal matrix of an interval_vector    
  * @param iv Input interval_vector
- * @return ModalMatrix containing rotations and indices
- * @details Each row is a rotation of the input interval_vector.  
+ * @return ModalMatrix containing parallel-mode rows and indices
+ * @details Each row applies parallel_mode(i) to the input interval_vector.
  */ 
 ModalMatrix<interval_vector> modalMatrix(interval_vector iv) {
     int n = iv.size();
@@ -388,7 +388,7 @@ ModalMatrix<interval_vector> modalMatrix(interval_vector iv) {
     matrix.reserve(n);
     
     for (int i = 0; i < n; ++i) {
-        interval_vector rotated = iv.rotate(i);
+        interval_vector rotated = iv.parallel_mode(i);
         matrix.emplace_back(std::make_pair(rotated, i));
     }
     
@@ -396,24 +396,23 @@ ModalMatrix<interval_vector> modalMatrix(interval_vector iv) {
 }
 
 /**
- * @brief Generates the rototranslation matrix of a position_vector
+ * @brief Generates the relative-mode matrix of a position_vector
  * @param in Input position_vector
- * @param center Center position for rototranslation
- * @return RototranslationMatrix containing rototranslations and indices
- * @details Each row is a rototranslation of the input position_vector around the specified center.
- *         The translation index indicates the offset applied.
+ * @param center Center index for the family of relative-mode rows
+ * @return RelativeModeMatrix containing relative-mode variants and indices
+ * @details Each row is relative_mode(i) of the input for i from center−n through center+n.
+ *         The stored index is i (relative-mode offset).
  *         The number of rows is determined by the size of the input vector.
- *         The center can be any integer, allowing for flexible translation.
  */
-RototranslationMatrix rototranslationMatrix(position_vector& in, int center) {
+RelativeModeMatrix relative_mode_matrix(position_vector& in, int center) {
     std::vector<std::pair<position_vector, int>> matrix;
     int n = in.size();
 
     for (int i = center - n; i < center + n+1; i++) {
-        position_vector row = in.roto_translate(i);
+        position_vector row = in.relative_mode(i);
         matrix.emplace_back(std::make_pair(row, i));
     }
-    return RototranslationMatrix(matrix, center);
+    return RelativeModeMatrix(matrix, center);
 }
 
 /**
@@ -527,26 +526,26 @@ ModalSelectionMatrix<position_vector> modalSelection(position_vector source, int
 // ==================== GENERATION FUNCTIONS ====================
 
 /**
- * @brief Generates a modal rototranslation matrix from a modal selection
+ * @brief Generates a modal relative-mode matrix from a modal selection
  * @param selection Input ModalSelectionMatrix
- * @return ModalRototranslationMatrix with rototranslation matrices for each selected chord
- * @details For each chord in the modal selection, generates a full rototranslation matrix
+ * @return ModalRelativeModeMatrix with a relative-mode matrix for each selected chord
+ * @details For each chord in the modal selection, generates a full relative_mode_matrix
  *          with center 0, preserving the mode index from the selection.
  */
-ModalRototranslationMatrix<position_vector> modalRototranslation(
+ModalRelativeModeMatrix<position_vector> modal_relative_mode(
     const ModalSelectionMatrix<position_vector>& selection)
 {
-    std::vector<std::pair<RototranslationMatrix, int>> result;
+    std::vector<std::pair<RelativeModeMatrix, int>> result;
     result.reserve(selection.size());
     
     for (size_t i = 0; i < selection.size(); ++i) {
         const auto& [chord, mode_idx] = selection[i];
-        position_vector pv = chord; // Make a copy since rototranslationMatrix takes non-const ref
-        RototranslationMatrix rtm = rototranslationMatrix(pv, 0);
+        position_vector pv = chord; // Make a copy since relative_mode_matrix takes non-const ref
+        RelativeModeMatrix rtm = relative_mode_matrix(pv, 0);
         result.emplace_back(std::make_pair(rtm, mode_idx));
     }
     
-    return ModalRototranslationMatrix<position_vector>(result);
+    return ModalRelativeModeMatrix<position_vector>(result);
 }
 
 /**

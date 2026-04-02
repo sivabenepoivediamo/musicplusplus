@@ -57,10 +57,10 @@ TEST_CASE("transposition_matrix_row_accessors", "[matrix_distance]") {
     ASSERT_POSITION_VECTOR_EQ(row.getVector(), musicpp_test::ints({0, 4, 7}), 12);
 }
 
-TEST_CASE("rototranslation_matrix_row_accessors", "[matrix_distance]") {
+TEST_CASE("relative_mode_matrix_row_accessors", "[matrix_distance]") {
     position_vector v({0, 4, 7});
-    RototranslationMatrixRow row(v, 3, 1.5, -1);
-    ASSERT_EQ(row.getTranslation(), 3);
+    RelativeModeMatrixRow row(v, 3, 1.5, -1);
+    ASSERT_EQ(row.get_relative_mode_offset(), 3);
     ASSERT_EQ(row.getCenter(), -1);
     ASSERT_NEAR(row.getDistance(), 1.5, 1e-9);
 }
@@ -78,44 +78,44 @@ TEST_CASE("transposition_matrix_distance_complexity_bounds", "[matrix_distance]"
     REQUIRE_THROWS_AS(tmd.getByComplexity(101), std::runtime_error);
 }
 
-TEST_CASE("modal_rototranslation_matrix_distance_empty_throws", "[matrix_distance]") {
-    ModalRototranslationMatrixDistance empty;
+TEST_CASE("modal_relative_mode_matrix_distance_empty_throws", "[matrix_distance]") {
+    ModalRelativeModeMatrixDistance empty;
     REQUIRE_THROWS_AS(empty.getClosest(), std::runtime_error);
     REQUIRE_THROWS_AS(empty.getFurthest(), std::runtime_error);
     REQUIRE_THROWS_AS(empty.getByComplexity(0), std::runtime_error);
 }
 
-TEST_CASE("modal_rototranslation_matrix_distance_complexity_bounds", "[matrix_distance]") {
+TEST_CASE("modal_relative_mode_matrix_distance_complexity_bounds", "[matrix_distance]") {
     position_vector v({0, 4, 7}, 12, 12);
     std::vector<std::tuple<int, int, position_vector, double>> rows = {
         {0, 0, v, 1.0},
     };
-    ModalRototranslationMatrixDistance mrd(rows);
+    ModalRelativeModeMatrixDistance mrd(rows);
     REQUIRE_THROWS_AS(mrd.getByComplexity(-1), std::runtime_error);
     REQUIRE_THROWS_AS(mrd.getByComplexity(101), std::runtime_error);
 }
 
-TEST_CASE("modal_rototranslation_matrix_distance_sort_and_closest", "[matrix_distance]") {
+TEST_CASE("modal_relative_mode_matrix_distance_sort_and_closest", "[matrix_distance]") {
     position_vector a({0, 4, 7}, 12, 12);
     position_vector b({1, 5, 8}, 12, 12);
     std::vector<std::tuple<int, int, position_vector, double>> rows = {
         {0, 0, a, 3.0},
         {1, 2, b, 0.5},
     };
-    ModalRototranslationMatrixDistance mrd(rows);
+    ModalRelativeModeMatrixDistance mrd(rows);
     mrd.sortByDistance();
     ASSERT_NEAR(std::get<3>(mrd[0]), 0.5, 1e-9);
     auto closest = mrd.getClosest();
     ASSERT_NEAR(closest.getDistance(), 0.5, 1e-9);
     ASSERT_EQ(closest.getModeIndex(), 1);
-    ASSERT_EQ(closest.getTranslationIndex(), 2);
+    ASSERT_EQ(closest.get_relative_mode_index(), 2);
 }
 
-TEST_CASE("modal_rototranslation_matrix_row_accessors", "[matrix_distance]") {
+TEST_CASE("modal_relative_mode_matrix_row_accessors", "[matrix_distance]") {
     position_vector v({0, 4, 7}, 12, 12);
-    ModalRototranslationMatrixRow row(5, -1, v, 2.25);
+    ModalRelativeModeMatrixRow row(5, -1, v, 2.25);
     ASSERT_EQ(row.getModeIndex(), 5);
-    ASSERT_EQ(row.getTranslationIndex(), -1);
+    ASSERT_EQ(row.get_relative_mode_index(), -1);
     ASSERT_NEAR(row.getDistance(), 2.25, 1e-9);
     ASSERT_POSITION_VECTOR_EQ(row.getVector(), musicpp_test::ints({0, 4, 7}), 12);
     std::ostringstream oss;

@@ -279,16 +279,16 @@ std::vector<int> tihai(int steps, int repetitions, bool pseudo) {
 }
 
 /**
- * @brief Generates a Tihai rhythm as a binary_vector
+ * @brief Generates a Tihai rhythm as an onset_vector
  * @param steps Total number of steps in the pattern
  * @param repetitions Number of repetitions of the pattern
  * @param pseudo If true, recursively adjusts pattern to avoid all-silence or all-onset cases
- * @param offset Offset to apply to the binary_vector
- * @return binary_vector representing the Tihai rhythm
+ * @param offset Offset to apply to the onset_vector
+ * @return onset_vector representing the Tihai rhythm
  */
-binary_vector tihai(int steps, int repetitions, bool pseudo, int offset) {
+onset_vector tihai(int steps, int repetitions, bool pseudo, int offset) {
     std::vector<int> pattern = tihai(steps, repetitions, pseudo);
-    return binary_vector(pattern, offset, steps);
+    return onset_vector(pattern, offset, steps);
 }
 
 } // namespace musicpp

@@ -49,7 +49,7 @@ TEST_CASE("chord_class_examples", "[chord]") {
     interval_vector grouping({2}, 0, 12);
 
     ChordParams params;
-    params.withShift(0).withPosition(1).withPreVoices(3);
+    params.withShift(0).with_relative_mode(1).withPreVoices(3);
 
     Chord chord1(c_major_scale, triad_degrees, params);
     Chord chord2(c_major_scale, grouping, params);
@@ -61,11 +61,11 @@ TEST_CASE("chord_class_examples", "[chord]") {
     ASSERT_INTERVAL_VECTOR_EQ(chord3.toIntervals(), musicpp_test::ints({3, 4, 4}), 4, 12);
     ASSERT_INTERVAL_VECTOR_EQ(chord4.toIntervals(), musicpp_test::ints({3, 5, 4}), 4, 12);
 
-    chord1.setRotationOrRototrans(2);
+    chord1.set_criterion_mode(2);
     ASSERT_POSITION_VECTOR_EQ(chord1.toPositions(), musicpp_test::ints({12, 16, 19}), 12);
 
     ChordParams inverted_params;
-    inverted_params.withShift(0).withPosition(0).withPreVoices(3).withInvert(true).withAxis(6);
+    inverted_params.withShift(0).with_relative_mode(0).withPreVoices(3).withInvert(true).withAxis(6);
     Chord inverted_chord(c_major_scale, triad_degrees, inverted_params);
     ASSERT_POSITION_VECTOR_EQ(inverted_chord.toPositions(), musicpp_test::ints({-7, -4, 0}), 12);
 

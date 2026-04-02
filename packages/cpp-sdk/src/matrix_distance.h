@@ -115,48 +115,48 @@ public:
     }
 };
 
-// ==================== ROTOTRANSLATION MATRIX RESULT ====================
+// ==================== RELATIVE MODE MATRIX RESULT ====================
 
 /**
- * @brief Row wrapper for RototranslationMatrixDistance queries
+ * @brief Row wrapper for RelativeModeMatrixDistance queries
  */
-class RototranslationMatrixRow {
+class RelativeModeMatrixRow {
 private:
     position_vector vector_;
-    int translation_;
+    int relative_mode_offset_;
     double distance_;
     int center_;
 
 public:
-    RototranslationMatrixRow(const position_vector& vec, int trans, double dist, int center)
-        : vector_(vec), translation_(trans), distance_(dist), center_(center) {}
+    RelativeModeMatrixRow(const position_vector& vec, int trans, double dist, int center)
+        : vector_(vec), relative_mode_offset_(trans), distance_(dist), center_(center) {}
     
     // Construct from tuple + center
-    RototranslationMatrixRow(const std::tuple<position_vector, int, double>& t, int center)
-        : vector_(std::get<0>(t)), translation_(std::get<1>(t)), distance_(std::get<2>(t)), center_(center) {}
+    RelativeModeMatrixRow(const std::tuple<position_vector, int, double>& t, int center)
+        : vector_(std::get<0>(t)), relative_mode_offset_(std::get<1>(t)), distance_(std::get<2>(t)), center_(center) {}
     
     // Accessors
     const position_vector& getVector() const { return vector_; }
-    int getTranslation() const { return translation_; }
+    int get_relative_mode_offset() const { return relative_mode_offset_; }
     double getDistance() const { return distance_; }
     int getCenter() const { return center_; }
     
     position_vector& getVector() { return vector_; }
     
     std::tuple<position_vector, int, double> toTuple() const {
-        return std::make_tuple(vector_, translation_, distance_);
+        return std::make_tuple(vector_, relative_mode_offset_, distance_);
     }
     
     std::string toString() const {
         std::ostringstream oss;
-        oss << "Position = " << translation_ 
+        oss << "Relative mode offset = " << relative_mode_offset_ 
             << ", Center = " << center_
             << ", Distance = " << distance_ 
             << ", Vector = " << vector_ << ")";
         return oss.str();
     }
     
-    friend std::ostream& operator<<(std::ostream& os, const RototranslationMatrixRow& r) {
+    friend std::ostream& operator<<(std::ostream& os, const RelativeModeMatrixRow& r) {
         return os << r.toString();
     }
 };
@@ -206,49 +206,49 @@ public:
     }
 };
 
-// ==================== MODAL ROTOTRANSLATION MATRIX RESULT ====================
+// ==================== MODAL RELATIVE MODE MATRIX RESULT ====================
 
 /**
- * @brief Row wrapper for ModalRototranslationMatrixDistance queries
+ * @brief Row wrapper for ModalRelativeModeMatrixDistance queries
  */
-class ModalRototranslationMatrixRow {
+class ModalRelativeModeMatrixRow {
 private:
     int modeIndex_;
-    int translationIndex_;
+    int relative_mode_index_;
     position_vector vector_;
     double distance_;
 
 public:
-    ModalRototranslationMatrixRow(int mode, int trans, const position_vector& vec, double dist)
-        : modeIndex_(mode), translationIndex_(trans), vector_(vec), distance_(dist) {}
+    ModalRelativeModeMatrixRow(int mode, int trans, const position_vector& vec, double dist)
+        : modeIndex_(mode), relative_mode_index_(trans), vector_(vec), distance_(dist) {}
     
     // Construct from tuple
-    explicit ModalRototranslationMatrixRow(const std::tuple<int, int, position_vector, double>& t)
-        : modeIndex_(std::get<0>(t)), translationIndex_(std::get<1>(t)), 
+    explicit ModalRelativeModeMatrixRow(const std::tuple<int, int, position_vector, double>& t)
+        : modeIndex_(std::get<0>(t)), relative_mode_index_(std::get<1>(t)), 
           vector_(std::get<2>(t)), distance_(std::get<3>(t)) {}
     
     // Accessors
     int getModeIndex() const { return modeIndex_; }
-    int getTranslationIndex() const { return translationIndex_; }
+    int get_relative_mode_index() const { return relative_mode_index_; }
     const position_vector& getVector() const { return vector_; }
     double getDistance() const { return distance_; }
     
     position_vector& getVector() { return vector_; }
     
     std::tuple<int, int, position_vector, double> toTuple() const {
-        return std::make_tuple(modeIndex_, translationIndex_, vector_, distance_);
+        return std::make_tuple(modeIndex_, relative_mode_index_, vector_, distance_);
     }
     
     std::string toString() const {
         std::ostringstream oss;
         oss << "Degree = " << modeIndex_ 
-            << ", Positions = " << translationIndex_
+            << ", Relative mode = " << relative_mode_index_
             << ", Distance = " << distance_ 
             << ", Vector = " << vector_ << ")";
         return oss.str();
     }
     
-    friend std::ostream& operator<<(std::ostream& os, const ModalRototranslationMatrixRow& r) {
+    friend std::ostream& operator<<(std::ostream& os, const ModalRelativeModeMatrixRow& r) {
         return os << r.toString();
     }
 };
@@ -473,17 +473,17 @@ public:
 };
 
 /**
- * @brief Class representing a rototranslation matrix with distance metrics
+ * @brief Class representing a relative-mode matrix with distance metrics
  */
-class RototranslationMatrixDistance {
+class RelativeModeMatrixDistance {
 private:
-    std::vector<std::tuple<position_vector, int, double>> data_; // (vector, translation, distance)
+    std::vector<std::tuple<position_vector, int, double>> data_; // (vector, relative_mode_offset, distance)
     int center_;
 
 public:
-    RototranslationMatrixDistance() : center_(0) {}
+    RelativeModeMatrixDistance() : center_(0) {}
     
-    explicit RototranslationMatrixDistance(const std::vector<std::tuple<position_vector, int, double>>& data, int center = 0) 
+    explicit RelativeModeMatrixDistance(const std::vector<std::tuple<position_vector, int, double>>& data, int center = 0) 
         : data_(data), center_(center) {}
     
     // Access methods
@@ -526,8 +526,8 @@ public:
         return result;
     }
     
-    // Get only the translation indices
-    std::vector<int> getTranslations() const {
+    // Get only the relative-mode offsets (row indices in the matrix)
+    std::vector<int> get_relative_mode_offsets() const {
         std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
@@ -547,7 +547,7 @@ public:
     }
     
     // Get the closest match
-    RototranslationMatrixRow getByComplexity(int complexity = 0) const {
+    RelativeModeMatrixRow getByComplexity(int complexity = 0) const {
         if (data_.empty()) {
             throw std::runtime_error("Cannot get by complexity from empty matrix");
         }
@@ -556,10 +556,10 @@ public:
         }
         
         size_t index = static_cast<size_t>((complexity / 100.0) * (data_.size() - 1));
-        return RototranslationMatrixRow(data_[index], center_);
+        return RelativeModeMatrixRow(data_[index], center_);
     }
     
-    RototranslationMatrixRow getClosest() const {
+    RelativeModeMatrixRow getClosest() const {
         if (data_.empty()) {
             throw std::runtime_error("Cannot get closest from empty matrix");
         }
@@ -567,10 +567,10 @@ public:
             [](const auto& a, const auto& b) {
                 return std::get<2>(a) < std::get<2>(b);
             });
-        return RototranslationMatrixRow(*it, center_);
+        return RelativeModeMatrixRow(*it, center_);
     }
     
-    RototranslationMatrixRow getFurthest() const {
+    RelativeModeMatrixRow getFurthest() const {
         if (data_.empty()) {
             throw std::runtime_error("Cannot get furthest from empty matrix");
         }
@@ -578,7 +578,7 @@ public:
             [](const auto& a, const auto& b) {
                 return std::get<2>(a) < std::get<2>(b);
             });
-        return RototranslationMatrixRow(*it, center_);
+        return RelativeModeMatrixRow(*it, center_);
     }
 };
 
@@ -819,16 +819,16 @@ int align(position_vector reference, position_vector target){
 }
 
 /**
- * @brief Calculates distances between a reference position_vector and a RototranslationMatrix
+ * @brief Calculates distances between a reference position_vector and a RelativeModeMatrix
  * @param reference Reference position_vector to compare against
- * @param matrix Input RototranslationMatrix
+ * @param matrix Input RelativeModeMatrix
  * @param distFunc Distance function to use
  * @param sort If true, sort results by distance (default: true)
- * @return RototranslationMatrixDistance with computed distances
+ * @return RelativeModeMatrixDistance with computed distances
  */
-RototranslationMatrixDistance calculateDistances(
+RelativeModeMatrixDistance calculateDistances(
     const position_vector& reference,
-    const RototranslationMatrix& matrix,
+    const RelativeModeMatrix& matrix,
     DistanceFuncPV distFunc = manhattanDistance,
     bool sort = true)
 {
@@ -840,7 +840,7 @@ RototranslationMatrixDistance calculateDistances(
         double dist = distFunc(reference, vec);
         result.emplace_back(std::make_tuple(vec, idx, dist));
     }
-    auto rmd = RototranslationMatrixDistance(result, matrix.getCenter());
+    auto rmd = RelativeModeMatrixDistance(result, matrix.getCenter());
     if (sort) {
         rmd.sortByDistance();
     }
@@ -910,17 +910,17 @@ ModalSelectionMatrixDistance<interval_vector> calculateDistances(
 // ==================== MODAL ROTOTRANSLATION DISTANCE MATRIX CLASS ====================
 
 /**
- * @brief Class representing distance metrics for a modal rototranslation matrix
+ * @brief Class representing distance metrics for a modal relative-mode matrix
  */
-class ModalRototranslationMatrixDistance {
+class ModalRelativeModeMatrixDistance {
 private:
-    // (mode_index, translation_index, vector, distance)
+    // (mode_index, relative_mode_index, vector, distance)
     std::vector<std::tuple<int, int, position_vector, double>> data_;
 
 public:
-    ModalRototranslationMatrixDistance() = default;
+    ModalRelativeModeMatrixDistance() = default;
     
-    explicit ModalRototranslationMatrixDistance(
+    explicit ModalRelativeModeMatrixDistance(
         const std::vector<std::tuple<int, int, position_vector, double>>& data) 
         : data_(data) {}
     
@@ -982,8 +982,8 @@ public:
         return result;
     }
     
-    // Get only the translation indices
-    std::vector<int> getTranslationIndices() const {
+    // Get only the relative-mode indices (within each mode)
+    std::vector<int> get_relative_mode_indices() const {
         std::vector<int> result;
         result.reserve(data_.size());
         for (const auto& row : data_) {
@@ -1002,7 +1002,7 @@ public:
         return result;
     }
     
-    ModalRototranslationMatrixRow getByComplexity(int complexity = 0) const {
+    ModalRelativeModeMatrixRow getByComplexity(int complexity = 0) const {
         if (data_.empty()) {
             throw std::runtime_error("Cannot get by complexity from empty matrix");
         }
@@ -1011,10 +1011,10 @@ public:
         }
         
         size_t index = static_cast<size_t>((complexity / 100.0) * (data_.size() - 1));
-        return ModalRototranslationMatrixRow(data_[index]);
+        return ModalRelativeModeMatrixRow(data_[index]);
     }
     
-    ModalRototranslationMatrixRow getClosest() const {
+    ModalRelativeModeMatrixRow getClosest() const {
         if (data_.empty()) {
             throw std::runtime_error("Cannot get closest from empty matrix");
         }
@@ -1022,10 +1022,10 @@ public:
             [](const auto& a, const auto& b) {
                 return std::get<3>(a) < std::get<3>(b);
             });
-        return ModalRototranslationMatrixRow(*it);
+        return ModalRelativeModeMatrixRow(*it);
     }
     
-    ModalRototranslationMatrixRow getFurthest() const {
+    ModalRelativeModeMatrixRow getFurthest() const {
         if (data_.empty()) {
             throw std::runtime_error("Cannot get furthest from empty matrix");
         }
@@ -1033,25 +1033,25 @@ public:
             [](const auto& a, const auto& b) {
                 return std::get<3>(a) < std::get<3>(b);
             });
-        return ModalRototranslationMatrixRow(*it);
+        return ModalRelativeModeMatrixRow(*it);
     }
     
 };
 
 
 /**
- * @brief Calculates distances between a reference vector and all vectors in a modal rototranslation matrix
+ * @brief Calculates distances between a reference vector and all vectors in a modal relative-mode matrix
  * @param reference Reference position_vector to compare against
- * @param matrix Input ModalRototranslationMatrix
+ * @param matrix Input ModalRelativeModeMatrix
  * @param distFunc Distance function to use
  * @param sort If true, sort results by distance (default: true)
- * @return ModalRototranslationMatrixDistance with computed distances
- * @details Computes the distance from the reference to every rototranslated vector
- *          in every mode, storing mode index, translation index, vector, and distance.
+ * @return ModalRelativeModeMatrixDistance with computed distances
+ * @details Computes the distance from the reference to every relative-mode variant
+ *          in every mode, storing mode index, relative-mode index, vector, and distance.
  */
-ModalRototranslationMatrixDistance calculateDistances(
+ModalRelativeModeMatrixDistance calculateDistances(
     const position_vector& reference,
-    const ModalRototranslationMatrix<position_vector>& matrix,
+    const ModalRelativeModeMatrix<position_vector>& matrix,
     DistanceFuncPV distFunc = manhattanDistance,
     bool sort = true)
 {
@@ -1068,7 +1068,7 @@ ModalRototranslationMatrixDistance calculateDistances(
         }
     }
     
-    auto mrmd = ModalRototranslationMatrixDistance(result);
+    auto mrmd = ModalRelativeModeMatrixDistance(result);
     if (sort) {
         mrmd.sortByDistance();
     }
@@ -1112,9 +1112,9 @@ inline void printMatrixDistance(const TranspositionMatrixDistance& tmd, std::ost
     }
 }
 
-// Print a RototranslationMatrixDistance
-inline void printMatrixDistance(const RototranslationMatrixDistance& rmd, std::ostream& out = std::cout) {
-    out << std::left << std::setw(6) << "Row" << std::setw(16) << "Position" << std::setw(30) << "Vector" << std::setw(10) << "Distance" << "Center" << '\n';
+// Print a RelativeModeMatrixDistance
+inline void printMatrixDistance(const RelativeModeMatrixDistance& rmd, std::ostream& out = std::cout) {
+    out << std::left << std::setw(6) << "Row" << std::setw(16) << "Rel.mode" << std::setw(30) << "Vector" << std::setw(10) << "Distance" << "Center" << '\n';
     out << std::string(80, '-') << '\n';
     for (size_t i = 0; i < rmd.size(); ++i) {
         const auto& [vec, idx, dist] = rmd[i];
@@ -1133,12 +1133,12 @@ void printMatrixDistance(const ModalSelectionMatrixDistance<T>& mmd, std::ostrea
     }
 }
 
-// Print a ModalRototranslationMatrixDistance
-inline void printMatrixDistance(const ModalRototranslationMatrixDistance& mrmd, std::ostream& out = std::cout) {
+// Print a ModalRelativeModeMatrixDistance
+inline void printMatrixDistance(const ModalRelativeModeMatrixDistance& mrmd, std::ostream& out = std::cout) {
     out << std::left 
         << std::setw(6) << "Row" 
         << std::setw(10) << "Degree" 
-        << std::setw(12) << "Position" 
+        << std::setw(12) << "Rel.mode" 
         << std::setw(30) << "Vector" 
         << "Distance" << '\n';
     out << std::string(80, '-') << '\n';
@@ -1182,7 +1182,7 @@ inline void print_tuple_T_int_double(const std::tuple<T, int, double>& e, std::o
     out << tuple_T_int_double_to_string(e) << '\n';
 }
 
-// Convenience overloads that accept a ModalMatrixDistance / ModalSelectionMatrixDistance / TranspositionMatrixDistance / RototranslationMatrixDistance element:
+// Convenience overloads that accept a ModalMatrixDistance / ModalSelectionMatrixDistance / TranspositionMatrixDistance / RelativeModeMatrixDistance element:
 template <typename T>
 inline void printMatrixRow(const ModalMatrixDistance<T>& mmd, size_t row, std::ostream& out = std::cout) {
     if (row >= mmd.size()) { out << "row out of range\n"; return; }
@@ -1200,12 +1200,12 @@ inline void printTranspositionRow(const TranspositionMatrixDistance& tmd, size_t
     print_tuple_T_int_double(tmd[row], out); // T == position_vector
 }
 
-inline void printRototranslationRow(const RototranslationMatrixDistance& rmd, size_t row, std::ostream& out = std::cout) {
+inline void print_relative_mode_row(const RelativeModeMatrixDistance& rmd, size_t row, std::ostream& out = std::cout) {
     if (row >= rmd.size()) { out << "row out of range\n"; return; }
     print_tuple_T_int_double(rmd[row], out); // T == position_vector
 }
 
-// -------------------- MODAL ROTOTRANSLATION (int,int,position_vector,double) HELPERS --------------------
+// -------------------- MODAL RELATIVE MODE (int,int,position_vector,double) HELPERS --------------------
 
 // String/print helpers for std::tuple<int, int, position_vector, double>
 inline std::string tuple_int_int_PV_double_to_string(const std::tuple<int, int, position_vector, double>& e) {
@@ -1216,7 +1216,7 @@ inline std::string tuple_int_int_PV_double_to_string(const std::tuple<int, int, 
     double dist = std::get<3>(e);
 
     oss << "mode=" << mode
-        << " trans=" << trans
+        << " rel_mode=" << trans
         << " vec=" << vecToString(vec)
         << " dist=" << dist;
     return oss.str();
@@ -1227,8 +1227,8 @@ inline void print_tuple_int_int_PV_double(const std::tuple<int, int, position_ve
     out << tuple_int_int_PV_double_to_string(e) << '\n';
 }
 
-// Convenience printer for a row of ModalRototranslationMatrixDistance
-inline void printModalRototranslationRow(const ModalRototranslationMatrixDistance& mrmd, size_t row, std::ostream& out = std::cout) {
+// Convenience printer for a row of ModalRelativeModeMatrixDistance
+inline void print_modal_relative_mode_row(const ModalRelativeModeMatrixDistance& mrmd, size_t row, std::ostream& out = std::cout) {
     if (row >= mrmd.size()) { out << "row out of range\n"; return; }
     print_tuple_int_int_PV_double(mrmd[row], out);
 }

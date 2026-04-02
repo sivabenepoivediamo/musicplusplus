@@ -21,7 +21,7 @@ namespace musicpp_test {
 
 using musicpp::position_vector;
 using musicpp::interval_vector;
-using musicpp::binary_vector;
+using musicpp::onset_vector;
 using musicpp::vector_set;
 
 struct AssertionError : std::runtime_error {
@@ -96,7 +96,7 @@ inline std::string debug_string(const interval_vector& value) {
     return oss.str();
 }
 
-inline std::string debug_string(const binary_vector& value) {
+inline std::string debug_string(const onset_vector& value) {
     std::ostringstream oss;
     oss << "{data=" << debug_string(value.data())
         << ", offset=" << value.offset()
@@ -263,8 +263,8 @@ inline void assert_interval_vector_eq_impl(
     }
 }
 
-inline void assert_binary_vector_eq_impl(
-    const binary_vector& actual,
+inline void assert_onset_vector_eq_impl(
+    const onset_vector& actual,
     const std::vector<int>& expected,
     int expected_offset,
     int expected_mod,
@@ -302,8 +302,8 @@ inline void assert_binary_vector_eq_impl(
 #define ASSERT_INTERVAL_VECTOR_EQ(actual, expected, expected_offset, expected_mod) \
     ::musicpp_test::assert_interval_vector_eq_impl((actual), (expected), (expected_offset), (expected_mod), #actual, #expected, __FILE__, __LINE__)
 
-#define ASSERT_BINARY_VECTOR_EQ(actual, expected, expected_offset, expected_mod) \
-    ::musicpp_test::assert_binary_vector_eq_impl((actual), (expected), (expected_offset), (expected_mod), #actual, #expected, __FILE__, __LINE__)
+#define ASSERT_ONSET_VECTOR_EQ(actual, expected, expected_offset, expected_mod) \
+    ::musicpp_test::assert_onset_vector_eq_impl((actual), (expected), (expected_offset), (expected_mod), #actual, #expected, __FILE__, __LINE__)
 
 #define TEST_LOG(label, value) \
     ::musicpp_test::log_value_impl((label), (value))

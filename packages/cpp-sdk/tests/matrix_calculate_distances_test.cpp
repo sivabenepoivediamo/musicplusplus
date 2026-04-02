@@ -50,15 +50,15 @@ TEST_CASE("align_chord_pair", "[matrix][distance]") {
     ASSERT_EQ(align(c_major_chord, g_major_chord), -2);
 }
 
-TEST_CASE("calculate_distances_modal_rototranslation_closest", "[matrix][distance]") {
+TEST_CASE("calculate_distances_modal_relative_mode_closest", "[matrix][distance]") {
     position_vector c_major({0, 2, 4, 5, 7, 9, 11});
     interval_vector crit({2, 2, 3});
     position_vector g_major_chord({7, 11, 14});
     auto sel = modalSelection(c_major, crit, 0);
-    auto mrmd = calculateDistances(g_major_chord, modalRototranslation(sel), manhattanDistance, true);
+    auto mrmd = calculateDistances(g_major_chord, modal_relative_mode(sel), manhattanDistance, true);
     auto best = mrmd.getClosest();
     ASSERT_EQ(best.getModeIndex(), 0);
-    ASSERT_EQ(best.getTranslationIndex(), 2);
+    ASSERT_EQ(best.get_relative_mode_index(), 2);
     ASSERT_NEAR(best.getDistance(), 3.0, 1e-6);
 }
 

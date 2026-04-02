@@ -92,8 +92,8 @@ TEST_CASE("euclidean_interval_vector_odd_split", "[rhythm][util]") {
     ASSERT_EQ(sum, 12);
 }
 
-TEST_CASE("tihai_binary_vector_wrap", "[rhythm][util]") {
-    binary_vector bv = tihai(8, 3, false, 1);
+TEST_CASE("tihai_onset_vector_wrap", "[rhythm][util]") {
+    onset_vector bv = tihai(8, 3, false, 1);
     ASSERT_EQ(bv.mod(), 8);
     ASSERT_EQ(bv.size(), static_cast<size_t>(8));
     ASSERT_EQ(bv.offset(), 1);

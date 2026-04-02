@@ -30,9 +30,9 @@ TEST_CASE("print_matrix_distance_transposition_smoke", "[matrix][print]") {
     ASSERT_TRUE(oss.str().find("Transposition") != std::string::npos);
 }
 
-TEST_CASE("print_matrix_distance_rototranslation_smoke", "[matrix][print]") {
+TEST_CASE("print_matrix_distance_relative_mode_smoke", "[matrix][print]") {
     position_vector v({0, 4, 7}, 12, 12);
-    RototranslationMatrixDistance rmd({{v, 0, 2.0}}, 5);
+    RelativeModeMatrixDistance rmd({{v, 0, 2.0}}, 5);
     std::ostringstream oss;
     printMatrixDistance(rmd, oss);
     const std::string s = oss.str();
@@ -40,9 +40,9 @@ TEST_CASE("print_matrix_distance_rototranslation_smoke", "[matrix][print]") {
     ASSERT_TRUE(s.find('5') != std::string::npos);
 }
 
-TEST_CASE("print_matrix_distance_modal_rototranslation_smoke", "[matrix][print]") {
+TEST_CASE("print_matrix_distance_modal_relative_mode_smoke", "[matrix][print]") {
     position_vector v({0, 4, 7}, 12, 12);
-    ModalRototranslationMatrixDistance mrmd({{1, -2, v, 4.5}});
+    ModalRelativeModeMatrixDistance mrmd({{1, -2, v, 4.5}});
     std::ostringstream oss;
     printMatrixDistance(mrmd, oss);
     ASSERT_TRUE(oss.str().find("Degree") != std::string::npos);
@@ -90,14 +90,14 @@ TEST_CASE("tuple_T_int_double_to_string_position", "[matrix][print]") {
     ASSERT_TRUE(s.find("dist=0.25") != std::string::npos);
 }
 
-TEST_CASE("print_rototranslation_row_ok_and_out_of_range", "[matrix][print]") {
+TEST_CASE("print_relative_mode_row_ok_and_out_of_range", "[matrix][print]") {
     position_vector v({0, 4, 7}, 12, 12);
-    RototranslationMatrixDistance rmd({{v, 3, 1.0}}, 0);
+    RelativeModeMatrixDistance rmd({{v, 3, 1.0}}, 0);
     std::ostringstream ok;
-    printRototranslationRow(rmd, 0, ok);
+    print_relative_mode_row(rmd, 0, ok);
     ASSERT_TRUE(ok.str().find("idx=3") != std::string::npos);
     std::ostringstream bad;
-    printRototranslationRow(rmd, 3, bad);
+    print_relative_mode_row(rmd, 3, bad);
     ASSERT_TRUE(bad.str().find("out of range") != std::string::npos);
 }
 
@@ -112,15 +112,15 @@ TEST_CASE("print_selection_row_position_ok_and_out_of_range", "[matrix][print]")
     ASSERT_TRUE(bad.str().find("out of range") != std::string::npos);
 }
 
-TEST_CASE("print_modal_rototranslation_row_ok_and_out_of_range", "[matrix][print]") {
+TEST_CASE("print_modal_relative_mode_row_ok_and_out_of_range", "[matrix][print]") {
     position_vector v({0, 4, 7}, 12, 12);
-    ModalRototranslationMatrixDistance mrmd({{2, 1, v, 8.0}});
+    ModalRelativeModeMatrixDistance mrmd({{2, 1, v, 8.0}});
     std::ostringstream ok;
-    printModalRototranslationRow(mrmd, 0, ok);
+    print_modal_relative_mode_row(mrmd, 0, ok);
     ASSERT_TRUE(ok.str().find("mode=2") != std::string::npos);
-    ASSERT_TRUE(ok.str().find("trans=1") != std::string::npos);
+    ASSERT_TRUE(ok.str().find("rel_mode=1") != std::string::npos);
     std::ostringstream bad;
-    printModalRototranslationRow(mrmd, 9, bad);
+    print_modal_relative_mode_row(mrmd, 9, bad);
     ASSERT_TRUE(bad.str().find("out of range") != std::string::npos);
 }
 
@@ -129,7 +129,7 @@ TEST_CASE("tuple_int_int_PV_double_string_and_print", "[matrix][print]") {
     auto t = std::make_tuple(1, -3, v, 0.125);
     auto s = tuple_int_int_PV_double_to_string(t);
     ASSERT_TRUE(s.find("mode=1") != std::string::npos);
-    ASSERT_TRUE(s.find("trans=-3") != std::string::npos);
+    ASSERT_TRUE(s.find("rel_mode=-3") != std::string::npos);
     ASSERT_TRUE(s.find("dist=0.125") != std::string::npos);
     std::ostringstream oss;
     print_tuple_int_int_PV_double(t, oss);

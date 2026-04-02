@@ -28,12 +28,12 @@ TEST_CASE("matrix_generation_examples", "[matrix]") {
     ASSERT_POSITION_VECTOR_EQ(transpositions[7].first, musicpp_test::ints({0, 2, 4, 6, 7, 9, 11}), 12);
 
     position_vector triad({0, 4, 7});
-    auto rototranslations = rototranslationMatrix(triad, 0);
-    ASSERT_EQ(rototranslations.getCenter(), 0);
-    ASSERT_EQ(rototranslations.size(), static_cast<size_t>(7));
-    ASSERT_POSITION_VECTOR_EQ(rototranslations[0].first, musicpp_test::ints({-12, -8, -5}), 12);
-    ASSERT_POSITION_VECTOR_EQ(rototranslations[3].first, musicpp_test::ints({0, 4, 7}), 12);
-    ASSERT_POSITION_VECTOR_EQ(rototranslations[6].first, musicpp_test::ints({12, 16, 19}), 12);
+    auto rel_mode_matrix = relative_mode_matrix(triad, 0);
+    ASSERT_EQ(rel_mode_matrix.getCenter(), 0);
+    ASSERT_EQ(rel_mode_matrix.size(), static_cast<size_t>(7));
+    ASSERT_POSITION_VECTOR_EQ(rel_mode_matrix[0].first, musicpp_test::ints({-12, -8, -5}), 12);
+    ASSERT_POSITION_VECTOR_EQ(rel_mode_matrix[3].first, musicpp_test::ints({0, 4, 7}), 12);
+    ASSERT_POSITION_VECTOR_EQ(rel_mode_matrix[6].first, musicpp_test::ints({12, 16, 19}), 12);
 
     TEST_CASE_LOG("matrix_generation");
     TEST_INPUT("intervals", major_scale_intervals);
@@ -45,9 +45,9 @@ TEST_CASE("matrix_generation_examples", "[matrix]") {
     TEST_OUTPUT("position_mode_3", position_modes[3].first);
     TEST_OUTPUT("transposition_0", transpositions[0].first);
     TEST_OUTPUT("transposition_7", transpositions[7].first);
-    TEST_OUTPUT("rototranslation_0", rototranslations[0].first);
-    TEST_OUTPUT("rototranslation_3", rototranslations[3].first);
-    TEST_OUTPUT("rototranslation_6", rototranslations[6].first);
+    TEST_OUTPUT("relative_mode_row_0", rel_mode_matrix[0].first);
+    TEST_OUTPUT("relative_mode_row_3", rel_mode_matrix[3].first);
+    TEST_OUTPUT("relative_mode_row_6", rel_mode_matrix[6].first);
 }
 
 TEST_CASE("matrix_selection_and_filter_examples", "[matrix]") {
@@ -64,10 +64,10 @@ TEST_CASE("matrix_selection_and_filter_examples", "[matrix]") {
     ASSERT_POSITION_VECTOR_EQ(position_selection[1].first, musicpp_test::ints({0, 4, 9}), 12);
     ASSERT_POSITION_VECTOR_EQ(position_selection[2].first, musicpp_test::ints({0, 5, 9}), 12);
 
-    auto modal_rototranslations = modalRototranslation(position_selection);
-    ASSERT_EQ(modal_rototranslations.size(), static_cast<size_t>(3));
-    ASSERT_EQ(modal_rototranslations.getModeIndices(), std::vector<int>({0, 5, 3}));
-    ASSERT_EQ(modal_rototranslations.getTotalVectorCount(), static_cast<size_t>(21));
+    auto modal_rel_mode = modal_relative_mode(position_selection);
+    ASSERT_EQ(modal_rel_mode.size(), static_cast<size_t>(3));
+    ASSERT_EQ(modal_rel_mode.getModeIndices(), std::vector<int>({0, 5, 3}));
+    ASSERT_EQ(modal_rel_mode.getTotalVectorCount(), static_cast<size_t>(21));
 
     std::vector<int> notes = {63};
     auto filtered_modes = filterModalMatrix(modalMatrix(c_major), notes);
@@ -115,12 +115,12 @@ TEST_CASE("matrix_distance_examples", "[matrix]") {
 
     int center = align(c_major_chord, g_major_chord);
     ASSERT_EQ(center, -2);
-    auto rototranslation_distances = calculateDistances(c_major_chord, rototranslationMatrix(g_major_chord, center));
-    auto best_rototranslation = rototranslation_distances.getByComplexity(complexity);
-    ASSERT_EQ(best_rototranslation.getTranslation(), -2);
-    ASSERT_EQ(best_rototranslation.getCenter(), -2);
-    ASSERT_NEAR(best_rototranslation.getDistance(), 3.0, 1e-6);
-    ASSERT_POSITION_VECTOR_EQ(best_rototranslation.getVector(), musicpp_test::ints({-1, 2, 7}), 12);
+    auto rel_mode_distances = calculateDistances(c_major_chord, relative_mode_matrix(g_major_chord, center));
+    auto best_rel_mode = rel_mode_distances.getByComplexity(complexity);
+    ASSERT_EQ(best_rel_mode.get_relative_mode_offset(), -2);
+    ASSERT_EQ(best_rel_mode.getCenter(), -2);
+    ASSERT_NEAR(best_rel_mode.getDistance(), 3.0, 1e-6);
+    ASSERT_POSITION_VECTOR_EQ(best_rel_mode.getVector(), musicpp_test::ints({-1, 2, 7}), 12);
 
     interval_vector crit({2, 2, 3});
     auto modal_selection_distances = calculateDistances(g_major_chord, modalSelection(c_major, crit, 0));
@@ -129,12 +129,12 @@ TEST_CASE("matrix_distance_examples", "[matrix]") {
     ASSERT_NEAR(best_degree.getDistance(), 18.0, 1e-6);
     ASSERT_POSITION_VECTOR_EQ(best_degree.getChord(), musicpp_test::ints({0, 5, 9}), 12);
 
-    auto modal_rototranslation_distances = calculateDistances(g_major_chord, modalRototranslation(modalSelection(c_major, crit, 0)));
-    auto best_modal_rototranslation = modal_rototranslation_distances.getByComplexity(complexity);
-    ASSERT_EQ(best_modal_rototranslation.getModeIndex(), 0);
-    ASSERT_EQ(best_modal_rototranslation.getTranslationIndex(), 2);
-    ASSERT_NEAR(best_modal_rototranslation.getDistance(), 3.0, 1e-6);
-    ASSERT_POSITION_VECTOR_EQ(best_modal_rototranslation.getVector(), musicpp_test::ints({7, 12, 16}), 12);
+    auto modal_rel_mode_distances = calculateDistances(g_major_chord, modal_relative_mode(modalSelection(c_major, crit, 0)));
+    auto best_modal_rel_mode = modal_rel_mode_distances.getByComplexity(complexity);
+    ASSERT_EQ(best_modal_rel_mode.getModeIndex(), 0);
+    ASSERT_EQ(best_modal_rel_mode.get_relative_mode_index(), 2);
+    ASSERT_NEAR(best_modal_rel_mode.getDistance(), 3.0, 1e-6);
+    ASSERT_POSITION_VECTOR_EQ(best_modal_rel_mode.getVector(), musicpp_test::ints({7, 12, 16}), 12);
 
     TEST_CASE_LOG("matrix_distance_search");
     TEST_INPUT("c_major", c_major);
@@ -146,12 +146,12 @@ TEST_CASE("matrix_distance_examples", "[matrix]") {
     TEST_OUTPUT("best_transposition_index", best_transposition.getTransposition());
     TEST_OUTPUT("best_mode", best_mode.getVector());
     TEST_OUTPUT("best_mode_index", best_mode.getIndex());
-    TEST_OUTPUT("best_rototranslation", best_rototranslation.getVector());
-    TEST_OUTPUT("best_rototranslation_translation", best_rototranslation.getTranslation());
+    TEST_OUTPUT("best_relative_mode", best_rel_mode.getVector());
+    TEST_OUTPUT("best_relative_mode_offset", best_rel_mode.get_relative_mode_offset());
     TEST_OUTPUT("best_degree", best_degree.getChord());
     TEST_OUTPUT("best_degree_mode_index", best_degree.getModeIndex());
-    TEST_OUTPUT("best_modal_rototranslation", best_modal_rototranslation.getVector());
-    TEST_OUTPUT("best_modal_rototranslation_mode_index", best_modal_rototranslation.getModeIndex());
+    TEST_OUTPUT("best_modal_relative_mode", best_modal_rel_mode.getVector());
+    TEST_OUTPUT("best_modal_relative_mode_mode_index", best_modal_rel_mode.getModeIndex());
 }
 
 } // namespace

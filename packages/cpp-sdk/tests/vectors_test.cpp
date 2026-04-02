@@ -5,7 +5,7 @@
 using musicpp::vector_set;
 using musicpp::position_vector;
 using musicpp::interval_vector;
-using musicpp::binary_vector;
+using musicpp::onset_vector;
 
 namespace {
 
@@ -25,8 +25,8 @@ TEST_CASE("vectors_construction_and_transforms", "[vectors]") {
     vector_set majorTriad = vector_set::from_positions({0, 4, 7});
     ASSERT_POSITION_VECTOR_EQ(majorTriad.positions(), musicpp_test::ints({0, 4, 7}), 12);
     ASSERT_INTERVAL_VECTOR_EQ(majorTriad.intervals(), musicpp_test::ints({4, 3, 5}), 0, 12);
-    ASSERT_BINARY_VECTOR_EQ(
-        majorTriad.binary(),
+    ASSERT_ONSET_VECTOR_EQ(
+        majorTriad.onset(),
         musicpp_test::ints({1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0}),
         0,
         12);
@@ -34,26 +34,26 @@ TEST_CASE("vectors_construction_and_transforms", "[vectors]") {
     vector_set fromIntervals = vector_set::from_intervals({4, 3, 5});
     ASSERT_POSITION_VECTOR_EQ(fromIntervals.positions(), musicpp_test::ints({0, 4, 7}), 12);
 
-    vector_set fromBinary = vector_set::from_binary({1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0});
+    vector_set fromBinary = vector_set::from_onset({1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0});
     ASSERT_POSITION_VECTOR_EQ(fromBinary.positions(), musicpp_test::ints({0, 4, 7}), 12);
 
     vector_set euclidean = vector_set::euclidean(5, 8);
     ASSERT_POSITION_VECTOR_EQ(euclidean.positions(), musicpp_test::ints({0, 2, 3, 5, 7}), -1);
     ASSERT_INTERVAL_VECTOR_EQ(euclidean.intervals(), musicpp_test::ints({2, 1, 2, 2, 1}), 0, -1);
-    ASSERT_BINARY_VECTOR_EQ(euclidean.binary(), musicpp_test::ints({1, 0, 1, 1, 0, 1, 0, 1}), 0, -1);
+    ASSERT_ONSET_VECTOR_EQ(euclidean.onset(), musicpp_test::ints({1, 0, 1, 1, 0, 1, 0, 1}), 0, -1);
 
     TEST_CASE_LOG("vectors_construction");
     TEST_INPUT("major_triad_source", musicpp_test::ints({0, 4, 7}));
     TEST_OUTPUT("major_triad.positions", majorTriad.positions());
     TEST_OUTPUT("major_triad.intervals", majorTriad.intervals());
-    TEST_OUTPUT("major_triad.binary", majorTriad.binary());
+    TEST_OUTPUT("major_triad.onset", majorTriad.onset());
     TEST_OUTPUT("from_intervals.positions", fromIntervals.positions());
-    TEST_OUTPUT("from_binary.positions", fromBinary.positions());
+    TEST_OUTPUT("from_onset.positions", fromBinary.positions());
     TEST_CASE_LOG("vectors_euclidean");
     TEST_INPUT("args", musicpp_test::ints({5, 8}));
     TEST_OUTPUT("positions", euclidean.positions());
     TEST_OUTPUT("intervals", euclidean.intervals());
-    TEST_OUTPUT("binary", euclidean.binary());
+    TEST_OUTPUT("onset", euclidean.onset());
 }
 
 TEST_CASE("vectors_operator_examples", "[vectors]") {
@@ -61,8 +61,8 @@ TEST_CASE("vectors_operator_examples", "[vectors]") {
 
     ASSERT_POSITION_VECTOR_EQ(majorTriad.transpose(5).positions(), musicpp_test::ints({5, 9, 12}), 12);
     ASSERT_POSITION_VECTOR_EQ(majorTriad.multiply_positions(5).positions(), musicpp_test::ints({0, 20, 35}), 12);
-    ASSERT_POSITION_VECTOR_EQ(majorTriad.rotate_positions(1).positions(), musicpp_test::ints({7, 0, 4}), 12);
-    ASSERT_POSITION_VECTOR_EQ(majorTriad.roto_translate_positions(1).positions(), musicpp_test::ints({4, 7, 12}), 12);
+    ASSERT_POSITION_VECTOR_EQ(majorTriad.rotate(1).positions(), musicpp_test::ints({7, 0, 4}), 12);
+    ASSERT_POSITION_VECTOR_EQ(majorTriad.relative_mode(1).positions(), musicpp_test::ints({4, 7, 12}), 12);
     ASSERT_POSITION_VECTOR_EQ(majorTriad.invert_positions(0).positions(), musicpp_test::ints({-7, -4, 0}), 12);
     ASSERT_POSITION_VECTOR_EQ(
         majorTriad.complement_positions().positions(),
@@ -71,23 +71,23 @@ TEST_CASE("vectors_operator_examples", "[vectors]") {
 
     ASSERT_POSITION_VECTOR_EQ(majorTriad.add_to_intervals(2).positions(), musicpp_test::ints({0, 6, 11}), 12);
     ASSERT_POSITION_VECTOR_EQ(majorTriad.multiply_intervals(2).positions(), musicpp_test::ints({0, 8, 14}), 12);
-    ASSERT_POSITION_VECTOR_EQ(majorTriad.rotate_intervals(1).positions(), musicpp_test::ints({0, 3, 8}), 12);
+    ASSERT_POSITION_VECTOR_EQ(majorTriad.parallel_mode(1).positions(), musicpp_test::ints({0, 3, 8}), 12);
     ASSERT_POSITION_VECTOR_EQ(majorTriad.reverse_intervals().positions(), musicpp_test::ints({0, 5, 8}), 12);
     ASSERT_POSITION_VECTOR_EQ(majorTriad.invert_intervals(0).positions(), musicpp_test::ints({0, 5, 8}), 12);
 
-    ASSERT_BINARY_VECTOR_EQ(
-        majorTriad.rotate_binary(3).binary(),
+    ASSERT_ONSET_VECTOR_EQ(
+        majorTriad.rotate_onset(3).onset(),
         musicpp_test::ints({0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0}),
         0,
         12);
     ASSERT_POSITION_VECTOR_EQ(
-        majorTriad.complement_binary().positions(),
+        majorTriad.complement_onset().positions(),
         musicpp_test::ints({1, 2, 3, 5, 6, 8, 9, 10, 11}),
         12);
-    ASSERT_POSITION_VECTOR_EQ(majorTriad.multiply_binary(2).positions(), musicpp_test::ints({0, 8, 14}), 12);
+    ASSERT_POSITION_VECTOR_EQ(majorTriad.multiply_onset(2).positions(), musicpp_test::ints({0, 8, 14}), 12);
 
     vector_set pentatonic = vector_set::from_positions({0, 2, 4, 7, 9});
-    ASSERT_POSITION_VECTOR_EQ(pentatonic.divide_binary(2).positions(), musicpp_test::ints({0, 1, 2}), 12);
+    ASSERT_POSITION_VECTOR_EQ(pentatonic.divide_onset(2).positions(), musicpp_test::ints({0, 1, 2}), 12);
 
     vector_set setA = vector_set::from_positions({0, 2, 4, 6});
     vector_set setB = vector_set::from_positions({0, 3, 6, 9});
@@ -99,13 +99,13 @@ TEST_CASE("vectors_operator_examples", "[vectors]") {
     ASSERT_POSITION_VECTOR_EQ(motif.transpose(7).positions(), musicpp_test::ints({7, 11, 14}), 12);
     ASSERT_POSITION_VECTOR_EQ(motif.negative().positions(), musicpp_test::ints({7, 12, 15}), 12);
     ASSERT_POSITION_VECTOR_EQ(motif.invert_positions(0).positions(), musicpp_test::ints({-7, -4, 0}), 12);
-    ASSERT_POSITION_VECTOR_EQ(motif.roto_translate_positions(3, 4).positions(), musicpp_test::ints({12, 16, 19, 24}), 12);
+    ASSERT_POSITION_VECTOR_EQ(motif.relative_mode(3, 4).positions(), musicpp_test::ints({12, 16, 19, 24}), 12);
 
-    ASSERT_BINARY_VECTOR_EQ(vector_set::euclidean(3, 8).binary(), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 0}), 0, -1);
-    ASSERT_BINARY_VECTOR_EQ(vector_set::euclidean(5, 8).binary(), musicpp_test::ints({1, 0, 1, 1, 0, 1, 0, 1}), 0, -1);
-    ASSERT_BINARY_VECTOR_EQ(vector_set::euclidean(5, 12).binary(), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0}), 0, -1);
-    ASSERT_BINARY_VECTOR_EQ(
-        vector_set::euclidean(7, 16).binary(),
+    ASSERT_ONSET_VECTOR_EQ(vector_set::euclidean(3, 8).onset(), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 0}), 0, -1);
+    ASSERT_ONSET_VECTOR_EQ(vector_set::euclidean(5, 8).onset(), musicpp_test::ints({1, 0, 1, 1, 0, 1, 0, 1}), 0, -1);
+    ASSERT_ONSET_VECTOR_EQ(vector_set::euclidean(5, 12).onset(), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0}), 0, -1);
+    ASSERT_ONSET_VECTOR_EQ(
+        vector_set::euclidean(7, 16).onset(),
         musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0}),
         0,
         -1);
@@ -114,21 +114,21 @@ TEST_CASE("vectors_operator_examples", "[vectors]") {
     TEST_INPUT("major_triad", majorTriad.positions());
     TEST_OUTPUT("transpose_5", majorTriad.transpose(5).positions());
     TEST_OUTPUT("multiply_positions_5", majorTriad.multiply_positions(5).positions());
-    TEST_OUTPUT("rotate_positions_1", majorTriad.rotate_positions(1).positions());
-    TEST_OUTPUT("rototranslate_positions_1", majorTriad.roto_translate_positions(1).positions());
+    TEST_OUTPUT("rotate_1", majorTriad.rotate(1).positions());
+    TEST_OUTPUT("relative_mode_positions_1", majorTriad.relative_mode(1).positions());
     TEST_OUTPUT("invert_positions_0", majorTriad.invert_positions(0).positions());
     TEST_OUTPUT("complement_positions", majorTriad.complement_positions().positions());
-    TEST_CASE_LOG("vectors_interval_and_binary_operators");
+    TEST_CASE_LOG("vectors_interval_and_onset_operators");
     TEST_INPUT("pentatonic", pentatonic.positions());
     TEST_OUTPUT("add_to_intervals_2", majorTriad.add_to_intervals(2).positions());
     TEST_OUTPUT("multiply_intervals_2", majorTriad.multiply_intervals(2).positions());
-    TEST_OUTPUT("rotate_intervals_1", majorTriad.rotate_intervals(1).positions());
+    TEST_OUTPUT("parallel_mode_1", majorTriad.parallel_mode(1).positions());
     TEST_OUTPUT("reverse_intervals", majorTriad.reverse_intervals().positions());
     TEST_OUTPUT("invert_intervals_0", majorTriad.invert_intervals(0).positions());
-    TEST_OUTPUT("rotate_binary_3", majorTriad.rotate_binary(3).binary());
-    TEST_OUTPUT("complement_binary", majorTriad.complement_binary().positions());
-    TEST_OUTPUT("multiply_binary_2", majorTriad.multiply_binary(2).positions());
-    TEST_OUTPUT("divide_binary_2", pentatonic.divide_binary(2).positions());
+    TEST_OUTPUT("rotate_onset_3", majorTriad.rotate_onset(3).onset());
+    TEST_OUTPUT("complement_onset", majorTriad.complement_onset().positions());
+    TEST_OUTPUT("multiply_onset_2", majorTriad.multiply_onset(2).positions());
+    TEST_OUTPUT("divide_onset_2", pentatonic.divide_onset(2).positions());
     TEST_CASE_LOG("vectors_set_operations");
     TEST_INPUT("setA", setA.positions());
     TEST_INPUT("setB", setB.positions());
@@ -140,11 +140,11 @@ TEST_CASE("vectors_operator_examples", "[vectors]") {
     TEST_OUTPUT("motif_transpose_7", motif.transpose(7).positions());
     TEST_OUTPUT("motif_negative", motif.negative().positions());
     TEST_OUTPUT("motif_invert_0", motif.invert_positions(0).positions());
-    TEST_OUTPUT("motif_rototranslate_3_4", motif.roto_translate_positions(3, 4).positions());
-    TEST_OUTPUT("euclidean_3_8", vector_set::euclidean(3, 8).binary());
-    TEST_OUTPUT("euclidean_5_8", vector_set::euclidean(5, 8).binary());
-    TEST_OUTPUT("euclidean_5_12", vector_set::euclidean(5, 12).binary());
-    TEST_OUTPUT("euclidean_7_16", vector_set::euclidean(7, 16).binary());
+    TEST_OUTPUT("motif_relative_mode_3_4", motif.relative_mode(3, 4).positions());
+    TEST_OUTPUT("euclidean_3_8", vector_set::euclidean(3, 8).onset());
+    TEST_OUTPUT("euclidean_5_8", vector_set::euclidean(5, 8).onset());
+    TEST_OUTPUT("euclidean_5_12", vector_set::euclidean(5, 12).onset());
+    TEST_OUTPUT("euclidean_7_16", vector_set::euclidean(7, 16).onset());
 }
 
 TEST_CASE("vectors_roundtrip_and_invariants", "[vectors]") {
@@ -155,7 +155,7 @@ TEST_CASE("vectors_roundtrip_and_invariants", "[vectors]") {
         source.positions().data(),
         12);
     ASSERT_POSITION_VECTOR_EQ(
-        vector_set::from_binary(source.binary().data()).positions(),
+        vector_set::from_onset(source.onset().data()).positions(),
         source.positions().data(),
         12);
 
@@ -163,19 +163,19 @@ TEST_CASE("vectors_roundtrip_and_invariants", "[vectors]") {
     ASSERT_POSITION_VECTOR_EQ(transposed.positions(), musicpp_test::ints({1, 4, 8, 11}), 12);
     ASSERT_INTERVAL_VECTOR_EQ(transposed.intervals(), source.intervals().data(), 1, 12);
     ASSERT_VECTOR_EQ(
-        vector_set::from_binary(transposed.binary().data()).positions().data(),
+        vector_set::from_onset(transposed.onset().data()).positions().data(),
         normalize_positions(transposed.positions()));
     ASSERT_VECTOR_EQ(
         normalize_positions(transposed.positions()),
         vector_set::from_intervals(transposed.intervals().data()).positions().data());
 
-    vector_set rotated = source.rotate_positions(1);
-    ASSERT_BINARY_VECTOR_EQ(
-        vector_set::from_binary(rotated.binary().data()).binary(),
-        rotated.binary().data(),
+    vector_set rotated = source.rotate(1);
+    ASSERT_ONSET_VECTOR_EQ(
+        vector_set::from_onset(rotated.onset().data()).onset(),
+        rotated.onset().data(),
         0,
         12);
-    ASSERT_POSITION_VECTOR_EQ(rotated.rotate_positions(3).positions(), source.positions().data(), 12);
+    ASSERT_POSITION_VECTOR_EQ(rotated.rotate(3).positions(), source.positions().data(), 12);
 
     vector_set inverted = source.invert_positions(0);
     ASSERT_VECTOR_EQ(
@@ -188,11 +188,11 @@ TEST_CASE("vectors_roundtrip_and_invariants", "[vectors]") {
     TEST_CASE_LOG("vectors_roundtrip_and_invariants");
     TEST_INPUT("source", source.positions());
     TEST_OUTPUT("from_intervals", vector_set::from_intervals(source.intervals().data()).positions());
-    TEST_OUTPUT("from_binary", vector_set::from_binary(source.binary().data()).positions());
+    TEST_OUTPUT("from_onset", vector_set::from_onset(source.onset().data()).positions());
     TEST_OUTPUT("transposed", transposed.positions());
     TEST_OUTPUT("transposed_intervals", transposed.intervals());
     TEST_OUTPUT("rotated", rotated.positions());
-    TEST_OUTPUT("rotated_binary", rotated.binary());
+    TEST_OUTPUT("rotated_onset", rotated.onset());
     TEST_OUTPUT("inverted", inverted.positions());
 }
 
@@ -231,7 +231,7 @@ TEST_CASE("interval_vector_examples", "[vectors]") {
     ASSERT_EQ(iv8[-1], 40);
 
     interval_vector iv12({1, 2, 3, 4, 5});
-    ASSERT_INTERVAL_VECTOR_EQ(iv12.rotate(2), musicpp_test::ints({3, 4, 5, 1, 2}), 0, 12);
+    ASSERT_INTERVAL_VECTOR_EQ(iv12.parallel_mode(2), musicpp_test::ints({3, 4, 5, 1, 2}), 0, 12);
     ASSERT_INTERVAL_VECTOR_EQ(iv12.reverse(), musicpp_test::ints({5, 4, 3, 2, 1}), 0, 12);
 
     interval_vector iv13({1, 2, 3, 4, 5, 6});
@@ -255,7 +255,7 @@ TEST_CASE("interval_vector_examples", "[vectors]") {
     TEST_CASE_LOG("interval_vector_operations");
     TEST_INPUT("iv12", iv12);
     TEST_INPUT("iv13", iv13);
-    TEST_OUTPUT("rotate_2", iv12.rotate(2));
+    TEST_OUTPUT("parallel_mode_2", iv12.parallel_mode(2));
     TEST_OUTPUT("reverse", iv12.reverse());
     TEST_OUTPUT("inversion_1", iv13.inversion(1));
     TEST_OUTPUT("normalize_12", iv14.normalize(12));
@@ -266,40 +266,40 @@ TEST_CASE("interval_vector_examples", "[vectors]") {
     TEST_OUTPUT("double_mirror", iv18.doubleMirror(3));
 }
 
-TEST_CASE("binary_vector_examples", "[vectors]") {
-    binary_vector bv1;
-    ASSERT_BINARY_VECTOR_EQ(bv1, musicpp_test::ints({1, 0, 0, 0}), 0, 4);
+TEST_CASE("onset_vector_examples", "[vectors]") {
+    onset_vector bv1;
+    ASSERT_ONSET_VECTOR_EQ(bv1, musicpp_test::ints({1, 0, 0, 0}), 0, 4);
 
-    binary_vector bv2({1, 0, 1, 1, 0}, 0, 5);
+    onset_vector bv2({1, 0, 1, 1, 0}, 0, 5);
     ASSERT_EQ(bv2.countPulses(), 3);
     ASSERT_NEAR(bv2.density(), 0.6, 1e-6);
 
-    binary_vector bv7({1, 0, 1, 0, 1});
-    ASSERT_BINARY_VECTOR_EQ(~bv7, musicpp_test::ints({0, 1, 0, 1, 0}), 0, 4);
-    ASSERT_BINARY_VECTOR_EQ(bv7.complement(), musicpp_test::ints({0, 1, 0, 1, 0}), 0, 4);
+    onset_vector bv7({1, 0, 1, 0, 1});
+    ASSERT_ONSET_VECTOR_EQ(~bv7, musicpp_test::ints({0, 1, 0, 1, 0}), 0, 4);
+    ASSERT_ONSET_VECTOR_EQ(bv7.complement(), musicpp_test::ints({0, 1, 0, 1, 0}), 0, 4);
 
-    binary_vector bv16({1, 0, 0, 1, 0});
-    ASSERT_BINARY_VECTOR_EQ(bv16.rotate(1), musicpp_test::ints({0, 0, 1, 0, 1}), 0, 4);
-    ASSERT_BINARY_VECTOR_EQ(bv16.rotate(2), musicpp_test::ints({0, 1, 0, 1, 0}), 0, 4);
+    onset_vector bv16({1, 0, 0, 1, 0});
+    ASSERT_ONSET_VECTOR_EQ(bv16.rotate(1), musicpp_test::ints({0, 0, 1, 0, 1}), 0, 4);
+    ASSERT_ONSET_VECTOR_EQ(bv16.rotate(2), musicpp_test::ints({0, 1, 0, 1, 0}), 0, 4);
 
-    binary_vector bv17({1, 0, 1, 0, 1});
-    ASSERT_BINARY_VECTOR_EQ(bv17.inversion(0), musicpp_test::ints({1, 1, 0, 1, 0}), 0, 4);
+    onset_vector bv17({1, 0, 1, 0, 1});
+    ASSERT_ONSET_VECTOR_EQ(bv17.inversion(0), musicpp_test::ints({1, 1, 0, 1, 0}), 0, 4);
 
-    binary_vector bv19({1, 0, 1});
-    binary_vector bv20({0, 1});
-    ASSERT_BINARY_VECTOR_EQ(bv19.concatenate(bv20), musicpp_test::ints({1, 0, 1, 0, 1}), 0, 4);
-    ASSERT_BINARY_VECTOR_EQ(bv19.repeat(3), musicpp_test::ints({1, 0, 1, 1, 0, 1, 1, 0, 1}), 0, 4);
+    onset_vector bv19({1, 0, 1});
+    onset_vector bv20({0, 1});
+    ASSERT_ONSET_VECTOR_EQ(bv19.concatenate(bv20), musicpp_test::ints({1, 0, 1, 0, 1}), 0, 4);
+    ASSERT_ONSET_VECTOR_EQ(bv19.repeat(3), musicpp_test::ints({1, 0, 1, 1, 0, 1, 1, 0, 1}), 0, 4);
 
-    binary_vector bv21({1, 0, 0, 1, 0, 1, 0, 0});
+    onset_vector bv21({1, 0, 0, 1, 0, 1, 0, 0});
     ASSERT_EQ(bv21.countPulses(), 3);
     ASSERT_NEAR(bv21.density(), 0.375, 1e-6);
     ASSERT_VECTOR_EQ(bv21.getPulseIndices(), musicpp_test::ints({0, 3, 5}));
     ASSERT_VECTOR_EQ(bv21.getInterOnsetIntervals(), musicpp_test::ints({3, 2, 3}));
 
-    ASSERT_BINARY_VECTOR_EQ(binary_vector::euclidean(3, 8), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 0}), 0, -1);
-    ASSERT_BINARY_VECTOR_EQ(binary_vector::euclidean(5, 12), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0}), 0, -1);
+    ASSERT_ONSET_VECTOR_EQ(onset_vector::euclidean(3, 8), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 0}), 0, -1);
+    ASSERT_ONSET_VECTOR_EQ(onset_vector::euclidean(5, 12), musicpp_test::ints({1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0}), 0, -1);
 
-    TEST_CASE_LOG("binary_vector_operations");
+    TEST_CASE_LOG("onset_vector_operations");
     TEST_INPUT("bv16", bv16);
     TEST_INPUT("bv17", bv17);
     TEST_INPUT("bv21", bv21);
@@ -310,8 +310,8 @@ TEST_CASE("binary_vector_examples", "[vectors]") {
     TEST_OUTPUT("repeat3", bv19.repeat(3));
     TEST_OUTPUT("pulse_indices", bv21.getPulseIndices());
     TEST_OUTPUT("inter_onset_intervals", bv21.getInterOnsetIntervals());
-    TEST_OUTPUT("euclidean_3_8", binary_vector::euclidean(3, 8));
-    TEST_OUTPUT("euclidean_5_12", binary_vector::euclidean(5, 12));
+    TEST_OUTPUT("euclidean_3_8", onset_vector::euclidean(3, 8));
+    TEST_OUTPUT("euclidean_5_12", onset_vector::euclidean(5, 12));
 }
 
 TEST_CASE("position_vector_examples", "[vectors]") {

@@ -561,15 +561,15 @@ public:
     }
 
     /**
-     * @brief Rotates the vector elements
+     * @brief Parallel mode: cyclic readout of intervals (rotation without changing the offset)
      * 
-     * @param r Rotation amount
+     * @param r Parallel-mode step (starting index)
      * @param n Result length (0 = use current size)
-     * @return New interval_vector with rotated elements
+     * @return New interval_vector with elements taken from index r onward (cyclically)
      * 
      * @details Extracts n elements starting from index r with cyclic access
      */
-    interval_vector rotate(int r, int n = 0) const {
+    interval_vector parallel_mode(int r, int n = 0) const {
         n = std::abs(n);
         if (n == 0) n = static_cast<int>(data_.size());
         
@@ -581,60 +581,59 @@ public:
     }
 
     /**
-     * @brief Rototranslation: rotation combined with offset adjustment
+     * @brief Relative mode: cyclic readout with offset adjusted by skipped intervals
      * 
-     * @param r Rotation amount
+     * @param r Relative-mode step (starting index)
      * @param n Result length (0 = use current size)
-     * @return New interval_vector with rotated elements and adjusted offset
+     * @return New interval_vector with elements from index r onward and updated offset
      * 
      * @details Extracts n elements starting from index r with cyclic access.
      *          Adjusts the offset by summing the intervals that are skipped
-     *          during the rotation. 
-     */ 
+     *          during the readout.
+     */
+    interval_vector relative_mode(int r, int n = 0) const {
+        n = std::abs(n);
+        int dataSize = static_cast<int>(data_.size());
+        if (n == 0) n = dataSize;
 
-interval_vector roto_translate(int r, int n = 0) const {
-    n = std::abs(n);
-    int dataSize = static_cast<int>(data_.size());
-    if (n == 0) n = dataSize;
-    
-    std::vector<int> out(n);
-    for (int i = 0; i < n; i++) {
-        out[i] = element(r + i);
-    }
-    
-    int sum = 0;
-    
-    if (std::abs(r) < dataSize) {
+        std::vector<int> out(n);
+        for (int i = 0; i < n; i++) {
+            out[i] = element(r + i);
+        }
 
-        if (r >= 0) {
-            for (int i = 0; i < r; i++) {
-                sum += element(i);
+        int sum = 0;
+
+        if (std::abs(r) < dataSize) {
+
+            if (r >= 0) {
+                for (int i = 0; i < r; i++) {
+                    sum += element(i);
+                }
+            } else {
+                for (int i = 0; i < -r; i++) {
+                    sum -= element(dataSize - 1 - i);
+                }
             }
         } else {
-            for (int i = 0; i < -r; i++) {
-                sum -= element(dataSize - 1 - i);
-            }
-        }
-    } else {
 
-        division_result div = euclidean_division(r, dataSize);
-        
-        if (r >= 0) {
-            for (int i = 0; i < dataSize; i++) {
-                int mult = (i < div.remainder) ? (div.quotient + 1) : div.quotient;
-                sum += element(i) * mult;
-            }
-        } else {
-            int thresh = dataSize + div.remainder; 
-            for (int i = 0; i < dataSize; i++) {
-                int mult = (i >= thresh) ? (div.quotient - 1) : div.quotient;
-                sum += element(i) * mult;
+            division_result div = euclidean_division(r, dataSize);
+
+            if (r >= 0) {
+                for (int i = 0; i < dataSize; i++) {
+                    int mult = (i < div.remainder) ? (div.quotient + 1) : div.quotient;
+                    sum += element(i) * mult;
+                }
+            } else {
+                int thresh = dataSize + div.remainder;
+                for (int i = 0; i < dataSize; i++) {
+                    int mult = (i >= thresh) ? (div.quotient - 1) : div.quotient;
+                    sum += element(i) * mult;
+                }
             }
         }
+
+        return interval_vector(out, offset_ + sum, mod_);
     }
-    
-    return interval_vector(out, offset_ + sum, mod_);
-}
 
     /**
      * @brief Reverses the order of elements (retrograde)

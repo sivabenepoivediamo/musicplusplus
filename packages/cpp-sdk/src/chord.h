@@ -10,7 +10,7 @@
  * @date 2025
  * @details This file contains the definition of the Chord class, which generates chords
  *          based on a scale and a set of degrees or intervals. The class supports various
- *          transformations including shifting, rotation/rototranslation, inversion, negation,
+ *          transformations including shifting, parallel/relative mode, inversion, negation,
  *          and mirroring.
  */
 
@@ -24,9 +24,11 @@ namespace musicpp {
 
 struct ChordParams {
     int shift;
-    int rotationOrRototrans;
+    /** Step applied to the criterion: relative_mode for position criterion, parallel_mode for interval criterion. */
+    int criterion_mode;
     int preVoices;
-    int position;
+    /** Final relative-mode offset applied to the chord result. */
+    int relative_mode;
     bool invert;
     int axis;
     bool negativeOrMirror;
@@ -34,22 +36,27 @@ struct ChordParams {
 
     // Default constructor
     ChordParams(int shift = 0,
-                int rotationOrRototrans = 0,
+                int criterion_mode = 0,
                 int preVoices = 0,
-                int position = 0,
+                int relative_mode = 0,
                 bool invert = false,
                 int axis = 0,
                 bool negativeOrMirror = false,
                 int negativeOrMirrorPos = 0)
-        : shift(shift), rotationOrRototrans(rotationOrRototrans), position(position),
-          preVoices(preVoices), invert(invert), axis(axis),
-          negativeOrMirror(negativeOrMirror), negativeOrMirrorPos(negativeOrMirrorPos) {}
+        : shift(shift),
+          criterion_mode(criterion_mode),
+          preVoices(preVoices),
+          relative_mode(relative_mode),
+          invert(invert),
+          axis(axis),
+          negativeOrMirror(negativeOrMirror),
+          negativeOrMirrorPos(negativeOrMirrorPos) {}
 
     // Builder pattern methods
     ChordParams& withShift(int val) { shift = val; return *this; }
-    ChordParams& withRotationOrRototrans(int val) { rotationOrRototrans = val; return *this; }
+    ChordParams& with_criterion_mode(int val) { criterion_mode = val; return *this; }
     ChordParams& withPreVoices(int val) { preVoices = val; return *this; }
-    ChordParams& withPosition(int val) { position = val; return *this; }
+    ChordParams& with_relative_mode(int val) { relative_mode = val; return *this; }
     ChordParams& withInvert(bool val) { invert = val; return *this; }
     ChordParams& withAxis(int val) { axis = val; return *this; }
     ChordParams& withNegativeOrMirror(bool val) { negativeOrMirror = val; return *this; }
@@ -98,36 +105,36 @@ private:
 
     void generatePosPos() {
         position_vector offsetDegrees = criterionPositions + params.shift;
-        resultPositions = select(scalePositions, offsetDegrees, params.rotationOrRototrans, params.preVoices);
+        resultPositions = select(scalePositions, offsetDegrees, params.criterion_mode, params.preVoices);
         if (params.invert) {
             resultPositions = resultPositions.inversion(params.axis, true);
         }
         if (params.negativeOrMirror) {
             resultPositions = resultPositions.negative(params.negativeOrMirrorPos);
         }
-        resultPositions = resultPositions.roto_translate(params.position);
+        resultPositions = resultPositions.relative_mode(params.relative_mode);
         isResultPositions = true;
     }
 
     void generatePosInt() {
         interval_vector offsetIntervals = criterionIntervals;
         offsetIntervals.set_offset(params.shift);
-        resultPositions = select(scalePositions, offsetIntervals, params.rotationOrRototrans, params.preVoices);
+        resultPositions = select(scalePositions, offsetIntervals, params.criterion_mode, params.preVoices);
         if (params.invert) {
             resultPositions = resultPositions.inversion(params.axis, true);
         }
         if (params.negativeOrMirror) {
             resultPositions = resultPositions.negative(params.negativeOrMirrorPos);
         }
-        resultPositions = resultPositions.roto_translate(params.position);
+        resultPositions = resultPositions.relative_mode(params.relative_mode);
         isResultPositions = true;
     }
 
     void generateIntPos() {
         position_vector tempScalePos = intervals_to_positions(scaleIntervals);
         position_vector offsetDegrees = criterionPositions + params.shift;
-        interval_vector tempResult = select(scaleIntervals, offsetDegrees, params.rotationOrRototrans, params.preVoices);
-        resultIntervals = tempResult.roto_translate(params.position);
+        interval_vector tempResult = select(scaleIntervals, offsetDegrees, params.criterion_mode, params.preVoices);
+        resultIntervals = tempResult.relative_mode(params.relative_mode);
         if (params.invert) {
             resultIntervals = resultIntervals.inversion(params.axis);
         }
@@ -141,8 +148,8 @@ private:
         interval_vector offsetIntervals = criterionIntervals;
         int off = criterionIntervals.offset();
         offsetIntervals.set_offset(params.shift + off);
-        interval_vector tempResult = select(scaleIntervals, offsetIntervals, params.rotationOrRototrans, params.preVoices);
-        resultIntervals = tempResult.roto_translate(params.position);
+        interval_vector tempResult = select(scaleIntervals, offsetIntervals, params.criterion_mode, params.preVoices);
+        resultIntervals = tempResult.relative_mode(params.relative_mode);
         if (params.invert) {
             resultIntervals = resultIntervals.inversion(params.axis);
         }
@@ -208,9 +215,9 @@ public:
 
     // Individual getters
     int getShift() const { return params.shift; }
-    int getRotationOrRototrans() const { return params.rotationOrRototrans; }
+    int get_criterion_mode() const { return params.criterion_mode; }
     int getPreVoices() const { return params.preVoices; }
-    int getPosition() const { return params.position; }
+    int get_relative_mode() const { return params.relative_mode; }
     bool getInvert() const { return params.invert; }
     int getAxis() const { return params.axis; }
     bool getNegativeOrMirror() const { return params.negativeOrMirror; }
@@ -222,8 +229,8 @@ public:
         generate();
     }
 
-    void setRotationOrRototrans(int val) {
-        params.rotationOrRototrans = val;
+    void set_criterion_mode(int val) {
+        params.criterion_mode = val;
         generate();
     }
 
@@ -232,8 +239,8 @@ public:
         generate();
     }
 
-    void setPosition(int val) {
-        params.position = val;
+    void set_relative_mode(int val) {
+        params.relative_mode = val;
         generate();
     }
 
@@ -310,7 +317,7 @@ public:
  * 
  * The functions support various transformations including:
  * - Shifting degrees/intervals
- * - Rototranslation/rotation
+ * - Criterion stepping (relative mode for degrees, parallel mode for interval patterns)
  * - Predefining the number of voices
  * - Inversion around an axis
  * - Negation around a position (for position_vector)
@@ -325,8 +332,9 @@ public:
  * @param scale position_vector representing the scale
  * @param degrees position_vector representing the degrees to select
  * @param shift Integer to shift the degrees
- * @param rototranslation Integer for rototranslation of the criterion
+ * @param criterion_relative_mode Integer relative-mode step for the position criterion
  * @param preVoices Integer to predefine the number of voices in the output
+ * @param relative_mode Integer relative-mode offset applied to the result
  * @param invert Boolean to apply inversion around an axis
  * @param axis Integer axis for inversion
  * @param negative Boolean to apply negation around a position
@@ -335,12 +343,12 @@ public:
  * 
  */
 
-position_vector chord(position_vector& scale, position_vector& degrees, int shift = 0, int rototranslation = 0, int preVoices = 0, int position = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10) {
+position_vector chord(position_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10) {
     position_vector offsetDegrees = degrees + shift;
-    position_vector result = select(scale, offsetDegrees, rototranslation, preVoices);
+    position_vector result = select(scale, offsetDegrees, criterion_relative_mode, preVoices);
     result = (invert) ? result.inversion(axis, true) : result;
     result = (negative) ? result.negative(negativePos) : result;
-    return result.roto_translate(position);
+    return result.relative_mode(relative_mode);
 };
 
 /**
@@ -348,22 +356,23 @@ position_vector chord(position_vector& scale, position_vector& degrees, int shif
  * @param scale interval_vector representing the scale
  * @param intervals interval_vector representing the intervals to select
  * @param shift Integer to shift the intervals
- * @param rotation Integer for rotation of the criterion
+ * @param criterion_parallel_mode Integer parallel-mode step for the interval criterion
  * @param preVoices Integer to predefine the number of voices in the output
+ * @param relative_mode Integer relative-mode offset applied to the result
  * @param invert Boolean to apply inversion around an axis
  * @param axis Integer axis for inversion
- * @param mirror Boolean to apply mirroring around a position
- * @param mirrorPos Integer position for mirroring
- * @return interval_vector representing the generated chord
+ * @param negative Boolean to apply negation around a position
+ * @param negativePos Integer position for negation
+ * @return position_vector representing the generated chord
  * 
  */
-position_vector chord(position_vector& scale, interval_vector& intervals, int shift = 0, int rotation = 0, int preVoices = 0, int position = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10){
+position_vector chord(position_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool negative = false, int negativePos = 10){
     interval_vector offsetIntervals = intervals;
     offsetIntervals.set_offset(shift);
-    position_vector result = select(scale, offsetIntervals, rotation, preVoices);
+    position_vector result = select(scale, offsetIntervals, criterion_parallel_mode, preVoices);
     result = (invert) ? result.inversion(axis, true) : result;
     result = (negative) ? result.negative(negativePos) : result;
-    return result.roto_translate(position);
+    return result.relative_mode(relative_mode);
 };
 
 /**
@@ -371,8 +380,9 @@ position_vector chord(position_vector& scale, interval_vector& intervals, int sh
  * @param scale interval_vector representing the scale
  * @param degrees position_vector representing the degrees to select
  * @param shift Integer to shift the degrees
- * @param rototranslation Integer for rototranslation of the criterion
+ * @param criterion_relative_mode Integer relative-mode step for the position criterion
  * @param preVoices Integer to predefine the number of voices in the output
+ * @param relative_mode Integer relative-mode offset applied to the result
  * @param invert Boolean to apply inversion around an axis
  * @param axis Integer axis for inversion
  * @param mirror Boolean to apply mirroring around a position
@@ -380,15 +390,15 @@ position_vector chord(position_vector& scale, interval_vector& intervals, int sh
  * @return interval_vector representing the generated chord
  * 
  */
-interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int rototranslation = 0, int preVoices = 0, int position = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
+interval_vector chord(interval_vector& scale, position_vector& degrees, int shift = 0, int criterion_relative_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
     //position_vector scalePositions = intervals_to_positions(scale);
     position_vector offsetDegrees = degrees + shift;
-    interval_vector result = select(scale, offsetDegrees, rototranslation, preVoices);
-    //interval_vector result = positions_to_intervals(resultPositions.roto_translate(position));
+    interval_vector result = select(scale, offsetDegrees, criterion_relative_mode, preVoices);
+    //interval_vector result = positions_to_intervals(resultPositions.relative_mode(relative_mode));
     result = (invert) ? result.inversion(axis) : result;
     result = (mirror) ? result.singleMirror(mirrorPos, true) : result;
-    result = result.roto_translate(position);
-    //position_vector out = intervals_to_positions(result).roto_translate(position);
+    result = result.relative_mode(relative_mode);
+    //position_vector out = intervals_to_positions(result).relative_mode(relative_mode);
     //result = positions_to_intervals(out);
     return result;
 };
@@ -398,8 +408,9 @@ interval_vector chord(interval_vector& scale, position_vector& degrees, int shif
  * @param scale interval_vector representing the scale
  * @param intervals interval_vector representing the intervals to select
  * @param shift Integer to shift the intervals
- * @param rotation Integer for rotation of the criterion
+ * @param criterion_parallel_mode Integer parallel-mode step for the interval criterion
  * @param preVoices Integer to predefine the number of voices in the output
+ * @param relative_mode Integer relative-mode offset applied to the result
  * @param invert Boolean to apply inversion around an axis
  * @param axis Integer axis for inversion
  * @param mirror Boolean to apply mirroring around a position
@@ -407,18 +418,18 @@ interval_vector chord(interval_vector& scale, position_vector& degrees, int shif
  * @return interval_vector representing the generated chord
  * 
  */
-interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int rotation = 0, int preVoices = 0, int position = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
+interval_vector chord(interval_vector& scale, interval_vector& intervals, int shift = 0, int criterion_parallel_mode = 0, int preVoices = 0, int relative_mode = 0, bool invert = false, int axis = 0, bool mirror = false, int mirrorPos = 0) {
     //position_vector scalePositions = intervals_to_positions(scale);
     interval_vector offsetIntervals = intervals;
     int off = intervals.offset();
     offsetIntervals.set_offset(shift + off);
-    interval_vector result = select(scale, offsetIntervals, rotation, preVoices);
-    //interval_vector result = positions_to_intervals(resultPos.roto_translate(position));
+    interval_vector result = select(scale, offsetIntervals, criterion_parallel_mode, preVoices);
+    //interval_vector result = positions_to_intervals(resultPos.relative_mode(relative_mode));
     result = (invert) ? result.inversion(axis) : result;
     result = (mirror) ? result.singleMirror(mirrorPos, true) : result;
-   // position_vector out = intervals_to_positions(result).roto_translate(position);
+   // position_vector out = intervals_to_positions(result).relative_mode(relative_mode);
    // result = positions_to_intervals(out);
-    result = result.roto_translate(position);
+    result = result.relative_mode(relative_mode);
     return result;
 };
 } // namespace musicpp

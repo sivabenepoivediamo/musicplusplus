@@ -13,7 +13,7 @@
  * This header provides a variety of music-theoretic and rhythmic measures such as
  * geodesic distances, distribution spectra, symmetry checks, entropy and generators, useful for analysis. Functions are intended to be
  * small, self-contained utilities that operate on `position_vector`, `interval_vector`,
- * `binary_vector` and plain integer vectors.
+ * `onset_vector` and plain integer vectors.
  */
 
 /**
@@ -220,23 +220,23 @@ int calculateRhythmicOddity(position_vector& in) {
 /**
  * @brief Compute transition complexity of onsets (number of edge changes)
  *
- * Converts the position vector into a binary onset pattern and counts the
+ * Converts the position vector into an onset pattern and counts the
  * number of transitions between 0 and 1 (i.e., on/offs). Useful as a
  * simple rhythmic complexity metric.
  *
  * @param in position_vector of onsets
  * @param mod Modulus (used internally by conversion routines)
- * @return Number of transitions in the binary onset pattern
+ * @return Number of transitions in the onset pattern
  */
 int computeTransitionComplexity(position_vector& in, int mod) {
-    binary_vector binaryVector = positions_to_binary(in);
-    if (binaryVector.size() == 0) {
+    onset_vector onset_vec = positions_to_onset(in);
+    if (onset_vec.size() == 0) {
         return 0;
     }
 
     int complexity = 0;
-    for (size_t i = 1; i < binaryVector.size(); ++i) {
-        if (binaryVector[i] != binaryVector[i - 1]) {
+    for (size_t i = 1; i < onset_vec.size(); ++i) {
+        if (onset_vec[i] != onset_vec[i - 1]) {
             ++complexity;
         }
     }
@@ -247,7 +247,7 @@ int computeTransitionComplexity(position_vector& in, int mod) {
 /**
  * @brief Estimate Shannon entropy of the onset pattern
  *
- * Converts positions to a binary onset vector and computes a simple Shannon
+ * Converts positions to an onset vector and computes a simple Shannon
  * entropy over the distribution of events. For sparse patterns this is a
  * coarse measure.
  *
@@ -255,19 +255,19 @@ int computeTransitionComplexity(position_vector& in, int mod) {
  * @return Entropy in bits (base-2). Returns 0.0 for empty inputs.
  */
 double computeEntropy(position_vector& in) {
-    binary_vector binaryVector = positions_to_binary(in);
-    if (binaryVector.size() == 0) {
+    onset_vector onset_vec = positions_to_onset(in);
+    if (onset_vec.size() == 0) {
         return 0.0;
     }
 
     std::unordered_map<int, int> frequency;
-    for (int i = 0; i < binaryVector.size(); ++i) {
+    for (int i = 0; i < onset_vec.size(); ++i) {
         ++frequency[i];
     }
 
     double entropy = 0.0;
     for (auto& pair : frequency) {
-        double probability = static_cast<double>(pair.second) / binaryVector.size();
+        double probability = static_cast<double>(pair.second) / onset_vec.size();
         entropy -= probability * std::log2(probability);
     }
 
@@ -275,9 +275,9 @@ double computeEntropy(position_vector& in) {
 }
 
 /**
- * @brief Compute the length of the longest run of identical binary values
+ * @brief Compute the length of the longest run of identical onset-vector values
  *
- * After converting positions to a binary onset vector, returns the maximum
+ * After converting positions to an onset vector, returns the maximum
  * length of a consecutive run of identical values (useful for measuring
  * clustering or gaps).
  *
@@ -285,16 +285,16 @@ double computeEntropy(position_vector& in) {
  * @return Length of the longest subsequence
  */
 int computeLongestSubsequence(position_vector& in) {
-    binary_vector binaryVector = positions_to_binary(in);
-    if (binaryVector.size() == 0) {
+    onset_vector onset_vec = positions_to_onset(in);
+    if (onset_vec.size() == 0) {
         return 0;
     }
 
     int longest = 1;
     int currentRun = 1;
 
-    for (size_t i = 1; i < binaryVector.size(); ++i) {
-        if (binaryVector[i] == binaryVector[i - 1]) {
+    for (size_t i = 1; i < onset_vec.size(); ++i) {
+        if (onset_vec[i] == onset_vec[i - 1]) {
             ++currentRun;
             if (currentRun > longest) {
                 longest = currentRun;
@@ -725,7 +725,7 @@ void printAnalysis(position_vector p) {
     int mod = p.mod();
     interval_vector j = positions_to_intervals(p);
     std::vector<int> intervals = j.data();
-    binary_vector onsets = positions_to_binary(p);
+    onset_vector onsets = positions_to_onset(p);
     std::vector<int> distances = geodesicDistances(p);
     std::map<int, int> occurrences = calculateOccurrences(distances);
     std::vector<std::set<int>> spectra = calculateDistributionSpectra(p);

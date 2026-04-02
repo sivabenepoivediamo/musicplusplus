@@ -9,18 +9,18 @@ namespace {
 
 using namespace musicpp;
 
-TEST_CASE("rototranslation_matrix_size_and_center", "[matrix][rototranslation]") {
+TEST_CASE("relative_mode_matrix_size_and_center", "[matrix][relative_mode]") {
     position_vector triad({0, 4, 7}, 12, 12);
     position_vector copy = triad;
-    auto rtm = rototranslationMatrix(copy, 2);
+    auto rtm = relative_mode_matrix(copy, 2);
     ASSERT_EQ(rtm.getCenter(), 2);
     ASSERT_EQ(rtm.size(), static_cast<size_t>(2 * static_cast<int>(triad.size()) + 1));
 }
 
-TEST_CASE("calculate_distances_rototranslation_closest", "[matrix][rototranslation]") {
+TEST_CASE("calculate_distances_relative_mode_closest", "[matrix][relative_mode]") {
     position_vector target({0, 4, 7}, 12, 12);
     position_vector mutable_target = target;
-    auto rtm = rototranslationMatrix(mutable_target, 0);
+    auto rtm = relative_mode_matrix(mutable_target, 0);
     ASSERT_TRUE(rtm.size() > static_cast<size_t>(0));
     position_vector reference = rtm[rtm.size() / 2].first;
     auto rmd = calculateDistances(reference, rtm, manhattanDistance, true);
@@ -30,8 +30,8 @@ TEST_CASE("calculate_distances_rototranslation_closest", "[matrix][rototranslati
     ASSERT_EQ(rtm.getCenter(), best.getCenter());
 }
 
-TEST_CASE("rototranslation_matrix_distance_empty_throws", "[matrix][distance]") {
-    RototranslationMatrixDistance empty;
+TEST_CASE("relative_mode_matrix_distance_empty_throws", "[matrix][distance]") {
+    RelativeModeMatrixDistance empty;
     REQUIRE_THROWS_AS(empty.getClosest(), std::runtime_error);
     REQUIRE_THROWS_AS(empty.getFurthest(), std::runtime_error);
 }

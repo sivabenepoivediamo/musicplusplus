@@ -62,7 +62,7 @@ TEST_CASE("position_vector_note_name_examples", "[note_names]") {
         std::vector<std::string>({"G", "B", "D", "F"}));
 
     position_vector microtonal({0, 5, 10, 13, 18, 23, 28}, 31);
-    microtonal = microtonal.roto_translate(2);
+    microtonal = microtonal.relative_mode(2);
     NoteResult microtonal_result = system.positionVectorToNoteNames(microtonal, NoteMapperOptions(false, false, 31));
     ASSERT_STRING_VECTOR_EQ(
         microtonal_result.noteNames,

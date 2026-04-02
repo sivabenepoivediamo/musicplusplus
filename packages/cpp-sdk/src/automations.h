@@ -5,7 +5,7 @@
  * @file automations.h
  * @brief High-level automation utilities for voice-leading and degree-based operations
  *
- * Provides convenience wrappers to compute best-fit rototranslations, transpositions,
+ * Provides convenience wrappers to compute best-fit relative-mode alignments, transpositions,
  * modal selections, and degree-based automations for sequences of `position_vector`.
  *
  * These functions are thin helpers built on top of the distance and matrix utilities.
@@ -19,10 +19,10 @@
 namespace musicpp {
 
 /**
- * @brief Find best rototranslation row for a given degree using a criterion
+ * @brief Find best relative-mode row for a given degree using a criterion
  *
  * Performs a modal selection for the provided `degree` on `scale` using
- * `criterion`, computes the rototranslation matrix for those selections and
+ * `criterion`, computes the modal relative-mode matrix for those selections and
  * returns the best matching row to `reference` according to `complexity`.
  *
  * @param scale Scale as a position_vector
@@ -30,32 +30,32 @@ namespace musicpp {
  * @param degree Degree index within the modal selection
  * @param reference Reference position_vector used for distance calculation
  * @param complexity Complexity index used to select among ties (default 0)
- * @return Best matching ModalRototranslationMatrixRow
+ * @return Best matching ModalRelativeModeMatrixRow
  */
-ModalRototranslationMatrixRow degreeAutomation(position_vector& scale, interval_vector& criterion, int degree, position_vector& reference, int complexity = 0){
+ModalRelativeModeMatrixRow degreeAutomation(position_vector& scale, interval_vector& criterion, int degree, position_vector& reference, int complexity = 0){
     ModalSelectionMatrix<position_vector> sel = modalSelection(scale, criterion, degree);
-    ModalRototranslationMatrix degrees = modalRototranslation(sel);
-    ModalRototranslationMatrixDistance distances = calculateDistances(reference, degrees);
-    ModalRototranslationMatrixRow out = distances.getByComplexity(complexity);
+    ModalRelativeModeMatrix<position_vector> degrees = modal_relative_mode(sel);
+    ModalRelativeModeMatrixDistance distances = calculateDistances(reference, degrees);
+    ModalRelativeModeMatrixRow out = distances.getByComplexity(complexity);
     return out;
 }
 
 /**
- * @brief Compute best rototranslation to voice-lead `target` to `reference`
+ * @brief Compute best relative-mode match to voice-lead `target` to `reference`
  *
- * Aligns `target` with `reference` and computes rototranslation distances
+ * Aligns `target` with `reference` and computes relative-mode distances
  * returning the selected best row according to `complexity`.
  *
  * @param reference Reference position_vector
  * @param target Target position_vector to be voice-led
  * @param complexity Complexity index used for tie-breaking (default 0)
- * @return Best matching RototranslationMatrixRow
+ * @return Best matching RelativeModeMatrixRow
  */
-RototranslationMatrixRow voiceLeadingAutomation(position_vector& reference, position_vector& target, int complexity = 0){
+RelativeModeMatrixRow voiceLeadingAutomation(position_vector& reference, position_vector& target, int complexity = 0){
     int center = align(reference, target);
-    RototranslationMatrix positions = rototranslationMatrix(target, center);
-    RototranslationMatrixDistance distances = calculateDistances(reference, positions);
-    RototranslationMatrixRow out = distances.getByComplexity(complexity);
+    RelativeModeMatrix positions = relative_mode_matrix(target, center);
+    RelativeModeMatrixDistance distances = calculateDistances(reference, positions);
+    RelativeModeMatrixRow out = distances.getByComplexity(complexity);
     return out;
 }
 
@@ -152,7 +152,7 @@ std::vector<position_vector> voiceLeadingAutomationVectorReference(
     result.reserve(targets.size());
     
     for (size_t i = 0; i < targets.size(); ++i) {
-        RototranslationMatrixRow selected = voiceLeadingAutomation(targets[i], references[i], normalizedComplexities[i]);
+        RelativeModeMatrixRow selected = voiceLeadingAutomation(targets[i], references[i], normalizedComplexities[i]);
         result.push_back(selected.getVector());
     }
     
@@ -178,7 +178,7 @@ std::vector<position_vector> voiceLeadingAutomationReference(
     result.reserve(targets.size());
     
     for (size_t i = 0; i < targets.size(); ++i) {
-        RototranslationMatrixRow selected = voiceLeadingAutomation(reference, targets[i], normalizedComplexities[i]);
+        RelativeModeMatrixRow selected = voiceLeadingAutomation(reference, targets[i], normalizedComplexities[i]);
         result.push_back(selected.getVector());
     }
     
@@ -192,7 +192,7 @@ std::vector<position_vector> voiceLeadingAutomationReference(
  * @return Vector of position_vectors with sequential voice leading applied
  * @throws runtime_error if targets vector is empty
  * @details First element is unchanged. Each subsequent element is found by comparing
- *          the rototranslation of targets[i] with the result from the previous step.
+ *          the relative_mode_matrix of targets[i] with the result from the previous step.
  */
 std::vector<position_vector> forwardVoiceLeading(
     const std::vector<position_vector>& targets,
@@ -216,9 +216,9 @@ std::vector<position_vector> forwardVoiceLeading(
     
     // Sequential processing
     for (size_t i = 1; i < targets.size(); ++i) {
-        position_vector target = targets[i]; // Copy for rototranslationMatrix
+        position_vector target = targets[i]; // Copy for relative_mode_matrix
         position_vector& reference = result[i - 1]; // Previous result
-        RototranslationMatrixRow selected = voiceLeadingAutomation(reference, target, normalizedComplexities[i-1]);
+        RelativeModeMatrixRow selected = voiceLeadingAutomation(reference, target, normalizedComplexities[i-1]);
         result.push_back(selected.getVector());
     }
     
@@ -232,7 +232,7 @@ std::vector<position_vector> forwardVoiceLeading(
  * @return Vector of position_vectors with sequential voice leading applied in reverse
  * @throws runtime_error if targets vector is empty
  * @details Last element is unchanged. Each previous element is found by comparing
- *          the rototranslation of targets[i] with the result from the next step.
+ *          the relative_mode_matrix of targets[i] with the result from the next step.
  */
 std::vector<position_vector> voiceLeadingAutomationSequentialBackward(
     const std::vector<position_vector>& targets,
@@ -255,9 +255,9 @@ std::vector<position_vector> voiceLeadingAutomationSequentialBackward(
     
     // Sequential processing backward
     for (int i = targets.size() - 2; i >= 0; --i) {
-        position_vector target = targets[i]; // Copy for rototranslationMatrix
+        position_vector target = targets[i]; // Copy for relative_mode_matrix
         position_vector& reference = result[i + 1]; // Next result
-        RototranslationMatrixRow selected = voiceLeadingAutomation(reference, target, normalizedComplexities[i]);
+        RelativeModeMatrixRow selected = voiceLeadingAutomation(reference, target, normalizedComplexities[i]);
         result[i] = selected.getVector();
     }
     
@@ -286,7 +286,7 @@ std::vector<position_vector> degreeAutomationReference(
     result.reserve(degrees.size());
     
     for (size_t i = 0; i < degrees.size(); ++i) {
-        ModalRototranslationMatrixRow selected = degreeAutomation(
+        ModalRelativeModeMatrixRow selected = degreeAutomation(
             scale, criterion, degrees[i], reference, normalizedComplexities[i]);
         result.push_back(selected.getVector());
     }
@@ -321,7 +321,7 @@ std::vector<position_vector> degreeAutomationVectorReference(
     result.reserve(degrees.size());
     
     for (size_t i = 0; i < degrees.size(); ++i) {
-        ModalRototranslationMatrixRow selected = degreeAutomation(
+        ModalRelativeModeMatrixRow selected = degreeAutomation(
             scale, criterion, degrees[i], references[i], normalizedComplexities[i]);
         result.push_back(selected.getVector());
     }
@@ -358,14 +358,14 @@ std::vector<position_vector> forwardDegreeAutomation(
     result.reserve(degrees.size());
     
     // First element uses initial reference
-    ModalRototranslationMatrixRow first = degreeAutomation(
+    ModalRelativeModeMatrixRow first = degreeAutomation(
         scale, criterion, degrees[0], initialReference, normalizedComplexities[0]);
     result.push_back(first.getVector());
     
     // Sequential processing - each uses previous result as reference
     for (size_t i = 1; i < degrees.size(); ++i) {
         position_vector& reference = result[i - 1];
-        ModalRototranslationMatrixRow selected = degreeAutomation(
+        ModalRelativeModeMatrixRow selected = degreeAutomation(
             scale, criterion, degrees[i], reference, normalizedComplexities[i]);
         result.push_back(selected.getVector());
     }
@@ -401,7 +401,7 @@ std::vector<position_vector> degreeAutomationSequentialBackward(
     std::vector<position_vector> result(degrees.size());
     
     // Last element uses final reference
-    ModalRototranslationMatrixRow last = degreeAutomation(
+    ModalRelativeModeMatrixRow last = degreeAutomation(
         scale, criterion, degrees[degrees.size() - 1], finalReference, 
         normalizedComplexities[degrees.size() - 1]);
     result[degrees.size() - 1] = last.getVector();
@@ -409,7 +409,7 @@ std::vector<position_vector> degreeAutomationSequentialBackward(
     // Sequential processing backward - each uses next result as reference
     for (int i = degrees.size() - 2; i >= 0; --i) {
         position_vector& reference = result[i + 1];
-        ModalRototranslationMatrixRow selected = degreeAutomation(
+        ModalRelativeModeMatrixRow selected = degreeAutomation(
             scale, criterion, degrees[i], reference, normalizedComplexities[i]);
         result[i] = selected.getVector();
     }

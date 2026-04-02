@@ -33,11 +33,11 @@ TEST_CASE("rhythm_generation_examples", "[rhythm]") {
     vector_set euc2 = euc.mode(-1);
     ASSERT_POSITION_VECTOR_EQ(euc2.positions(), musicpp_test::ints({0, 6, 11}), 16);
     ASSERT_POSITION_VECTOR_EQ(euc2.transpose(1).positions(), musicpp_test::ints({1, 7, 12}), 16);
-    ASSERT_POSITION_VECTOR_EQ(euc2.roto_translate_positions(2).positions(), musicpp_test::ints({11, 16, 22}), 16);
+    ASSERT_POSITION_VECTOR_EQ(euc2.relative_mode(2).positions(), musicpp_test::ints({11, 16, 22}), 16);
 
     ASSERT_POSITION_VECTOR_EQ(CloughDouthettVector(16, 3, 0), musicpp_test::ints({0, 5, 10}), 16);
     ASSERT_POSITION_VECTOR_EQ(deepRhythm(16, 3, 5, 0), musicpp_test::ints({0, 5, 10}), 16);
-    ASSERT_BINARY_VECTOR_EQ(
+    ASSERT_ONSET_VECTOR_EQ(
         tihai(16, 3, false, 0),
         musicpp_test::ints({1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1}),
         0,
@@ -49,7 +49,7 @@ TEST_CASE("rhythm_generation_examples", "[rhythm]") {
     TEST_OUTPUT("positions", euc.positions());
     TEST_OUTPUT("mode_minus_1", euc2.positions());
     TEST_OUTPUT("mode_minus_1_transpose_1", euc2.transpose(1).positions());
-    TEST_OUTPUT("mode_minus_1_rototranslate_2", euc2.roto_translate_positions(2).positions());
+    TEST_OUTPUT("mode_minus_1_relative_mode_2", euc2.relative_mode(2).positions());
     TEST_OUTPUT("clough_douthett", CloughDouthettVector(16, 3, 0));
     TEST_OUTPUT("deep_rhythm", deepRhythm(16, 3, 5, 0));
 

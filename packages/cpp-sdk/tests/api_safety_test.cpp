@@ -15,17 +15,17 @@ namespace {
 
 using musicpp::align;
 using musicpp::Analysis;
-using musicpp::binary_vector;
+using musicpp::onset_vector;
 using musicpp::euclidean;
 using musicpp::hierarchy;
-using musicpp::positions_to_binary;
+using musicpp::positions_to_onset;
 using musicpp::interval_vector;
 using musicpp::ModalMatrixDistance;
-using musicpp::ModalRototranslationMatrixDistance;
+using musicpp::ModalRelativeModeMatrixDistance;
 using musicpp::ModalSelectionMatrixDistance;
 using musicpp::normalize;
 using musicpp::position_vector;
-using musicpp::RototranslationMatrixDistance;
+using musicpp::RelativeModeMatrixDistance;
 using musicpp::TranspositionMatrixDistance;
 using musicpp::tripleSelect;
 using musicpp::vector_set;
@@ -36,49 +36,49 @@ TEST_CASE("normalize_empty_vector_throws", "[distances][safety]") {
     REQUIRE_THROWS_AS(normalize(empty), std::invalid_argument);
 }
 
-TEST_CASE("binary_vector_constructor_rejects_non_binary", "[binary_vector][safety]") {
-    REQUIRE_THROWS_AS((void)binary_vector(std::vector<int>{1, 2}, 0, 4), std::invalid_argument);
+TEST_CASE("onset_vector_constructor_rejects_invalid_pattern", "[onset_vector][safety]") {
+    REQUIRE_THROWS_AS((void)onset_vector(std::vector<int>{1, 2}, 0, 4), std::invalid_argument);
 }
 
-TEST_CASE("binary_vector_validate_after_mutating_data", "[binary_vector][safety]") {
-    binary_vector bv({1, 0, 1, 0}, 0, 4);
+TEST_CASE("onset_vector_validate_after_mutating_data", "[onset_vector][safety]") {
+    onset_vector bv({1, 0, 1, 0}, 0, 4);
     bv.data()[1] = 7;
-    REQUIRE_THROWS_AS(bv.validateBinaryData(), std::invalid_argument);
+    REQUIRE_THROWS_AS(bv.validate_onset_pattern(), std::invalid_argument);
 }
 
-TEST_CASE("binary_vector_scalar_multiply_non_positive_throws", "[binary_vector][safety]") {
-    binary_vector bv({1, 0, 0, 0}, 0, 4);
+TEST_CASE("onset_vector_scalar_multiply_non_positive_throws", "[onset_vector][safety]") {
+    onset_vector bv({1, 0, 0, 0}, 0, 4);
     REQUIRE_THROWS_AS(bv * 0, std::invalid_argument);
     REQUIRE_THROWS_AS(bv * -1, std::invalid_argument);
 }
 
-TEST_CASE("binary_vector_scalar_divide_invalid_throws", "[binary_vector][safety]") {
-    binary_vector bv({1, 0, 1, 0}, 0, 4);
+TEST_CASE("onset_vector_scalar_divide_invalid_throws", "[onset_vector][safety]") {
+    onset_vector bv({1, 0, 1, 0}, 0, 4);
     REQUIRE_THROWS_AS(bv / 0, std::invalid_argument);
     REQUIRE_THROWS_AS(bv / 5, std::invalid_argument);
     REQUIRE_THROWS_AS(bv / 3, std::invalid_argument);
 }
 
-TEST_CASE("binary_vector_deprecated_divide_and_stretch_non_positive", "[binary_vector][safety]") {
-    binary_vector bv({1, 0, 0, 0}, 0, 4);
+TEST_CASE("onset_vector_deprecated_divide_and_stretch_non_positive", "[onset_vector][safety]") {
+    onset_vector bv({1, 0, 0, 0}, 0, 4);
     REQUIRE_THROWS_AS(bv.divide(0), std::invalid_argument);
     REQUIRE_THROWS_AS(bv.stretch(0), std::invalid_argument);
 }
 
-TEST_CASE("binary_vector_static_euclidean_invalid_parameters", "[binary_vector][safety]") {
-    REQUIRE_THROWS_AS(binary_vector::euclidean(0, 8), std::invalid_argument);
-    REQUIRE_THROWS_AS(binary_vector::euclidean(3, 0), std::invalid_argument);
-    REQUIRE_THROWS_AS(binary_vector::euclidean(5, 4), std::invalid_argument);
+TEST_CASE("onset_vector_static_euclidean_invalid_parameters", "[onset_vector][safety]") {
+    REQUIRE_THROWS_AS(onset_vector::euclidean(0, 8), std::invalid_argument);
+    REQUIRE_THROWS_AS(onset_vector::euclidean(3, 0), std::invalid_argument);
+    REQUIRE_THROWS_AS(onset_vector::euclidean(5, 4), std::invalid_argument);
 }
 
-TEST_CASE("vector_set_multiply_binary_non_positive_scalar", "[vectors][safety]") {
-    vector_set s = vector_set::from_binary({1, 0, 1, 0}, 0, 4);
-    REQUIRE_THROWS_AS(s.multiply_binary(0), std::invalid_argument);
+TEST_CASE("vector_set_multiply_onset_non_positive_scalar", "[vectors][safety]") {
+    vector_set s = vector_set::from_onset({1, 0, 1, 0}, 0, 4);
+    REQUIRE_THROWS_AS(s.multiply_onset(0), std::invalid_argument);
 }
 
-TEST_CASE("vector_set_divide_binary_propagates_binary_rules", "[vectors][safety]") {
-    vector_set s = vector_set::from_binary({1, 0, 1, 0}, 0, 4);
-    REQUIRE_THROWS_AS(s.divide_binary(3), std::invalid_argument);
+TEST_CASE("vector_set_divide_onset_propagates_onset_rules", "[vectors][safety]") {
+    vector_set s = vector_set::from_onset({1, 0, 1, 0}, 0, 4);
+    REQUIRE_THROWS_AS(s.divide_onset(3), std::invalid_argument);
 }
 
 TEST_CASE("position_vector_componentwise_division_empty_divisor", "[position_vector][safety]") {
@@ -111,10 +111,10 @@ TEST_CASE("rhythm_euclidean_non_positive_args_throws", "[rhythm_gen][safety]") {
     REQUIRE_THROWS_AS(euclidean(-1, 3), std::invalid_argument);
 }
 
-TEST_CASE("positions_to_binary_non_positive_range_returns_empty_pattern", "[vectors][safety]") {
+TEST_CASE("positions_to_onset_non_positive_range_returns_empty_pattern", "[vectors][safety]") {
     position_vector pv({0, 4, 7}, 12, 12);
     pv.set_effective_range(0);
-    binary_vector b = positions_to_binary(pv);
+    onset_vector b = positions_to_onset(pv);
     ASSERT_TRUE(b.data().empty());
     ASSERT_EQ(b.mod(), pv.mod());
 }
@@ -122,7 +122,7 @@ TEST_CASE("positions_to_binary_non_positive_range_returns_empty_pattern", "[vect
 TEST_CASE("align_empty_or_bad_range_throws", "[matrix_distance][safety]") {
     position_vector a({0, 4, 7}, 12, 12);
     position_vector b({2, 5, 9}, 12, 12);
-    position_vector empty;
+    position_vector empty(std::vector<int>{}, 12, 12, true, false);
     REQUIRE_THROWS_AS(align(empty, b), std::invalid_argument);
     REQUIRE_THROWS_AS(align(a, empty), std::invalid_argument);
     position_vector z({0, 4, 7}, 12, 12);
@@ -145,9 +145,9 @@ TEST_CASE("slonimsky_intervals_short_sequences", "[slonimsky][safety]") {
 TEST_CASE("matrix_distance_empty_at_throws_out_of_range", "[matrix_distance][safety]") {
     ModalMatrixDistance<position_vector> modal;
     TranspositionMatrixDistance trans;
-    RototranslationMatrixDistance roto;
+    RelativeModeMatrixDistance roto;
     ModalSelectionMatrixDistance<position_vector> sel;
-    ModalRototranslationMatrixDistance mrt;
+    ModalRelativeModeMatrixDistance mrt;
     REQUIRE_THROWS_AS((void)modal.at(0), std::out_of_range);
     REQUIRE_THROWS_AS((void)trans.at(0), std::out_of_range);
     REQUIRE_THROWS_AS((void)roto.at(0), std::out_of_range);

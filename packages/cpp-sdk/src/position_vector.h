@@ -792,7 +792,7 @@ public:
     }
 
     /**
-     * @brief Roto-translation: extracts a section of the vector with cyclic access
+     * @brief Relative mode: extracts a section of the vector with cyclic access
      * 
      * @param startOffset Starting offset (can be negative or > size)
      * @param length Length of the section to extract (0 = use current size)
@@ -801,7 +801,7 @@ public:
      * @details Extracts 'length' elements starting from startOffset.
      *          Access is cyclic, so startOffset can be any value.
      */
-    position_vector roto_translate(int start_offset, int length = 0) const {
+    position_vector relative_mode(int start_offset, int length = 0) const {
         int outLength = (length == 0) ? static_cast<int>(data_.size()) : std::abs(length);
         
         std::vector<int> newData(outLength);
@@ -892,7 +892,7 @@ public:
      * @details Complex musical negation operation that:
      *          - In standard mode: multiplies by 2, negates with respect to (axis*2-1), divides by 2
      *          - In non-standard mode: negates directly with respect to axis
-     *          - Applies rotoTranslate(-1) to the result
+     *          - Applies relative_mode(-1) to the result
      */
     position_vector negative(int axis = 10, bool standard = true, bool sortResult = true) const {
         position_vector result = *this;
@@ -934,7 +934,7 @@ public:
         }
         
         // Step 7: Final roto-translation
-        result = result.roto_translate(-1);
+        result = result.relative_mode(-1);
         
         return result;
     }

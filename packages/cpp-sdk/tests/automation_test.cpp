@@ -32,9 +32,9 @@ TEST_CASE("automation_row_examples", "[automation]") {
     position_vector scale({0, 2, 4, 5, 7, 9, 11});
     // Same stacked-thirds pattern as matrix_test / selection_test ({2,2,3}, offset 0), but a
     // non-zero offset here is deliberate: chord() applies degree + criterion offset via
-    // set_offset (chord.h), and modalMatrix rows rotate the criterion while keeping that offset,
-    // which shifts which rototranslation row is closest to target {67,71,74}. Mod 12 is explicit
-    // so the criterion matches the chromatic scale (this fixture expects translation_index 0, …).
+    // set_offset (chord.h), and modalMatrix rows use parallel_mode on the criterion while keeping that offset,
+    // which shifts which relative-mode row is closest to target {67,71,74}. Mod 12 is explicit
+    // so the criterion matches the chromatic scale (this fixture expects relative_mode_index 0, …).
     interval_vector criterion({2, 2, 3}, 35, 12);
     position_vector reference({60, 64, 67});
     position_vector target({67, 71, 74});
@@ -42,12 +42,12 @@ TEST_CASE("automation_row_examples", "[automation]") {
 
     auto degree_row = degreeAutomation(scale, criterion, 3, target, 0);
     ASSERT_EQ(degree_row.getModeIndex(), 6);
-    ASSERT_EQ(degree_row.getTranslationIndex(), 0);
+    ASSERT_EQ(degree_row.get_relative_mode_index(), 0);
     ASSERT_NEAR(degree_row.getDistance(), 2.0, 1e-6);
     ASSERT_POSITION_VECTOR_EQ(degree_row.getVector(), musicpp_test::ints({65, 71, 74}), 12);
 
     auto voice_row = voiceLeadingAutomation(reference, target, 0);
-    ASSERT_EQ(voice_row.getTranslation(), -2);
+    ASSERT_EQ(voice_row.get_relative_mode_offset(), -2);
     ASSERT_EQ(voice_row.getCenter(), -2);
     ASSERT_NEAR(voice_row.getDistance(), 3.0, 1e-6);
     ASSERT_POSITION_VECTOR_EQ(voice_row.getVector(), musicpp_test::ints({59, 62, 67}), 12);
@@ -68,14 +68,14 @@ TEST_CASE("automation_row_examples", "[automation]") {
     TEST_INPUT("degree", 3);
     TEST_INPUT("reference", target);
     TEST_OUTPUT("mode_index", degree_row.getModeIndex());
-    TEST_OUTPUT("translation_index", degree_row.getTranslationIndex());
+    TEST_OUTPUT("relative_mode_index", degree_row.get_relative_mode_index());
     TEST_OUTPUT("distance", degree_row.getDistance());
     TEST_OUTPUT("vector", degree_row.getVector());
 
     TEST_CASE_LOG("voice_leading_automation");
     TEST_INPUT("reference", reference);
     TEST_INPUT("target", target);
-    TEST_OUTPUT("translation", voice_row.getTranslation());
+    TEST_OUTPUT("relative_mode_offset", voice_row.get_relative_mode_offset());
     TEST_OUTPUT("center", voice_row.getCenter());
     TEST_OUTPUT("distance", voice_row.getDistance());
     TEST_OUTPUT("vector", voice_row.getVector());

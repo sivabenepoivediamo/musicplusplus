@@ -1,5 +1,5 @@
-#ifndef MUSICPP_BINARY_VECTOR_H
-#define MUSICPP_BINARY_VECTOR_H
+#ifndef MUSICPP_ONSET_VECTOR_H
+#define MUSICPP_ONSET_VECTOR_H
 
 #include "math_util.h"
 
@@ -7,17 +7,17 @@ namespace musicpp {
 
 
 /**
- * @file binary_vector.h
- * @brief Definition of binary_vector class for binary rhythm patterns
+ * @file onset_vector.h
+ * @brief Definition of onset_vector for cyclic onset (0/1) rhythm patterns
  * @author [not251]
  * @date 2025
  */
 
 /**
- * @class binary_vector
- * @brief Class for representing binary vectors (0s and 1s) with rhythmic operations
+ * @class onset_vector
+ * @brief Onset vector: 0/1 pattern over a cyclic grid (rhythmic onsets and rests)
  * 
- * @details A binary_vector represents rhythmic patterns as sequences of 0s and 1s.
+ * @details An onset_vector encodes where onsets (1) and rests (0) fall on each step of a cycle.
  * It supports:
  * - Offset-based transposition
  * - Scaling through multiplication and division (stretching/warping)
@@ -26,7 +26,7 @@ namespace musicpp {
  * - Logical operations (OR, AND, XOR, NOR, NAND, XNOR)
  * - Automatic modulo adaptation via LCM
  */
-class binary_vector {
+class onset_vector {
 private:
     std::vector<int> data_;
     int offset_;
@@ -38,10 +38,10 @@ public:
      * @brief Validates that data contains only 0s and 1s
      * @throw std::invalid_argument if data contains invalid values
      */
-    void validateBinaryData() const {
+    void validate_onset_pattern() const {
         for (int val : data_) {
             if (val != 0 && val != 1) {
-                throw std::invalid_argument("binary_vector data must contain only 0s and 1s");
+                throw std::invalid_argument("onset_vector pattern must contain only 0s and 1s");
             }
         }
     }
@@ -50,7 +50,7 @@ public:
     /**
      * @brief Default constructor
      */
-    binary_vector() 
+    onset_vector() 
         : data_({1, 0, 0, 0}), 
           offset_(0),
           mod_(4)
@@ -61,16 +61,16 @@ public:
      * @param data Binary vector data
      * @param offset Initial offset value
      * @param mod Modulo base (default 4)
-     * @throw std::invalid_argument if data contains non-binary values
+     * @throw std::invalid_argument if data contains values other than 0 or 1
      */
-    binary_vector(const std::vector<int>& values,
+    onset_vector(const std::vector<int>& values,
                  int offset_in = 0,
                  int mod_in = 4)
         : data_(values), 
           offset_(offset_in),
           mod_(mod_in)
     {
-        validateBinaryData();
+        validate_onset_pattern();
     }
 
     // ==================== GETTERS ====================
@@ -89,10 +89,10 @@ public:
     /**
      * @brief Multiply (space out) the pattern by a scalar
      * @param scalar Spacing factor
-     * @return New binary_vector with elements spaced by zeros
+     * @return New onset_vector with elements spaced by zeros
      * @details Elements are spaced out by inserting (scalar-1) zeros between each element
      */
-    binary_vector operator*(int scalar) const {
+    onset_vector operator*(int scalar) const {
     if (scalar <= 0) {
         throw std::invalid_argument("scalar must be positive");
     }
@@ -107,19 +107,19 @@ public:
         }
     }
 
-    return binary_vector(out, offset_, mod_);
+    return onset_vector(out, offset_, mod_);
 }
 
 
  /**
  * @brief Divide (compress spacing) the pattern by a scalar
  * @param divisor Compression factor
- * @return New binary_vector with spacing between pulses compressed
+ * @return New onset_vector with spacing between pulses compressed
  * @details Compresses the spaces between 1s by removing zeros proportionally.
  * For each gap between pulses, keeps only 1/divisor of the zeros (rounded down).
  * This is the inverse operation of multiplication.
  */
-binary_vector operator/(int scalar) const {
+onset_vector operator/(int scalar) const {
     int n = static_cast<int>(data_.size());
 
     if (scalar <= 0) {
@@ -139,20 +139,20 @@ binary_vector operator/(int scalar) const {
         int index = i * scalar;
         out[i] = data_[index];
     }
-    return binary_vector(out, offset_, mod_);
+    return onset_vector(out, offset_, mod_);
 }
 
-    binary_vector& operator*=(int scalar) {
+    onset_vector& operator*=(int scalar) {
         *this = *this * scalar;
         return *this;
     }
 
-    binary_vector& operator/=(int divisor) {
+    onset_vector& operator/=(int divisor) {
         *this = *this / divisor;
         return *this;
     }
 // old, deprecated
-binary_vector divide(int divisor) const {
+onset_vector divide(int divisor) const {
     if (divisor <= 0) {
         throw std::invalid_argument("Divisor must be positive");
     }
@@ -195,12 +195,12 @@ binary_vector divide(int divisor) const {
         compressed.resize(data_.size());
     }
     
-    return binary_vector(compressed, offset_, mod_);
+    return onset_vector(compressed, offset_, mod_);
 }
 
 
     // deprecated
-    binary_vector stretch(int scalar) const {
+    onset_vector stretch(int scalar) const {
         if (scalar <= 0) {
             throw std::invalid_argument("Scalar must be positive for multiplication");
         }
@@ -215,7 +215,7 @@ binary_vector divide(int divisor) const {
             }
         }
 
-        return binary_vector(result, offset_, mod_ * scalar);
+        return onset_vector(result, offset_, mod_ * scalar);
     }
     
     // ==================== COMPONENTWISE LOGICAL OPERATIONS ====================
@@ -224,11 +224,11 @@ binary_vector divide(int divisor) const {
      * @brief Componentwise OR with optional looping
      * @param other Vector to OR with
      * @param useLooping If true, use cyclic wraparound; if false, extend with unprocessed elements
-     * @return New binary_vector with OR operation applied
+     * @return New onset_vector with OR operation applied
      */
-    binary_vector componentwiseOr(const std::vector<int>& other, bool useLooping = false) const {
+    onset_vector componentwiseOr(const std::vector<int>& other, bool useLooping = false) const {
         if (other.empty()) return *this;
-        if (data_.empty()) return binary_vector(other, offset_, mod_);
+        if (data_.empty()) return onset_vector(other, offset_, mod_);
         
         std::vector<int> result;
         
@@ -258,17 +258,17 @@ binary_vector divide(int divisor) const {
             }
         }
         
-        return binary_vector(result, offset_, mod_);
+        return onset_vector(result, offset_, mod_);
     }
 
     /**
      * @brief Componentwise AND with optional looping
      * @param other Vector to AND with
      * @param useLooping If true, use cyclic wraparound; if false, extend with unprocessed elements
-     * @return New binary_vector with AND operation applied
+     * @return New onset_vector with AND operation applied
      */
-    binary_vector componentwiseAnd(const std::vector<int>& other, bool useLooping = false) const {
-        if (other.empty()) return binary_vector({}, offset_, mod_);
+    onset_vector componentwiseAnd(const std::vector<int>& other, bool useLooping = false) const {
+        if (other.empty()) return onset_vector({}, offset_, mod_);
         if (data_.empty()) return *this;
         
         std::vector<int> result;
@@ -299,18 +299,18 @@ binary_vector divide(int divisor) const {
             }
         }
         
-        return binary_vector(result, offset_, mod_);
+        return onset_vector(result, offset_, mod_);
     }
 
     /**
      * @brief Componentwise XOR with optional looping
      * @param other Vector to XOR with
      * @param useLooping If true, use cyclic wraparound; if false, extend with unprocessed elements
-     * @return New binary_vector with XOR operation applied
+     * @return New onset_vector with XOR operation applied
      */
-    binary_vector componentwiseXor(const std::vector<int>& other, bool useLooping = false) const {
+    onset_vector componentwiseXor(const std::vector<int>& other, bool useLooping = false) const {
         if (other.empty()) return *this;
-        if (data_.empty()) return binary_vector(other, offset_, mod_);
+        if (data_.empty()) return onset_vector(other, offset_, mod_);
         
         std::vector<int> result;
         
@@ -340,96 +340,96 @@ binary_vector divide(int divisor) const {
             }
         }
         
-        return binary_vector(result, offset_, mod_);
+        return onset_vector(result, offset_, mod_);
     }
 
     // ==================== LOGICAL OPERATIONS (LCM-ADAPTED) ====================
 
     /**
      * @brief Bitwise OR (union) of two patterns with LCM adaptation
-     * @param other binary_vector to OR with
-     * @return New binary_vector with 1 where either pattern has 1
+     * @param other onset_vector to OR with
+     * @return New onset_vector with 1 where either pattern has 1
      * @details Combines patterns - pulse occurs if either source has a pulse
      */
-    binary_vector operator|(const binary_vector& other) const {
-        std::vector<binary_vector> adapted = adapt_to_lcm({*this, other});
+    onset_vector operator|(const onset_vector& other) const {
+        std::vector<onset_vector> adapted = adapt_to_lcm({*this, other});
         return adapted[0].componentwiseOr(adapted[1].data_, false);
     }
 
     /**
      * @brief Bitwise AND (intersection) of two patterns with LCM adaptation
-     * @param other binary_vector to AND with
-     * @return New binary_vector with 1 only where both patterns have 1
+     * @param other onset_vector to AND with
+     * @return New onset_vector with 1 only where both patterns have 1
      * @details Creates sparse pattern - pulse only where both sources pulse
      */
-    binary_vector operator&(const binary_vector& other) const {
-        std::vector<binary_vector> adapted = adapt_to_lcm({*this, other});
+    onset_vector operator&(const onset_vector& other) const {
+        std::vector<onset_vector> adapted = adapt_to_lcm({*this, other});
         return adapted[0].componentwiseAnd(adapted[1].data_, false);
     }
 
     /**
      * @brief Bitwise XOR (symmetric difference) of two patterns with LCM adaptation
-     * @param other binary_vector to XOR with
-     * @return New binary_vector with 1 where exactly one pattern has 1
+     * @param other onset_vector to XOR with
+     * @return New onset_vector with 1 where exactly one pattern has 1
      * @details Creates counter-rhythm - pulse where patterns don't coincide
      */
-    binary_vector operator^(const binary_vector& other) const {
-        std::vector<binary_vector> adapted = adapt_to_lcm({*this, other});
+    onset_vector operator^(const onset_vector& other) const {
+        std::vector<onset_vector> adapted = adapt_to_lcm({*this, other});
         return adapted[0].componentwiseXor(adapted[1].data_, false);
     }
 
     /**
      * @brief Bitwise NOR (negated union) of two patterns
-     * @param other binary_vector to NOR with
-     * @return New binary_vector with 1 where neither pattern has 1
+     * @param other onset_vector to NOR with
+     * @return New onset_vector with 1 where neither pattern has 1
      * @details Creates silence pattern - pulse only in gaps of both sources
      */
-    binary_vector nor(const binary_vector& other) const {
+    onset_vector nor(const onset_vector& other) const {
         return ~(*this | other);
     }
 
     /**
      * @brief Bitwise NAND (negated intersection) of two patterns
-     * @param other binary_vector to NAND with
-     * @return New binary_vector with 0 only where both patterns have 1
+     * @param other onset_vector to NAND with
+     * @return New onset_vector with 0 only where both patterns have 1
      * @details Pulse everywhere except where both sources coincide
      */
-    binary_vector nand(const binary_vector& other) const {
+    onset_vector nand(const onset_vector& other) const {
         return ~(*this & other);
     }
 
     /**
      * @brief Bitwise XNOR (equivalence) of two patterns
-     * @param other binary_vector to compare with
-     * @return New binary_vector with 1 where both patterns match
+     * @param other onset_vector to compare with
+     * @return New onset_vector with 1 where both patterns match
      * @details Pulse where patterns are the same (both 0 or both 1)
      */
-    binary_vector xnor(const binary_vector& other) const {
+    onset_vector xnor(const onset_vector& other) const {
         return ~(*this ^ other);
     }
 
     /**
      * @brief Bitwise NOT (complement) - unary operator
-     * @return New binary_vector with all bits flipped
+     * @return New onset_vector with all bits flipped
      * @details Alias for complement() method
      */
-    binary_vector operator~() const {
+    onset_vector operator~() const {
         return complement();
     }
 
     // ==================== LOGICAL ASSIGNMENT OPERATORS ====================
 
-    binary_vector& operator|=(const binary_vector& other) {
+    onset_vector& operator|=(const onset_vector& other) {
         *this = *this | other;
         return *this;
     }
 
-    binary_vector& operator&=(const binary_vector& other) {
+    onset_vector& operator&=(const onset_vector& other) {
         *this = *this & other;
         return *this;
     }
 
-    binary_vector& operator^=(const binary_vector& other) {
+    onset_vector& operator^=(const onset_vector& other) {
         *this = *this ^ other;
         return *this;
     }
@@ -448,21 +448,21 @@ binary_vector divide(int divisor) const {
         return data_[div.remainder];
     }
 
-    bool operator==(const binary_vector& other) const {
+    bool operator==(const onset_vector& other) const {
         return data_ == other.data_ && offset_ == other.offset_ && mod_ == other.mod_;
     }
 
-    bool operator!=(const binary_vector& other) const {
+    bool operator!=(const onset_vector& other) const {
         return !(*this == other);
     }
 
     // ==================== FRIEND OPERATORS ====================
 
-    friend binary_vector operator*(int scalar, const binary_vector& bv) {
+    friend onset_vector operator*(int scalar, const onset_vector& bv) {
         return bv * scalar;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const binary_vector& bv) {
+    friend std::ostream& operator<<(std::ostream& os, const onset_vector& bv) {
         os << "[";
         for (size_t i = 0; i < bv.data_.size(); ++i) {
             os << bv.data_[i];
@@ -476,13 +476,13 @@ binary_vector divide(int divisor) const {
 
     /**
      * @brief Adapt vectors to LCM by spacing elements
-     * @param vectors Vector of binary_vectors to adapt
+     * @param vectors Vector of onset_vectors to adapt
      * @return Adapted vectors with uniform modulo
      * @details Elements are spaced by inserting zeros between them
      */
-    static std::vector<binary_vector> adapt_to_lcm(const std::vector<binary_vector>& vectors) {
+    static std::vector<onset_vector> adapt_to_lcm(const std::vector<onset_vector>& vectors) {
         if (vectors.empty()) {
-            return std::vector<binary_vector>();
+            return std::vector<onset_vector>();
         }
 
         std::set<int> uniqueModulos;
@@ -497,10 +497,10 @@ binary_vector divide(int divisor) const {
         std::vector<int> modulosList(uniqueModulos.begin(), uniqueModulos.end());
         const int lcm_val = lcm(modulosList);
 
-        std::vector<binary_vector> adaptedVectors;
+        std::vector<onset_vector> adaptedVectors;
         adaptedVectors.reserve(vectors.size());
 
-        for (const binary_vector& bv : vectors) {
+        for (const onset_vector& bv : vectors) {
             int scaleFactor = lcm_val / bv.mod_;
             
             // Space out elements by inserting zeros
@@ -514,7 +514,7 @@ binary_vector divide(int divisor) const {
                 }
             }
 
-            binary_vector adaptedBV(spacedData, bv.offset_, lcm_val);
+            onset_vector adaptedBV(spacedData, bv.offset_, lcm_val);
             adaptedVectors.emplace_back(adaptedBV);
         }
 
@@ -525,10 +525,10 @@ binary_vector divide(int divisor) const {
      * @brief Generate Euclidean rhythm
      * @param pulses Number of pulses (onsets)
      * @param steps Total number of steps
-     * @return binary_vector containing the Euclidean rhythm
+     * @return onset_vector containing the Euclidean rhythm
      * @details Uses Bjorklund's algorithm to distribute pulses evenly
      */
-    static binary_vector euclidean(int pulses, int steps) {
+    static onset_vector euclidean(int pulses, int steps) {
         if (pulses <= 0 || steps <= 0 || pulses > steps) {
             throw std::invalid_argument("Invalid Euclidean parameters");
         }
@@ -566,7 +566,7 @@ binary_vector divide(int divisor) const {
         }
 
         // `steps` was overwritten in the loop; period is the pattern length.
-        return binary_vector(result, 0, static_cast<int>(result.size()));
+        return onset_vector(result, 0, static_cast<int>(result.size()));
     }
 
     // ==================== TRANSFORMATION METHODS ====================
@@ -574,9 +574,9 @@ binary_vector divide(int divisor) const {
     /**
      * @brief Rotate the pattern cyclically
      * @param rotationAmount Amount to rotate (positive or negative)
-     * @return New binary_vector with rotated pattern
+     * @return New onset_vector with rotated pattern
      */
-    binary_vector rotate(int rotationAmount) const {
+    onset_vector rotate(int rotationAmount) const {
         if (data_.empty()) {
             return *this;
         }
@@ -590,27 +590,27 @@ binary_vector divide(int divisor) const {
             rotatedData[i] = data_[(i + normalizedRotation) % size];
         }
 
-        return binary_vector(rotatedData, offset_, mod_);
+        return onset_vector(rotatedData, offset_, mod_);
     }
 
     /**
      * @brief Calculate complement (flip all bits)
-     * @return New binary_vector with inverted bits
+     * @return New onset_vector with inverted bits
      */
-    binary_vector complement() const {
+    onset_vector complement() const {
         std::vector<int> complementData(data_.size());
         for (size_t i = 0; i < data_.size(); ++i) {
             complementData[i] = 1 - data_[i];
         }
-        return binary_vector(complementData, offset_, mod_);
+        return onset_vector(complementData, offset_, mod_);
     }
 
     /**
      * @brief Inversion around an axis
      * @param axisIndex Index of the axis element
-     * @return New binary_vector with pattern inverted around axis
+     * @return New onset_vector with pattern inverted around axis
      */
-    binary_vector inversion(int axisIndex) const {
+    onset_vector inversion(int axisIndex) const {
         if (data_.empty()) {
             return *this;
         }
@@ -627,39 +627,39 @@ binary_vector divide(int divisor) const {
             invertedData[i] = data_[mirrorDiv.remainder];
         }
 
-        return binary_vector(invertedData, offset_, mod_);
+        return onset_vector(invertedData, offset_, mod_);
     }
 
     /**
      * @brief Transpose the pattern using offset
      * @param transpositionAmount Amount to transpose
-     * @return New binary_vector with updated offset
+     * @return New onset_vector with updated offset
      */
-    binary_vector transpose(int transpositionAmount) const {
-        return binary_vector(data_, offset_ + transpositionAmount, mod_);
+    onset_vector transpose(int transpositionAmount) const {
+        return onset_vector(data_, offset_ + transpositionAmount, mod_);
     }
 
     // ==================== UTILITY METHODS ====================
 
     /**
-     * @brief Concatenate with another binary_vector
-     * @param other binary_vector to append
-     * @return New binary_vector with concatenated data
+     * @brief Concatenate with another onset_vector
+     * @param other onset_vector to append
+     * @return New onset_vector with concatenated data
      */
-    binary_vector concatenate(const binary_vector& other) const {
+    onset_vector concatenate(const onset_vector& other) const {
         std::vector<int> result = data_;
         result.insert(result.end(), other.data_.begin(), other.data_.end());
-        return binary_vector(result, offset_, mod_);
+        return onset_vector(result, offset_, mod_);
     }
 
     /**
      * @brief Repeat the pattern multiple times
      * @param times Number of repetitions
-     * @return New binary_vector with repeated pattern
+     * @return New onset_vector with repeated pattern
      */
-    binary_vector repeat(int times) const {
+    onset_vector repeat(int times) const {
         if (times <= 0) {
-            return binary_vector({}, offset_, mod_);
+            return onset_vector({}, offset_, mod_);
         }
 
         std::vector<int> result;
@@ -669,7 +669,7 @@ binary_vector divide(int divisor) const {
             result.insert(result.end(), data_.begin(), data_.end());
         }
 
-        return binary_vector(result, offset_, mod_);
+        return onset_vector(result, offset_, mod_);
     }
 
     /**
@@ -736,7 +736,7 @@ binary_vector divide(int divisor) const {
     }
 
     void printInfo() const {
-        std::cout << "=== binary_vector Info ===" << std::endl;
+        std::cout << "=== onset_vector ===" << std::endl;
         printData();
         std::cout << "Offset: " << offset_ << std::endl;
         std::cout << "Mod: " << mod_ << std::endl;
@@ -755,4 +755,4 @@ binary_vector divide(int divisor) const {
 
 } // namespace musicpp
 
-#endif // MUSICPP_BINARY_VECTOR_H
+#endif // MUSICPP_ONSET_VECTOR_H

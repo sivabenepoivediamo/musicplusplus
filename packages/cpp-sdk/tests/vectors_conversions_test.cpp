@@ -6,11 +6,11 @@
 
 namespace {
 
-using musicpp::binary_vector;
+using musicpp::onset_vector;
 using musicpp::interval_vector;
 using musicpp::intervals_to_positions;
 using musicpp::position_vector;
-using musicpp::positions_to_binary;
+using musicpp::positions_to_onset;
 using musicpp::positions_to_intervals;
 using musicpp::vector_set;
 
@@ -43,13 +43,13 @@ TEST_CASE("intervals_to_positions_roundtrip", "[vectors][conversion]") {
     ASSERT_POSITION_VECTOR_EQ(pv0, musicpp_test::ints({3}), 12);
 }
 
-TEST_CASE("positions_to_binary_and_roundtrip_positions", "[vectors][conversion]") {
+TEST_CASE("positions_to_onset_and_roundtrip_positions", "[vectors][conversion]") {
     position_vector empty(std::vector<int>{}, 12, 12, true, false);
-    auto bin = positions_to_binary(empty);
+    auto bin = positions_to_onset(empty);
     ASSERT_EQ(bin.data().size(), static_cast<size_t>(0));
 
     position_vector triad({0, 4, 7}, 12, 12);
-    auto b = positions_to_binary(triad);
+    auto b = positions_to_onset(triad);
     ASSERT_TRUE(b.countPulses() == 3);
 
     auto iv_back = positions_to_intervals(triad);
@@ -73,17 +73,17 @@ TEST_CASE("vector_set_constructors_and_equality", "[vectors][conversion]") {
     ASSERT_TRUE(!(a != b));
 }
 
-TEST_CASE("vector_set_from_interval_and_binary", "[vectors][conversion]") {
+TEST_CASE("vector_set_from_interval_and_onset", "[vectors][conversion]") {
     vector_set from_iv(vector_set::from_intervals({2, 2, 1}, 12));
     ASSERT_POSITION_VECTOR_EQ(from_iv.positions(), musicpp_test::ints({0, 2, 4}), 12);
 
-    vector_set from_bv(vector_set::from_binary({1, 0, 1, 0, 1}, 0, 5));
+    vector_set from_bv(vector_set::from_onset({1, 0, 1, 0, 1}, 0, 5));
     ASSERT_POSITION_VECTOR_EQ(from_bv.positions(), musicpp_test::ints({0, 2, 4}), 5);
 }
 
-TEST_CASE("vector_set_inversion_alias_matches_rototranslate", "[vectors][conversion]") {
+TEST_CASE("vector_set_inversion_alias_matches_relative_mode", "[vectors][conversion]") {
     vector_set s = vector_set::from_positions({0, 4, 7});
-    ASSERT_TRUE(s.inversion(2, 0).positions().data() == s.roto_translate_positions(2, 0).positions().data());
+    ASSERT_TRUE(s.inversion(2, 0).positions().data() == s.relative_mode(2, 0).positions().data());
 }
 
 TEST_CASE("vector_set_transpose_multiply_complement", "[vectors][conversion]") {
@@ -100,19 +100,19 @@ TEST_CASE("vector_set_transpose_multiply_complement", "[vectors][conversion]") {
     ASSERT_EQ(c.mod(), 12);
 }
 
-TEST_CASE("vector_set_mode_rotates_intervals", "[vectors][conversion]") {
+TEST_CASE("vector_set_mode_parallel_mode_intervals", "[vectors][conversion]") {
     vector_set s = vector_set::from_intervals({2, 2, 1}, 12);
     auto r = s.mode(1);
     ASSERT_INTERVAL_VECTOR_EQ(r.intervals(), musicpp_test::ints({2, 1, 2}), 0, 12);
 }
 
-TEST_CASE("vector_set_binary_or_and_and", "[vectors][conversion]") {
-    vector_set a = vector_set::from_binary({1, 0, 1, 0, 0}, 0, 5);
-    vector_set b = vector_set::from_binary({0, 1, 1, 0, 0}, 0, 5);
+TEST_CASE("vector_set_onset_or_and_and", "[vectors][conversion]") {
+    vector_set a = vector_set::from_onset({1, 0, 1, 0, 0}, 0, 5);
+    vector_set b = vector_set::from_onset({0, 1, 1, 0, 0}, 0, 5);
     vector_set u = a | b;
     vector_set n = a & b;
-    ASSERT_EQ(u.binary().countPulses(), 3);
-    ASSERT_EQ(n.binary().countPulses(), 1);
+    ASSERT_EQ(u.onset().countPulses(), 3);
+    ASSERT_EQ(n.onset().countPulses(), 1);
 }
 
 TEST_CASE("vector_set_reverse_intervals", "[vectors][conversion]") {
@@ -127,11 +127,11 @@ TEST_CASE("vector_set_add_to_intervals", "[vectors][conversion]") {
     ASSERT_INTERVAL_VECTOR_EQ(t.intervals(), musicpp_test::ints({3, 3, 2}), 0, 12);
 }
 
-TEST_CASE("vector_set_binary_xor", "[vectors][conversion]") {
-    vector_set a = vector_set::from_binary({1, 0, 1, 0, 0}, 0, 5);
-    vector_set b = vector_set::from_binary({1, 1, 0, 0, 0}, 0, 5);
+TEST_CASE("vector_set_onset_xor", "[vectors][conversion]") {
+    vector_set a = vector_set::from_onset({1, 0, 1, 0, 0}, 0, 5);
+    vector_set b = vector_set::from_onset({1, 1, 0, 0, 0}, 0, 5);
     vector_set x = a ^ b;
-    ASSERT_EQ(x.binary().countPulses(), 2);
+    ASSERT_EQ(x.onset().countPulses(), 2);
 }
 
 TEST_CASE("vector_set_invert_positions_preserves_size", "[vectors][conversion]") {
@@ -147,19 +147,19 @@ TEST_CASE("vector_set_multiply_intervals", "[vectors][conversion]") {
     ASSERT_INTERVAL_VECTOR_EQ(m.intervals(), musicpp_test::ints({4, 4, 2}), 0, 12);
 }
 
-TEST_CASE("vector_set_rotate_binary_preserves_pulse_count", "[vectors][conversion]") {
-    vector_set s = vector_set::from_binary({1, 0, 0, 1, 0}, 0, 5);
-    auto r = s.rotate_binary(2);
-    ASSERT_EQ(r.binary().mod(), 5);
-    ASSERT_EQ(r.binary().size(), static_cast<size_t>(5));
-    ASSERT_EQ(r.binary().countPulses(), s.binary().countPulses());
+TEST_CASE("vector_set_rotate_onset_preserves_pulse_count", "[vectors][conversion]") {
+    vector_set s = vector_set::from_onset({1, 0, 0, 1, 0}, 0, 5);
+    auto r = s.rotate_onset(2);
+    ASSERT_EQ(r.onset().mod(), 5);
+    ASSERT_EQ(r.onset().size(), static_cast<size_t>(5));
+    ASSERT_EQ(r.onset().countPulses(), s.onset().countPulses());
 }
 
-TEST_CASE("vector_set_complement_binary", "[vectors][conversion]") {
-    vector_set s = vector_set::from_binary({1, 0, 0, 1, 0}, 0, 5);
-    auto c = s.complement_binary();
-    ASSERT_EQ(c.binary().mod(), 5);
-    ASSERT_EQ(c.binary().countPulses() + s.binary().countPulses(), 5);
+TEST_CASE("vector_set_complement_onset", "[vectors][conversion]") {
+    vector_set s = vector_set::from_onset({1, 0, 0, 1, 0}, 0, 5);
+    auto c = s.complement_onset();
+    ASSERT_EQ(c.onset().mod(), 5);
+    ASSERT_EQ(c.onset().countPulses() + s.onset().countPulses(), 5);
 }
 
 TEST_CASE("vector_set_invert_intervals", "[vectors][conversion]") {

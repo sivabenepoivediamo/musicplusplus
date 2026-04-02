@@ -6,7 +6,7 @@
 
 namespace {
 
-using musicpp::binary_vector;
+using musicpp::onset_vector;
 using musicpp::interval_vector;
 
 TEST_CASE("interval_vector_compound_assignment_scalars", "[vectors][interval]") {
@@ -57,22 +57,22 @@ TEST_CASE("interval_vector_negate_flips_offset", "[vectors][interval]") {
     ASSERT_INTERVAL_VECTOR_EQ(n, musicpp_test::ints({-1, -2}), -5, 12);
 }
 
-TEST_CASE("interval_vector_rotate_empty", "[vectors][interval]") {
+TEST_CASE("interval_vector_parallel_mode_empty", "[vectors][interval]") {
     interval_vector empty(std::vector<int>{}, 7, 12);
-    ASSERT_INTERVAL_VECTOR_EQ(empty.rotate(3), empty.data(), 7, 12);
+    ASSERT_INTERVAL_VECTOR_EQ(empty.parallel_mode(3), empty.data(), 7, 12);
 }
 
-TEST_CASE("binary_vector_repeat_non_positive", "[vectors][binary]") {
-    binary_vector b({1, 0}, 0, 4);
+TEST_CASE("onset_vector_repeat_non_positive", "[vectors][onset]") {
+    onset_vector b({1, 0}, 0, 4);
     ASSERT_EQ(b.repeat(0).size(), static_cast<size_t>(0));
     ASSERT_EQ(b.repeat(-2).size(), static_cast<size_t>(0));
-    ASSERT_BINARY_VECTOR_EQ(b.repeat(2), musicpp_test::ints({1, 0, 1, 0}), 0, 4);
+    ASSERT_ONSET_VECTOR_EQ(b.repeat(2), musicpp_test::ints({1, 0, 1, 0}), 0, 4);
 }
 
-TEST_CASE("binary_vector_adapt_to_lcm_spacing", "[vectors][binary]") {
-    binary_vector a({1, 0, 0, 0}, 0, 4);
-    binary_vector b({1, 0, 0, 0, 0, 0}, 0, 6);
-    auto adapted = binary_vector::adapt_to_lcm({a, b});
+TEST_CASE("onset_vector_adapt_to_lcm_spacing", "[vectors][onset]") {
+    onset_vector a({1, 0, 0, 0}, 0, 4);
+    onset_vector b({1, 0, 0, 0, 0, 0}, 0, 6);
+    auto adapted = onset_vector::adapt_to_lcm({a, b});
     ASSERT_EQ(adapted.size(), static_cast<size_t>(2));
     ASSERT_EQ(adapted[0].mod(), 12);
     ASSERT_EQ(adapted[1].mod(), 12);

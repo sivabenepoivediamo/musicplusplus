@@ -11,12 +11,12 @@ The implementation is **header-only** (C++17). Public types and free functions l
 
 ## Features
 
-- Unified vector classes for positions, intervals, and binary patterns (`position_vector`, `interval_vector`, `binary_vector`).
+- Unified vector classes for positions, intervals, and cyclic onset patterns (`position_vector`, `interval_vector`, `onset_vector`).
 - A unified `vector_set` container (in `vectors.h`) that keeps the three representations synchronized and provides convenient conversions and high-level operations.
 - Meta-operators for selection and transformation (position/interval selection, modal selection, modal interchange).
-- Chord and scale utilities for generating chords from scales/degrees and transforming them (transposition, inversion, rototranslation, mirroring).
+- Chord and scale utilities for generating chords from scales/degrees and transforming them (transposition, inversion, relative/parallel mode, mirroring).
 - Rich distance and similarity metrics (Euclidean, Manhattan, Hamming, Levenshtein/edit distance, weighted transformation distance) with matrix-based search utilities for best matches.
-- Matrix utilities: modal matrices, transposition matrices, and rototranslation matrices plus helpers to compute distances between a reference and all matrix rows (`matrix.h`, `matrix_distance.h`).
+- Matrix utilities: modal matrices, transposition matrices, and relative-mode matrices plus helpers to compute distances between a reference and all matrix rows (`matrix.h`, `matrix_distance.h`).
 - Rhythmic utilities and generators: Euclidean rhythms, Clough–Douthett, deep rhythms, tihai and conversion helpers (`rhythm_gen.h`).
 - Note naming and mapping utilities to convert MIDI/position vectors to human-readable note names with enharmonic handling (`note_names.h`).
 - Analysis and measurement helpers (spectrum, symmetry, entropy, deepness checks, geodesic distances) in `measures.h`.
@@ -28,14 +28,14 @@ The implementation is **header-only** (C++17). Public types and free functions l
 ```
 src/
 	automations.h          # High-level automation helpers (voice leading, degree automation, modal interchange, modulation)
-	binary_vector.h        # binary_vector for rhythmic patterns and logical operations
+	onset_vector.h         # onset_vector for cyclic onset (0/1) patterns and logical operations
 	chord.h                # Chord types and parameters: generate chords from scales or intervals
 	chord_names.h          # Chord naming helpers
 	distances.h            # Distance and transformation metrics and helpers
 	interval_vector.h      # interval_vector (intervallic representations and operations)
 	math_util.h            # Math helpers (Euclidean division, GCD, LCM)
 	matrix_distance.h      # Distance calculation wrappers for matrix result rows and utilities
-	matrix.h               # Modal, transposition and rototranslation matrix generators
+	matrix.h               # Modal, transposition and relative-mode matrix generators
 	measures.h             # Analytical measures: spectra, symmetry, entropy, deepness, etc.
 	melody.h               # Melodic note info, analysis, and modification helpers
 	note_names.h           # Mapping position vectors / MIDI numbers to note names (enharmonic handling)
@@ -70,13 +70,13 @@ README.md
 ### Vector Classes
 - **position_vector**: Cyclic positional vectors for pitch sets, supports rotation, inversion, complement, and more.
 - **interval_vector**: Intervallic structures with cyclic access, rotation, inversion, and scalar/vector operations.
-- **binary_vector**: Binary (0/1) vectors for rhythmic patterns, logical operations, and cyclic transformations.
-- **vector_set**: Unified type maintaining synchronized position, interval, and binary representations.
+- **onset_vector**: Cyclic onset (0/1) vectors for rhythmic patterns, logical operations, and cyclic transformations.
+- **vector_set**: Unified type maintaining synchronized position, interval, and onset representations.
 
 ### Meta-Operators & Algorithms
 - **Selection**: Meta-operators for extracting or generating new vectors from source vectors using position or interval criteria.
 - **Chord**: Functions to generate chords from scales and degrees/intervals, supporting transformations and inversions.
-- **Matrix**: Modal, transpositional, and rototranslational matrix generation for musical analysis.
+- **Matrix**: Modal, transpositional, and relative-mode matrix generation for musical analysis.
 - **Distances**: Euclidean, Manhattan, edit, Hamming, and weighted transformation distances for musical vectors.
 
 ### Rhythmic Generators
