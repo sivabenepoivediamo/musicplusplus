@@ -10,6 +10,8 @@
 
 #include "utility.h"
 
+#include <stdexcept>
+
 
 namespace musicpp {
 
@@ -65,12 +67,12 @@ struct ChordAnalysis {
     std::vector<std::pair<int, std::string>> addedNotes;
 };
 
-std::string noteToString(int midi) {
+inline std::string noteToString(int midi) {
     const std::string notes[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     return notes[midi % 12];
 }
 
-std::string intervalToString(int interval) {
+inline std::string intervalToString(int interval) {
     std::map<int, std::string> intervalNames = {
         {1, "b2"}, {2, "2"}, {3, "m3"}, {4, "M3"}, {5, "4"}, {6, "b5/#4"}, 
         {7, "5"}, {8, "b6"}, {9, "6"}, {10, "7"}, {11, "maj7"},
@@ -80,7 +82,10 @@ std::string intervalToString(int interval) {
     return std::to_string(interval);
 }
 
-ChordAnalysis analyzeChord(const std::vector<int>& midiNotes, int rootIndex) {
+inline ChordAnalysis analyzeChord(const std::vector<int>& midiNotes, int rootIndex) {
+    if (midiNotes.empty() || rootIndex < 0 || rootIndex >= static_cast<int>(midiNotes.size())) {
+        throw std::out_of_range("analyzeChord: midiNotes is empty or rootIndex is out of range");
+    }
     ChordAnalysis analysis;
     analysis.root = midiNotes[rootIndex];
     
@@ -209,7 +214,7 @@ ChordAnalysis analyzeChord(const std::vector<int>& midiNotes, int rootIndex) {
     return analysis;
 }
 
-std::string buildChordName(const ChordAnalysis& analysis) {
+inline std::string buildChordName(const ChordAnalysis& analysis) {
     std::string name = noteToString(analysis.root);
     bool omitFifth = false;
     bool omitThird = false;
