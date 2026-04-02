@@ -3,15 +3,23 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "../src/chord.h"
-#include "../src/chordNames.h"
+#include "../src/chord_names.h"
+
+using musicpp::Chord;
+using musicpp::ChordParams;
+using musicpp::analyzeChord;
+using musicpp::buildChordName;
+using musicpp::chord;
+using musicpp::interval_vector;
+using musicpp::position_vector;
 
 namespace {
 
 TEST_CASE("chord_helper_examples", "[chord]") {
-    PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
-    IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
-    PositionVector triad_degrees({0, 2, 4}, 12);
-    IntervalVector grouping({2}, 0, 12);
+    position_vector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
+    interval_vector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
+    position_vector triad_degrees({0, 2, 4}, 12);
+    interval_vector grouping({2}, 0, 12);
 
     auto positions_from_degrees = chord(c_major_scale, triad_degrees, 0, 0, 5, 0);
     auto positions_from_grouping = chord(c_major_scale, grouping, 0, 0, 5, 0);
@@ -35,10 +43,10 @@ TEST_CASE("chord_helper_examples", "[chord]") {
 }
 
 TEST_CASE("chord_class_examples", "[chord]") {
-    PositionVector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
-    IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
-    PositionVector triad_degrees({0, 2, 4}, 12);
-    IntervalVector grouping({2}, 0, 12);
+    position_vector c_major_scale({0, 2, 4, 5, 7, 9, 11}, 12);
+    interval_vector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
+    position_vector triad_degrees({0, 2, 4}, 12);
+    interval_vector grouping({2}, 0, 12);
 
     ChordParams params;
     params.withShift(0).withPosition(1).withPreVoices(3);

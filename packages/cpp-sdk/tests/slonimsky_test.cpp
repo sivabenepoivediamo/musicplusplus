@@ -7,7 +7,7 @@
 namespace {
 
 TEST_CASE("slonimsky_examples", "[slonimsky]") {
-    using namespace slonimsky;
+    using namespace musicpp::slonimsky;
 
     const Seq x = {0, 6, 12};
 

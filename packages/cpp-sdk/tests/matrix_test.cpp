@@ -2,19 +2,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "../src/matrixDistance.h"
+#include "../src/matrix_distance.h"
 
 namespace {
 
+using namespace musicpp;
+
 TEST_CASE("matrix_generation_examples", "[matrix]") {
-    IntervalVector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
+    interval_vector major_scale_intervals({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     auto interval_modes = modalMatrix(major_scale_intervals);
     ASSERT_EQ(interval_modes.size(), static_cast<size_t>(7));
     ASSERT_INTERVAL_VECTOR_EQ(interval_modes[0].first, musicpp_test::ints({2, 2, 1, 2, 2, 2, 1}), 0, 12);
     ASSERT_INTERVAL_VECTOR_EQ(interval_modes[3].first, musicpp_test::ints({2, 2, 2, 1, 2, 2, 1}), 0, 12);
     ASSERT_EQ(interval_modes.getIndices(), std::vector<int>({0, 1, 2, 3, 4, 5, 6}));
 
-    PositionVector c_major({0, 2, 4, 5, 7, 9, 11});
+    position_vector c_major({0, 2, 4, 5, 7, 9, 11});
     auto position_modes = modalMatrix(c_major);
     ASSERT_EQ(position_modes.size(), static_cast<size_t>(7));
     ASSERT_POSITION_VECTOR_EQ(position_modes[0].first, musicpp_test::ints({0, 2, 4, 5, 7, 9, 11}), 12);
@@ -25,7 +27,7 @@ TEST_CASE("matrix_generation_examples", "[matrix]") {
     ASSERT_POSITION_VECTOR_EQ(transpositions[0].first, musicpp_test::ints({0, 2, 4, 5, 7, 9, 11}), 12);
     ASSERT_POSITION_VECTOR_EQ(transpositions[7].first, musicpp_test::ints({0, 2, 4, 6, 7, 9, 11}), 12);
 
-    PositionVector triad({0, 4, 7});
+    position_vector triad({0, 4, 7});
     auto rototranslations = rototranslationMatrix(triad, 0);
     ASSERT_EQ(rototranslations.getCenter(), 0);
     ASSERT_EQ(rototranslations.size(), static_cast<size_t>(7));
@@ -49,9 +51,9 @@ TEST_CASE("matrix_generation_examples", "[matrix]") {
 }
 
 TEST_CASE("matrix_selection_and_filter_examples", "[matrix]") {
-    PositionVector c_major({0, 2, 4, 5, 7, 9, 11});
-    IntervalVector criterion({2, 2, 3}, 0, 12);
-    auto interval_selection = modalSelection(positionsToIntervals(c_major), criterion, 0);
+    position_vector c_major({0, 2, 4, 5, 7, 9, 11});
+    interval_vector criterion({2, 2, 3}, 0, 12);
+    auto interval_selection = modalSelection(positions_to_intervals(c_major), criterion, 0);
     ASSERT_EQ(interval_selection.size(), static_cast<size_t>(3));
     ASSERT_INTERVAL_VECTOR_EQ(interval_selection[0].first, musicpp_test::ints({4, 3, 5}), 0, 12);
     ASSERT_EQ(interval_selection.getModeIndices(), std::vector<int>({0, 5, 3}));
@@ -94,10 +96,10 @@ TEST_CASE("matrix_selection_and_filter_examples", "[matrix]") {
 }
 
 TEST_CASE("matrix_distance_examples", "[matrix]") {
-    PositionVector c_major({0, 2, 4, 5, 7, 9, 11});
-    PositionVector c_lydian({0, 2, 4, 6, 7, 9, 11});
-    PositionVector c_major_chord({0, 4, 7});
-    PositionVector g_major_chord({7, 11, 14});
+    position_vector c_major({0, 2, 4, 5, 7, 9, 11});
+    position_vector c_lydian({0, 2, 4, 6, 7, 9, 11});
+    position_vector c_major_chord({0, 4, 7});
+    position_vector g_major_chord({7, 11, 14});
     int complexity = 0;
     auto transposition_distances = calculateDistances(c_lydian, transpositionMatrix(c_major));
     auto best_transposition = transposition_distances.getByComplexity(complexity);
@@ -120,7 +122,7 @@ TEST_CASE("matrix_distance_examples", "[matrix]") {
     ASSERT_NEAR(best_rototranslation.getDistance(), 3.0, 1e-6);
     ASSERT_POSITION_VECTOR_EQ(best_rototranslation.getVector(), musicpp_test::ints({-1, 2, 7}), 12);
 
-    IntervalVector crit({2, 2, 3});
+    interval_vector crit({2, 2, 3});
     auto modal_selection_distances = calculateDistances(g_major_chord, modalSelection(c_major, crit, 0));
     auto best_degree = modal_selection_distances.getByComplexity(complexity);
     ASSERT_EQ(best_degree.getModeIndex(), 3);

@@ -4,19 +4,23 @@
 
 #include "../src/automations.h"
 
+using musicpp::chord;
+using musicpp::interval_vector;
+using musicpp::position_vector;
+
 namespace {
 
-std::vector<std::vector<int>> to_raw_sequence(const std::vector<PositionVector>& sequence) {
+std::vector<std::vector<int>> to_raw_sequence(const std::vector<position_vector>& sequence) {
     std::vector<std::vector<int>> result;
     result.reserve(sequence.size());
     for (const auto& vector : sequence) {
-        result.push_back(vector.getData());
+        result.push_back(vector.data());
     }
     return result;
 }
 
 void assert_position_sequence_eq(
-    const std::vector<PositionVector>& actual,
+    const std::vector<position_vector>& actual,
     const std::vector<std::vector<int>>& expected) {
     ASSERT_EQ(actual.size(), expected.size());
     for (size_t i = 0; i < actual.size(); ++i) {
@@ -25,10 +29,10 @@ void assert_position_sequence_eq(
 }
 
 TEST_CASE("automation_row_examples", "[automation]") {
-    PositionVector scale({0, 2, 4, 5, 7, 9, 11});
-    IntervalVector criterion({2, 2, 3}, 35);
-    PositionVector reference({60, 64, 67});
-    PositionVector target({67, 71, 74});
+    position_vector scale({0, 2, 4, 5, 7, 9, 11});
+    interval_vector criterion({2, 2, 3}, 35);
+    position_vector reference({60, 64, 67});
+    position_vector target({67, 71, 74});
     std::vector<int> notes = {63};
 
     auto degree_row = degreeAutomation(scale, criterion, 3, target, 0);
@@ -87,17 +91,17 @@ TEST_CASE("automation_row_examples", "[automation]") {
 }
 
 TEST_CASE("automation_sequence_examples", "[automation]") {
-    PositionVector scale({0, 2, 4, 5, 7, 9, 11});
-    IntervalVector crit({2, 2, 2, 2});
-    PositionVector I = chord(scale, crit, 0, 0, 4);
-    PositionVector II = chord(scale, crit, 1, 0, 4);
-    PositionVector V = chord(scale, crit, 4, 0, 4);
-    PositionVector VI = chord(scale, crit, 5, 0, 4);
-    PositionVector IV = chord(scale, crit, 3, 0, 4);
-    PositionVector VII = chord(scale, crit, 6, 0, 4);
-    PositionVector IV6 = chord(scale, crit, 1, 0, 4, 1);
+    position_vector scale({0, 2, 4, 5, 7, 9, 11});
+    interval_vector crit({2, 2, 2, 2});
+    position_vector I = chord(scale, crit, 0, 0, 4);
+    position_vector II = chord(scale, crit, 1, 0, 4);
+    position_vector V = chord(scale, crit, 4, 0, 4);
+    position_vector VI = chord(scale, crit, 5, 0, 4);
+    position_vector IV = chord(scale, crit, 3, 0, 4);
+    position_vector VII = chord(scale, crit, 6, 0, 4);
+    position_vector IV6 = chord(scale, crit, 1, 0, 4, 1);
 
-    std::vector<PositionVector> chords{
+    std::vector<position_vector> chords{
         I, II, V, I, VI, IV, II, VII, I, V, VI, II, V, I
     };
     std::vector<int> complexities{0};

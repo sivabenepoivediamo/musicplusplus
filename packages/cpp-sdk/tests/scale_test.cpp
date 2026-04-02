@@ -5,7 +5,14 @@
 
 #include "../src/automations.h"
 #include "../src/scale.h"
-#include "../src/scaleDictionary.h"
+#include "../src/scale_dictionary.h"
+
+using musicpp::Scale;
+using musicpp::ScaleDatabase;
+using musicpp::autoScale;
+using musicpp::getRootNote;
+using musicpp::interval_vector;
+using musicpp::position_vector;
 
 namespace {
 
@@ -21,7 +28,7 @@ std::vector<std::string> scale_labels(const Results& results) {
 }
 
 TEST_CASE("scale_class_examples", "[scale]") {
-    IntervalVector interval_gen({2, 2, 1, 2, 2, 2, 1}, 0, 12);
+    interval_vector interval_gen({2, 2, 1, 2, 2, 2, 1}, 0, 12);
     Scale scale1(interval_gen, 0, 0, 0, false, 0, false, 0);
     ASSERT_INTERVAL_VECTOR_EQ(scale1.getIntervals(), musicpp_test::ints({2, 2, 1, 2, 2, 2, 1}), 0, 12);
     ASSERT_POSITION_VECTOR_EQ(scale1.toPositions(), musicpp_test::ints({0, 2, 4, 5, 7, 9, 11}), 12);
@@ -30,7 +37,7 @@ TEST_CASE("scale_class_examples", "[scale]") {
     ASSERT_TRUE(!scale1.getInvert());
     ASSERT_TRUE(!scale1.getMirror());
 
-    PositionVector pos_gen({0, 2, 4, 5, 7, 9, 11}, 12);
+    position_vector pos_gen({0, 2, 4, 5, 7, 9, 11}, 12);
     Scale scale2(pos_gen, 3, 1, 0, false, 0, false, 0);
     ASSERT_INTERVAL_VECTOR_EQ(scale2.getIntervals(), musicpp_test::ints({2, 1, 2, 2, 2, 1, 2}), 3, 12);
     ASSERT_POSITION_VECTOR_EQ(scale2.toPositions(), musicpp_test::ints({3, 5, 6, 8, 10, 12, 13}), 12);
@@ -66,35 +73,35 @@ TEST_CASE("scale_class_examples", "[scale]") {
 }
 
 TEST_CASE("autoscale_examples", "[scale]") {
-    PositionVector scale1({0, 2, 4, 5, 7, 9, 11});
+    position_vector scale1({0, 2, 4, 5, 7, 9, 11});
     std::vector<int> notes1 = {61, 70};
-    PositionVector result1 = autoScale(scale1, notes1);
+    position_vector result1 = autoScale(scale1, notes1);
     ASSERT_POSITION_VECTOR_EQ(result1, musicpp_test::ints({1, 2, 4, 5, 7, 9, 10}), 12);
 
-    PositionVector scale2({0, 2, 4, 7, 9});
+    position_vector scale2({0, 2, 4, 7, 9});
     std::vector<int> notes2 = {61, 65};
     ASSERT_POSITION_VECTOR_EQ(autoScale(scale2, notes2), musicpp_test::ints({1, 2, 5, 7, 9}), 12);
 
-    PositionVector scale3({7, 9, 11, 12, 14, 16, 18});
+    position_vector scale3({7, 9, 11, 12, 14, 16, 18});
     std::vector<int> notes3 = {63, 70};
-    PositionVector result3 = autoScale(scale3, notes3);
+    position_vector result3 = autoScale(scale3, notes3);
     ASSERT_POSITION_VECTOR_EQ(result3, musicpp_test::ints({7, 10, 11, 12, 14, 15, 18}), 12);
 
-    PositionVector scale4({0, 2, 4, 6, 8, 10});
+    position_vector scale4({0, 2, 4, 6, 8, 10});
     std::vector<int> notes4 = {61, 63};
     ASSERT_POSITION_VECTOR_EQ(autoScale(scale4, notes4), musicpp_test::ints({1, 3, 4, 6, 8, 10}), 12);
 
-    PositionVector scale5({0, 2, 4, 5, 7, 9, 11});
+    position_vector scale5({0, 2, 4, 5, 7, 9, 11});
     std::vector<int> notes5 = {63, 66};
     ASSERT_POSITION_VECTOR_EQ(autoScale(scale5, notes5), musicpp_test::ints({0, 2, 3, 5, 6, 9, 11}), 12);
 
-    PositionVector scale6({1, 3, 5, 6, 8, 10, 12});
+    position_vector scale6({1, 3, 5, 6, 8, 10, 12});
     std::vector<int> notes6 = {67};
     ASSERT_POSITION_VECTOR_EQ(autoScale(scale6, notes6), musicpp_test::ints({1, 3, 5, 7, 8, 10, 12}), 12);
 
-    PositionVector scale7({0, 2, 4, 5, 7, 9, 11});
+    position_vector scale7({0, 2, 4, 5, 7, 9, 11});
     std::vector<int> notes7 = {70};
-    PositionVector result7 = autoScale(scale7, notes7);
+    position_vector result7 = autoScale(scale7, notes7);
     ASSERT_POSITION_VECTOR_EQ(result7, musicpp_test::ints({0, 2, 4, 5, 7, 9, 10}), 12);
 
     TEST_CASE_LOG("autoscale_case_1");

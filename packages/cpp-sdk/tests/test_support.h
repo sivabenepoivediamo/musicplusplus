@@ -11,9 +11,14 @@
 #include <string>
 #include <vector>
 
-#include "../src/Vector.h"
+#include "../src/vectors.h"
 
 namespace musicpp_test {
+
+using musicpp::position_vector;
+using musicpp::interval_vector;
+using musicpp::binary_vector;
+using musicpp::vector_set;
 
 struct AssertionError : std::runtime_error {
     using std::runtime_error::runtime_error;
@@ -71,27 +76,27 @@ std::string debug_string(const std::map<Key, Value>& values) {
     return oss.str();
 }
 
-inline std::string debug_string(const PositionVector& value) {
+inline std::string debug_string(const position_vector& value) {
     std::ostringstream oss;
-    oss << "{data=" << debug_string(value.getData())
-        << ", mod=" << value.getMod()
-        << ", range=" << value.getRange() << "}";
+    oss << "{data=" << debug_string(value.data())
+        << ", mod=" << value.mod()
+        << ", range=" << value.effective_range() << "}";
     return oss.str();
 }
 
-inline std::string debug_string(const IntervalVector& value) {
+inline std::string debug_string(const interval_vector& value) {
     std::ostringstream oss;
-    oss << "{data=" << debug_string(value.getData())
-        << ", offset=" << value.getOffset()
-        << ", mod=" << value.getMod() << "}";
+    oss << "{data=" << debug_string(value.data())
+        << ", offset=" << value.offset()
+        << ", mod=" << value.mod() << "}";
     return oss.str();
 }
 
-inline std::string debug_string(const BinaryVector& value) {
+inline std::string debug_string(const binary_vector& value) {
     std::ostringstream oss;
-    oss << "{data=" << debug_string(value.getData())
-        << ", offset=" << value.getOffset()
-        << ", mod=" << value.getMod() << "}";
+    oss << "{data=" << debug_string(value.data())
+        << ", offset=" << value.offset()
+        << ", mod=" << value.mod() << "}";
     return oss.str();
 }
 
@@ -225,21 +230,21 @@ inline void assert_string_vector_eq_impl(
 }
 
 inline void assert_position_vector_eq_impl(
-    const PositionVector& actual,
+    const position_vector& actual,
     const std::vector<int>& expected,
     int expected_mod,
     const char* actual_expr,
     const char* expected_expr,
     const char* file,
     int line) {
-    assert_vector_eq_impl(actual.getData(), expected, actual_expr, expected_expr, file, line);
+    assert_vector_eq_impl(actual.data(), expected, actual_expr, expected_expr, file, line);
     if (expected_mod >= 0) {
-        assert_eq_impl(actual.getMod(), expected_mod, "actual.getMod()", "expected_mod", file, line);
+        assert_eq_impl(actual.mod(), expected_mod, "actual.mod()", "expected_mod", file, line);
     }
 }
 
 inline void assert_interval_vector_eq_impl(
-    const IntervalVector& actual,
+    const interval_vector& actual,
     const std::vector<int>& expected,
     int expected_offset,
     int expected_mod,
@@ -247,15 +252,15 @@ inline void assert_interval_vector_eq_impl(
     const char* expected_expr,
     const char* file,
     int line) {
-    assert_vector_eq_impl(actual.getData(), expected, actual_expr, expected_expr, file, line);
-    assert_eq_impl(actual.getOffset(), expected_offset, "actual.getOffset()", "expected_offset", file, line);
+    assert_vector_eq_impl(actual.data(), expected, actual_expr, expected_expr, file, line);
+    assert_eq_impl(actual.offset(), expected_offset, "actual.offset()", "expected_offset", file, line);
     if (expected_mod >= 0) {
-        assert_eq_impl(actual.getMod(), expected_mod, "actual.getMod()", "expected_mod", file, line);
+        assert_eq_impl(actual.mod(), expected_mod, "actual.mod()", "expected_mod", file, line);
     }
 }
 
 inline void assert_binary_vector_eq_impl(
-    const BinaryVector& actual,
+    const binary_vector& actual,
     const std::vector<int>& expected,
     int expected_offset,
     int expected_mod,
@@ -263,10 +268,10 @@ inline void assert_binary_vector_eq_impl(
     const char* expected_expr,
     const char* file,
     int line) {
-    assert_vector_eq_impl(actual.getData(), expected, actual_expr, expected_expr, file, line);
-    assert_eq_impl(actual.getOffset(), expected_offset, "actual.getOffset()", "expected_offset", file, line);
+    assert_vector_eq_impl(actual.data(), expected, actual_expr, expected_expr, file, line);
+    assert_eq_impl(actual.offset(), expected_offset, "actual.offset()", "expected_offset", file, line);
     if (expected_mod >= 0) {
-        assert_eq_impl(actual.getMod(), expected_mod, "actual.getMod()", "expected_mod", file, line);
+        assert_eq_impl(actual.mod(), expected_mod, "actual.mod()", "expected_mod", file, line);
     }
 }
 

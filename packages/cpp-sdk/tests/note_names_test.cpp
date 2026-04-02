@@ -2,9 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "../src/noteNames.h"
+#include "../src/note_names.h"
 
 namespace {
+
+using namespace musicpp;
 
 TEST_CASE("midi_note_name_examples", "[note_names]") {
     NoteNamingSystem system;
@@ -44,23 +46,23 @@ TEST_CASE("position_vector_note_name_examples", "[note_names]") {
     NoteMapperOptions flats_diatonic(false, true, 12);
     NoteMapperOptions sharps_non_diatonic(true, false, 12);
 
-    PositionVector c_major({0, 2, 4, 5, 7, 9, 11}, 12);
+    position_vector c_major({0, 2, 4, 5, 7, 9, 11}, 12);
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(c_major, sharps_diatonic).noteNames,
         std::vector<std::string>({"C", "D", "E", "F", "G", "A", "B"}));
 
-    PositionVector f_major({5, 7, 9, 10, 0, 2, 4}, 12);
+    position_vector f_major({5, 7, 9, 10, 0, 2, 4}, 12);
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(f_major, flats_diatonic).noteNames,
         std::vector<std::string>({"F", "G", "A", "B♭", "C", "D", "E"}));
 
-    PositionVector g7_chord({7, 11, 2, 5}, 12);
+    position_vector g7_chord({7, 11, 2, 5}, 12);
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(g7_chord, sharps_non_diatonic).noteNames,
         std::vector<std::string>({"G", "B", "D", "F"}));
 
-    PositionVector microtonal({0, 5, 10, 13, 18, 23, 28}, 31);
-    microtonal = microtonal.rotoTranslate(2);
+    position_vector microtonal({0, 5, 10, 13, 18, 23, 28}, 31);
+    microtonal = microtonal.roto_translate(2);
     NoteResult microtonal_result = system.positionVectorToNoteNames(microtonal, NoteMapperOptions(false, false, 31));
     ASSERT_STRING_VECTOR_EQ(
         microtonal_result.noteNames,
@@ -76,23 +78,23 @@ TEST_CASE("position_vector_note_name_examples", "[note_names]") {
             "D -6 cents",
         }));
 
-    PositionVector transposed = c_major + 5;
+    position_vector transposed = c_major + 5;
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(transposed, sharps_diatonic).noteNames,
         std::vector<std::string>({"F", "G", "A", "B♭", "C", "D", "E"}));
 
-    PositionVector rotated = c_major.rotate(2);
+    position_vector rotated = c_major.rotate(2);
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(rotated, flats_diatonic).noteNames,
         std::vector<std::string>({"A", "B", "C", "D", "E", "F", "G"}));
 
-    PositionVector c_major_chord({0, 4, 7}, 12);
-    PositionVector inverted = c_major_chord.inversion(0);
+    position_vector c_major_chord({0, 4, 7}, 12);
+    position_vector inverted = c_major_chord.inversion(0);
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(inverted, sharps_non_diatonic).noteNames,
         std::vector<std::string>({"F", "G♯", "C"}));
 
-    PositionVector pentatonic({0, 2, 4, 7, 9}, 12);
+    position_vector pentatonic({0, 2, 4, 7, 9}, 12);
     ASSERT_STRING_VECTOR_EQ(
         system.positionVectorToNoteNames(pentatonic.complement(), sharps_non_diatonic).noteNames,
         std::vector<std::string>({"C♯", "D♯", "F", "F♯", "G♯", "A♯", "B"}));

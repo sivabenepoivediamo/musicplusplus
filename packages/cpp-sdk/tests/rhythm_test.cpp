@@ -3,9 +3,11 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "../src/melody.h"
-#include "../src/rhythmGen.h"
+#include "../src/rhythm_gen.h"
 
 namespace {
+
+using namespace musicpp;
 
 std::vector<int> apply_ornament(
     int note,
@@ -22,16 +24,16 @@ std::vector<int> apply_ornament(
 }
 
 TEST_CASE("rhythm_generation_examples", "[rhythm]") {
-    IntervalVector ev = euclidean(16, 3, 0);
+    interval_vector ev = euclidean(16, 3, 0);
     ASSERT_INTERVAL_VECTOR_EQ(ev, musicpp_test::ints({5, 5, 6}), 0, 16);
 
-    Vectors euc = Vectors::fromIntervals(ev.getData(), 16);
-    ASSERT_POSITION_VECTOR_EQ(euc.getPositions(), musicpp_test::ints({0, 5, 10}), 16);
+    vector_set euc = vector_set::from_intervals(ev.data(), 16);
+    ASSERT_POSITION_VECTOR_EQ(euc.positions(), musicpp_test::ints({0, 5, 10}), 16);
 
-    Vectors euc2 = euc.mode(-1);
-    ASSERT_POSITION_VECTOR_EQ(euc2.getPositions(), musicpp_test::ints({0, 6, 11}), 16);
-    ASSERT_POSITION_VECTOR_EQ(euc2.transpose(1).getPositions(), musicpp_test::ints({1, 7, 12}), 16);
-    ASSERT_POSITION_VECTOR_EQ(euc2.rototranslatePositions(2).getPositions(), musicpp_test::ints({11, 16, 22}), 16);
+    vector_set euc2 = euc.mode(-1);
+    ASSERT_POSITION_VECTOR_EQ(euc2.positions(), musicpp_test::ints({0, 6, 11}), 16);
+    ASSERT_POSITION_VECTOR_EQ(euc2.transpose(1).positions(), musicpp_test::ints({1, 7, 12}), 16);
+    ASSERT_POSITION_VECTOR_EQ(euc2.roto_translate_positions(2).positions(), musicpp_test::ints({11, 16, 22}), 16);
 
     ASSERT_POSITION_VECTOR_EQ(CloughDouthettVector(16, 3, 0), musicpp_test::ints({0, 5, 10}), 16);
     ASSERT_POSITION_VECTOR_EQ(deepRhythm(16, 3, 5, 0), musicpp_test::ints({0, 5, 10}), 16);
@@ -44,10 +46,10 @@ TEST_CASE("rhythm_generation_examples", "[rhythm]") {
     TEST_CASE_LOG("euclidean_rhythm");
     TEST_INPUT("args", musicpp_test::ints({16, 3, 0}));
     TEST_OUTPUT("intervals", ev);
-    TEST_OUTPUT("positions", euc.getPositions());
-    TEST_OUTPUT("mode_minus_1", euc2.getPositions());
-    TEST_OUTPUT("mode_minus_1_transpose_1", euc2.transpose(1).getPositions());
-    TEST_OUTPUT("mode_minus_1_rototranslate_2", euc2.rototranslatePositions(2).getPositions());
+    TEST_OUTPUT("positions", euc.positions());
+    TEST_OUTPUT("mode_minus_1", euc2.positions());
+    TEST_OUTPUT("mode_minus_1_transpose_1", euc2.transpose(1).positions());
+    TEST_OUTPUT("mode_minus_1_rototranslate_2", euc2.roto_translate_positions(2).positions());
     TEST_OUTPUT("clough_douthett", CloughDouthettVector(16, 3, 0));
     TEST_OUTPUT("deep_rhythm", deepRhythm(16, 3, 5, 0));
 
