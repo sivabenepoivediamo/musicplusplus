@@ -12,8 +12,7 @@ inline interval_vector positions_to_intervals(const position_vector& positions) 
     if (positions.size() == 0) {
         return interval_vector({}, 0, m);
     }
-    const std::vector<int>& posData = positions.data();
-    const size_t n = posData.size();
+    const size_t n = positions.size();
     std::vector<int> intervalData;
     intervalData.reserve(n);
 
@@ -22,12 +21,14 @@ inline interval_vector positions_to_intervals(const position_vector& positions) 
     }
 
     for (size_t i = 0; i + 1 < n; ++i) {
-        intervalData.emplace_back(posData[i + 1] - posData[i]);
+        intervalData.emplace_back(
+            positions[static_cast<int>(i + 1)] - positions[static_cast<int>(i)]);
     }
-    const int closureRaw = posData[0] - posData[static_cast<size_t>(n - 1)];
-    const int periodMod = positions.mod();
-    if (periodMod > 0) {
-        intervalData.emplace_back(euclidean_division(closureRaw, periodMod).remainder);
+    const int closureRaw =
+        positions[0] - positions[static_cast<int>(n - 1)];
+    const int closurePeriod = positions.effective_range();
+    if (closurePeriod > 0) {
+        intervalData.emplace_back(euclidean_division(closureRaw, closurePeriod).remainder);
     } else {
         intervalData.emplace_back(closureRaw);
     }
@@ -40,7 +41,7 @@ inline position_vector intervals_to_positions(const interval_vector& intervals) 
     std::vector<int> intervalData = intervals.data();
 
     if (intervalData.empty()) {
-        return position_vector({0}, m, 0, true, false);
+        return position_vector({intervals.offset()}, m, 0, true, false);
     }
 
     std::vector<int> posData;
