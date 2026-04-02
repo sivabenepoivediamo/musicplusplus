@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="GzZTfcqnfO9OH1Ai6B5NqF" LanguageVersion="2025.7.0" Version="0.128">
+  <NugetDependency Id="MO27rzYBlu8OrGGEof2TjH" Location="VL.CoreLib" Version="2025.7.0" />
+  <Patch Id="A9xgiWcaeyFOjkXQ2e5oRs">
+    <Canvas Id="CSQGndehE6yOR6rweAXWGj" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="JJC6OcJcrD1NQ5DIjhBxo6">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="ILLiijWHUjuPHFo60xEqeg">
+        <Canvas Id="Cbo9slMAygiPdnnqD14NOE" CanvasType="Group" />
+        <Patch Id="AoCkdwZ4eC9PydLtsj6fZV" Name="Create" />
+        <Patch Id="Hj5AXOHtLhOORH0TABd7Z6" Name="Update" />
+        <ProcessDefinition Id="TPUuIfHnjvCLmJmGDlsnWI">
+          <Fragment Id="EorE4mVQ7V7OUWLhPepWA7" Patch="AoCkdwZ4eC9PydLtsj6fZV" Enabled="true" />
+          <Fragment Id="CIqwsJIFDpXLOSrKBEzMZh" Patch="Hj5AXOHtLhOORH0TABd7Z6" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <ProjectDependency Id="TrwdIPVahv9MABVoM3B7Mu" Location="./Musicplusplus.csproj" />
+</Document>
