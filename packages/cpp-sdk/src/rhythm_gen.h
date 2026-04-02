@@ -18,6 +18,9 @@
  * - Clough-Douthett patterns
  * - Deep rhythms
  * - Tihai patterns
+ *
+ * @note `CloughDouthett` and `deepRhythm` do not validate `steps` / `events`; callers must
+ *       pass positive values suitable for the intended pattern (see `euclidean` for checked API).
  */
 
 /**
