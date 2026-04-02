@@ -507,7 +507,11 @@ public:
      * @return New interval_vector with scalar - elements
      */
     friend interval_vector operator-(int scalar, const interval_vector& iv) {
-        return iv - scalar;
+        std::vector<int> out(iv.size());
+        for (int i = 0; i < static_cast<int>(iv.size()); ++i) {
+            out[i] = scalar - iv[i];
+        }
+        return interval_vector(out, iv.offset_, iv.mod_);
     }
 
     /**
@@ -592,6 +596,9 @@ public:
      *          during the readout.
      */
     interval_vector relative_mode(int r, int n = 0) const {
+        if (data_.empty()) {
+            return interval_vector(std::vector<int>{}, offset_, mod_);
+        }
         n = std::abs(n);
         int dataSize = static_cast<int>(data_.size());
         if (n == 0) n = dataSize;
