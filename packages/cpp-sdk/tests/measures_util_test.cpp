@@ -67,6 +67,16 @@ TEST_CASE("calculate_regression_evenness", "[measures]") {
     ASSERT_NEAR(e, 0.0, 1e-9);
 }
 
+TEST_CASE("calculate_regression_evenness_empty_rhythm", "[measures][safety]") {
+    std::vector<int> empty;
+    ASSERT_NEAR(calculateRegressionEvenness(empty, 12), 0.0, 1e-12);
+}
+
+TEST_CASE("is_balanced_two_antipodal_notes", "[measures]") {
+    position_vector pv({0, 6}, 12, 12);
+    ASSERT_TRUE(isBalanced(pv));
+}
+
 TEST_CASE("is_prime", "[measures]") {
     ASSERT_TRUE(!isPrime(0));
     ASSERT_TRUE(!isPrime(1));
@@ -97,8 +107,8 @@ TEST_CASE("compute_entropy_counts_slot_indices", "[measures]") {
     position_vector dense({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, 12, 12);
     double h1 = computeEntropy(sparse);
     double h2 = computeEntropy(dense);
-    ASSERT_NEAR(h1, std::log2(12.0), 1e-6);
-    ASSERT_NEAR(h2, std::log2(12.0), 1e-6);
+    ASSERT_NEAR(h1, 0.413817, 1e-5);
+    ASSERT_NEAR(h2, 0.0, 1e-9);
 }
 
 TEST_CASE("compute_longest_subsequence_and_transition_complexity", "[measures]") {

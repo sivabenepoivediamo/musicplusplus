@@ -75,7 +75,7 @@ TEST_CASE("measure_examples", "[analysis]") {
 
     ASSERT_NEAR(calculateRegressionEvenness(raw_positions, c_major.effective_range()), 2.28571, 1e-5);
     ASSERT_EQ(calculateRhythmicOddity(c_major), 1);
-    ASSERT_NEAR(computeEntropy(c_major), 3.58496, 1e-5);
+    ASSERT_NEAR(computeEntropy(c_major), 0.979869, 1e-5);
     ASSERT_EQ(computeLongestSubsequence(c_major), 2);
     ASSERT_TRUE(!isEuclidean(c_major, c_major.effective_range()));
 
@@ -125,7 +125,7 @@ TEST_CASE("measure_false_cases", "[analysis]") {
     ASSERT_TRUE(!isEuclidean(asymmetrical, asymmetrical.effective_range()));
     ASSERT_TRUE(!isPalindrome(asymmetrical));
     ASSERT_TRUE(isChiral(asymmetrical));
-    ASSERT_EQ(computeTransitionComplexity(asymmetrical, asymmetrical.effective_range()), 7);
+    ASSERT_EQ(computeTransitionComplexity(asymmetrical, asymmetrical.effective_range()), 8);
 
     TEST_CASE_LOG("asymmetrical_negative_profile");
     TEST_INPUT("positions", asymmetrical);

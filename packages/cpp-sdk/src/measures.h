@@ -3,7 +3,9 @@
 
 #include "vectors.h"
 
+#include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <set>
 
 /**
@@ -165,20 +167,26 @@ inline bool isErdosDeep(std::map<int, int>& in) {
  *
  * @param rhythm Vector of event positions (in time units)
  * @param totalTimeUnits Total cycle length (e.g., steps)
- * @return Sum of absolute deviations from ideal equally spaced positions
+ * @return Sum of absolute deviations from ideal equally spaced positions.
+ *         Returns `0.0` when @p rhythm is empty (no events to space).
  */
 inline double calculateRegressionEvenness(std::vector<int>& rhythm, int totalTimeUnits) {
-    int numNotes = rhythm.size();
+    int numNotes = static_cast<int>(rhythm.size());
+    if (numNotes == 0) {
+        return 0.0;
+    }
     double idealInterval = static_cast<double>(totalTimeUnits) / numNotes;
 
-    std::vector<double> idealPositions(numNotes);
+    std::vector<double> idealPositions(static_cast<size_t>(numNotes));
     for (int i = 0; i < numNotes; ++i) {
-        idealPositions[i] = i * idealInterval;
+        idealPositions[static_cast<size_t>(i)] = i * idealInterval;
     }
 
-    std::vector<double> deviations(numNotes);
+    std::vector<double> deviations(static_cast<size_t>(numNotes));
     for (int i = 0; i < numNotes; ++i) {
-        deviations[i] = abs(rhythm[i] - idealPositions[i]);
+        deviations[static_cast<size_t>(i)] =
+            std::abs(static_cast<double>(rhythm[static_cast<size_t>(i)]) -
+                     idealPositions[static_cast<size_t>(i)]);
     }
 
     double regressionEvenness = std::accumulate(deviations.begin(), deviations.end(), 0.0);
@@ -433,7 +441,7 @@ inline std::vector<int> findRotationalSymmetryAxes(position_vector& scale) {
         for (int i = 0; i < n; ++i) {
             transposedScale[i] = (normalizedScale[i] + interval) % scale.mod();
         }
-        sort(transposedScale.begin(), transposedScale.end());
+        std::sort(transposedScale.begin(), transposedScale.end());
         if (transposedScale == normalizedScale) {
             axes.push_back(interval);
         }
@@ -468,7 +476,8 @@ inline std::vector<double> findReflectiveSymmetryAxes(position_vector& scale) {
             // Normalize to [0, mod) range
             int reflectedNote = (int)(std::fmod(reflected + 10 * scale.mod(), scale.mod()));
             
-            if (find(normalizedScale.begin(), normalizedScale.end(), reflectedNote) == normalizedScale.end()) {
+            if (std::find(normalizedScale.begin(), normalizedScale.end(), reflectedNote) ==
+                normalizedScale.end()) {
                 isSymmetric = false;
                 break;
             }
@@ -492,7 +501,7 @@ inline bool isPrime(int num) {
     if (num <= 1) return false;
     if (num == 2) return true;
     if (num % 2 == 0) return false;
-    for (int i = 3; i <= sqrt(num); i += 2) {
+    for (int i = 3; i <= static_cast<int>(std::sqrt(static_cast<double>(num))); i += 2) {
         if (num % i == 0) return false;
     }
     return true;
@@ -525,7 +534,7 @@ inline void classifyAksakRhythm(int mod) {
  */
 inline bool isPalindrome(position_vector& scale) {
     std::vector<double> reflectiveAxes = findReflectiveSymmetryAxes(scale);
-    return find(reflectiveAxes.begin(), reflectiveAxes.end(), 0) != reflectiveAxes.end();
+    return std::find(reflectiveAxes.begin(), reflectiveAxes.end(), 0.0) != reflectiveAxes.end();
 }
 
 /**
@@ -542,7 +551,7 @@ inline bool isChiral(position_vector& scale) {
         note = (scale.mod() - note) % scale.mod();
     }
 
-    sort(mirroredScale.begin(), mirroredScale.end());
+    std::sort(mirroredScale.begin(), mirroredScale.end());
 
     if (normalizedScale == mirroredScale) {
         return false;
@@ -554,7 +563,7 @@ inline bool isChiral(position_vector& scale) {
         for (int i = 0; i < n; ++i) {
             transposedMirroredScale[i] = (mirroredScale[i] + interval) % scale.mod();
         }
-        sort(transposedMirroredScale.begin(), transposedMirroredScale.end());
+        std::sort(transposedMirroredScale.begin(), transposedMirroredScale.end());
         if (transposedMirroredScale == normalizedScale) {
             return false;
         }
@@ -579,11 +588,11 @@ inline bool isBalanced(position_vector& scale) {
 
     for (int note : scale.data()) {
         double angle = note * angle_step;
-        x_sum += cos(angle);
-        y_sum += sin(angle);
+        x_sum += std::cos(angle);
+        y_sum += std::sin(angle);
     }
 
-    return abs(x_sum) < 1e-6 && abs(y_sum) < 1e-6;
+    return std::abs(x_sum) < 1e-6 && std::abs(y_sum) < 1e-6;
 }
 
 /**
