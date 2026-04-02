@@ -6,226 +6,165 @@ A Turborepo monorepo containing the **music++** C++ library for vectorial repres
 
 This repository uses [Turborepo](https://turbo.build/repo) to manage a monorepo workspace containing:
 
-- **packages/cpp-sdk**: Core C++ library for musical vector manipulation
+- **packages/cpp-sdk**: Core C++ **header-only** library (`namespace musicpp`, snake_case headers and public API)
 - Future packages: TypeScript SDK, Python SDK
 
-The C++ library provides a unified framework for working with musical structures such as scales, chords, rhythms, and transformations using mathematical and algorithmic tools.
+The C++ library provides a unified framework for scales, chords, rhythms, and transformations using mathematical and algorithmic tools.
+
+For a concise map of the recent C++ API and file renames, see [CPP_SDK_REFACTOR.md](CPP_SDK_REFACTOR.md).
 
 ## Prerequisites
 
-Before getting started, ensure you have the following installed:
-
 - **Node.js** (v18 or later) and **npm** (v10 or later)
-- **CMake** (v3.10 or later) - for building C++ examples
-- **Doxygen** - for generating API documentation
-- **C++ Compiler** with C++17 support (e.g., GCC, Clang, MSVC)
+- **CMake** (v3.16 or later)
+- **Doxygen** (optional) — for generating API documentation from `packages/cpp-sdk`
+- **C++17** compiler (GCC, Clang, Apple Clang, or MSVC). The cpp-sdk **CMake presets** on Windows assume **MinGW Makefiles** (MinGW-w64); adjust or use your own generator if you use MSVC only.
 
 ## Quick Start
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd musicplusplus
-
-# Install dependencies (includes Turborepo)
 npm install
 ```
 
-### Build All Packages
+### Build and test
 
 ```bash
-# Build all packages in the monorepo
+# Build all workspaces (cpp-sdk uses CMake presets via package script)
 npm run build
-```
 
-This command uses Turborepo to build all packages in the correct dependency order.
+# Run tests (cpp-sdk: configure, build, ctest)
+npm run test
+```
 
 ## Monorepo Structure
 
 ```
 musicplusplus/
 ├── packages/
-│   └── cpp-sdk/              # C++ library package
-│       ├── src/              # Header-only library source files
-│       ├── examples/         # Example programs demonstrating library features
-│       ├── docs/             # Generated Doxygen documentation
-│       ├── build/            # CMake build output (generated)
-│       ├── CMakeLists.txt    # CMake configuration
-│       ├── Doxyfile          # Doxygen configuration
-│       ├── package.json      # Package configuration with build scripts
-│       └── README.md         # C++ library documentation
-├── node_modules/
-│   └── cpp-sdk/              # Symlink to packages/cpp-sdk
-├── package.json              # Root package configuration
-├── turbo.json                # Turborepo configuration
-└── README.md                 # This file
+│   └── cpp-sdk/
+│       ├── src/                 # Header-only library (*.h)
+│       ├── tests/               # Catch2 test executables
+│       ├── build/               # CMake output (generated; gitignored)
+│       ├── CMakeLists.txt
+│       ├── CMakePresets.json    # unix / windows (+ release variants)
+│       ├── Doxyfile
+│       ├── package.json
+│       ├── DEBUGGING.md
+│       └── README.md
+├── CPP_SDK_REFACTOR.md          # C++ rename / design notes
+├── package.json
+├── turbo.json
+└── README.md
 ```
 
 ## Working with the C++ SDK
 
-### Building Examples
+### Build
 
-The C++ SDK uses CMake to build example executables:
+From `packages/cpp-sdk`:
 
 ```bash
-cd packages/cpp-sdk
-
-# Configure and build using npm scripts
 npm run build
-
-# Or manually with CMake
-cmake -B build -S .
-cmake --build build
 ```
 
-This creates executables for all example files in the `build/` directory.
+This runs CMake with the **`unix`** or **`windows`** preset (see `CMakePresets.json`) and builds the **Catch2**-linked test binaries into `build/`.
 
-### Running Examples
-
-After building, you can run any example:
-
-```bash
-# On Windows
-.\packages\cpp-sdk\build\Debug\vectortest.exe
-
-# On Linux/macOS
-./packages/cpp-sdk/build/vectortest
-```
-
-### Generating Documentation
-
-Generate Doxygen HTML documentation:
+Or manually:
 
 ```bash
 cd packages/cpp-sdk
-
-# Generate documentation
-npm run docs
-
-# Clean documentation
-npm run docs:clean
+cmake --preset unix    # or windows on Windows
+cmake --build --preset unix
 ```
 
-Documentation will be available at `packages/cpp-sdk/docs/html/index.html`.
-
-### Cleaning Build Artifacts
+### Run tests
 
 ```bash
 cd packages/cpp-sdk
-
-# Clean CMake build files
-npm run clean
-
-# Clean documentation
-npm run docs:clean
-```
-
-## Turborepo Commands
-
-### Root Level Commands
-
-From the root directory, you can run commands across all packages:
-
-```bash
-# Build all packages
-npm run build
-
-# Run tests in all packages
 npm run test
+```
 
-# Run linting in all packages
-npm run lint
+Or after a build:
 
-# Start development mode in all packages
-npm run dev
+```bash
+cd packages/cpp-sdk/build
+ctest --output-on-failure
+```
 
-# Clean all packages
+Test executables (e.g. `vectors_test`, `chord_test`) are produced next to the build tree; exact paths depend on the generator (e.g. `build/vectors_test.exe` on Windows with MinGW).
+
+### Documentation (Doxygen)
+
+```bash
+cd packages/cpp-sdk
+npm run docs
+npm run docs:clean   # remove generated docs/
+```
+
+Output: `packages/cpp-sdk/docs/html/index.html`.
+
+### Clean
+
+```bash
+cd packages/cpp-sdk
 npm run clean
 ```
 
-### Package-Specific Commands
-
-You can also run commands in specific packages:
+## Turborepo commands (root)
 
 ```bash
-# Build only cpp-sdk
-npm run build --workspace=packages/cpp-sdk
-
-# Generate cpp-sdk documentation
-npm run docs --workspace=packages/cpp-sdk
+npm run build   # all packages
+npm run test    # all packages
+npm run lint
+npm run dev
+npm run clean
 ```
 
-## Development Workflow
+Scoped:
 
-### Adding a New Example
+```bash
+npm run build --workspace=packages/cpp-sdk
+npm run test --workspace=packages/cpp-sdk
+```
 
-1. Create a new `.cpp` file in `packages/cpp-sdk/examples/`
-2. Include necessary headers from `src/`
-3. Rebuild the project: `npm run build --workspace=packages/cpp-sdk`
-4. The new executable will be created in `packages/cpp-sdk/build/`
+## C++ library features (current API)
 
-### Modifying the Library
+Public types live in **`namespace musicpp`** (see headers under `packages/cpp-sdk/src/`):
 
-1. Edit or add header files in `packages/cpp-sdk/src/`
-2. Update Doxygen comments for documentation
-3. Rebuild examples to test changes: `npm run build --workspace=packages/cpp-sdk`
-4. Regenerate documentation: `npm run docs --workspace=packages/cpp-sdk`
+- **Vectors**: `position_vector`, `interval_vector`, `onset_vector`, and **`vector_set`** (synchronized triple) in `vectors.h`; conversions **`positions_to_intervals`**, **`intervals_to_positions`**, **`positions_to_onset`**
+- **Math**: `math_util.h` — `euclidean_division`, `gcd`, `lcm`
+- **Meta-operators**: `selection.h` — selection and modal operations
+- **Chord & scale**: `chord.h`, `scale.h`, `scale_dictionary.h`, `chord_names.h`
+- **Distances**: `distances.h`
+- **Matrices**: `matrix.h`, `matrix_distance.h`
+- **Rhythm**: `rhythm_gen.h`, `melody.h`
+- **Note names**: `note_names.h`
+- **Analysis**: `measures.h`
+- **Automation**: `automations.h`
+- **Other**: `slonimsky.h`, `quantize_transpose.h`
 
-## C++ Library Features
+Detailed layout and bibliography: [packages/cpp-sdk/README.md](packages/cpp-sdk/README.md).
 
-The **music++** library provides:
+## Turbo configuration
 
-- **Vector Classes**: PositionVector, IntervalVector, BinaryVector, and unified Vectors container
-- **Meta-Operators**: Selection and transformation operators for musical structures
-- **Chord & Scale Utilities**: Generation and transformation of chords and scales
-- **Distance Metrics**: Euclidean, Manhattan, Hamming, edit distance, and more
-- **Matrix Utilities**: Modal matrices, transposition matrices, transformation distance
-- **Rhythmic Generators**: Euclidean rhythms, Clough-Douthett, deep rhythms, tihai
-- **Note Naming**: MIDI/position to human-readable note names with enharmonic handling
-- **Analysis Tools**: Spectrum, symmetry, entropy, deepness, geodesic distances
-- **Automation Helpers**: Voice-leading, degree automation, modal interchange, modulation
-
-For detailed library documentation, see [packages/cpp-sdk/README.md](packages/cpp-sdk/README.md).
-
-## Turbo Configuration
-
-The `turbo.json` file configures task pipelines:
-
-- **build**: Builds packages with dependency ordering
-- **test**: Runs tests after building
-- **docs**: Generates documentation with caching
-- **dev**: Runs development servers (no caching, persistent)
-- **clean**: Cleans build artifacts
-
-Tasks automatically cache outputs for faster incremental builds.
+`turbo.json` defines **build**, **test**, **docs**, **dev**, **clean** with caching where appropriate.
 
 ## License
 
-MIT License. See [LICENSE](packages/cpp-sdk/LICENSE) for details.
-
-## Next Steps
-
-- Explore the [C++ SDK documentation](packages/cpp-sdk/README.md)
-- Browse [example programs](packages/cpp-sdk/examples/)
-- View the [generated API documentation](packages/cpp-sdk/docs/html/index.html) (after running `npm run docs`)
-- Read about the [Turborepo features](https://turbo.build/repo/docs)
+MIT. See [packages/cpp-sdk/LICENSE](packages/cpp-sdk/LICENSE).
 
 ## Contributing
 
-When adding new features:
-
-1. Update source files in `packages/cpp-sdk/src/`
-2. Add example usage in `packages/cpp-sdk/examples/`
-3. Document with Doxygen-style comments
-4. Rebuild and test: `npm run build && npm run docs`
-5. Update this README if adding major features
+1. Change headers in `packages/cpp-sdk/src/` (keep **`musicpp`** and **`MUSICPP_*_H`** conventions).
+2. Extend or add **Catch2** tests under `packages/cpp-sdk/tests/`.
+3. Run **`npm run test --workspace=packages/cpp-sdk`**.
+4. Update Doxygen comments and run **`npm run docs --workspace=packages/cpp-sdk`** if the public API changed.
+5. Update root / package READMEs when behavior or layout changes.
 
 ---
 
-For package-specific information, see the README files in each package directory.
-
-
-
-
+Package-specific details: [packages/cpp-sdk/README.md](packages/cpp-sdk/README.md) · Debugging: [packages/cpp-sdk/DEBUGGING.md](packages/cpp-sdk/DEBUGGING.md)
