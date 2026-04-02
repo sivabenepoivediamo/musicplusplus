@@ -1,0 +1,8 @@
+{
+  "name": "@musicplusplus/dotnet-sdk",
+  "private": true,
+  "scripts": {
+    "build": "node run-dotnet.cjs build",
+    "test": "node run-dotnet.cjs test"
+  }
+}

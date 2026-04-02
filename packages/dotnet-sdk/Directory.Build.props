@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <!--
+      "Restore" = SDK + NuGet resolving framework packs and PackageReferences (e.g. xUnit in tests).
+      This is not publishing to nuget.org. SDK 9 can throw (path1 null) if RestorePackagesPath is empty.
+    -->
+    <_NuGetGlobalPackages Condition="'$(USERPROFILE)' != ''">$(USERPROFILE)\.nuget\packages</_NuGetGlobalPackages>
+    <_NuGetGlobalPackages Condition="'$(_NuGetGlobalPackages)' == '' and '$(HOME)' != ''">$([System.IO.Path]::Combine($(HOME), '.nuget', 'packages'))</_NuGetGlobalPackages>
+    <RestorePackagesPath Condition="'$(RestorePackagesPath)' == '' and '$(_NuGetGlobalPackages)' != ''">$(_NuGetGlobalPackages)</RestorePackagesPath>
+    <!-- Helps restore path resolution when SDK walks config (avoids null path1 in some setups). -->
+    <RestoreRootConfigDirectory>$(MSBuildThisFileDirectory)</RestoreRootConfigDirectory>
+  </PropertyGroup>
+</Project>
