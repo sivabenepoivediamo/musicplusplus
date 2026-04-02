@@ -21,14 +21,14 @@
 
 /**
  * @brief Normalizes a vector of integers to a probability distribution
- * @param in Input vector of integers
+ * @param in Input vector of integers (read-only; not modified)
  * @return Vector of doubles representing the normalized probabilities
  * @throw invalid_argument if the sum of the input vector is zero
  */
 
 namespace musicpp {
 
-inline std::vector<double> normalize(std::vector<int>& in) {
+inline std::vector<double> normalize(const std::vector<int>& in) {
     double sum = std::accumulate(in.begin(), in.end(), 0.0);
     if (sum == 0) {
         throw std::invalid_argument("Sum of vector elements is zero, cannot normalize");

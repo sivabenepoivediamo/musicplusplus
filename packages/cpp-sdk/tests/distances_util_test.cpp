@@ -16,13 +16,18 @@ TEST_CASE("normalize_throws_on_zero_sum", "[distances]") {
     REQUIRE_THROWS_AS(normalize(z), std::invalid_argument);
 }
 
-TEST_CASE("normalize_current_behavior_documents_output", "[distances]") {
-    std::vector<int> v = {2, 2, 4};
+TEST_CASE("normalize_probability_sum_one", "[distances]") {
+    const std::vector<int> v = {2, 2, 4};
     auto out = normalize(v);
     ASSERT_EQ(out.size(), static_cast<size_t>(3));
+    ASSERT_NEAR(out[0], 0.25, 1e-12);
+    ASSERT_NEAR(out[1], 0.25, 1e-12);
+    ASSERT_NEAR(out[2], 0.5, 1e-12);
+    double sum = 0.0;
     for (double x : out) {
-        ASSERT_NEAR(x, 0.0, 1e-12);
+        sum += x;
     }
+    ASSERT_NEAR(sum, 1.0, 1e-12);
 }
 
 TEST_CASE("compute_cdf_monotone", "[distances]") {
