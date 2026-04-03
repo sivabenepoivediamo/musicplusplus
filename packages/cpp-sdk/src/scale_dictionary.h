@@ -12,35 +12,98 @@
 
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 
 namespace musicpp {
 
+/** One row from the scale dictionary (category, name, pitch classes from root 0). */
+struct ScaleMatch {
+    std::string sheetName;
+    std::string scaleName;
+    std::vector<int> pitchClasses;
+
+    /** Copy of pitch classes 0–11 (same order as stored). */
+    std::vector<int> toPitchClasses() const { return pitchClasses; }
+
+    bool operator==(const ScaleMatch& other) const {
+        return pitchClasses == other.pitchClasses;
+    }
+};
+
 class ScaleDatabase {
 private:
-    struct ScaleInfo {
-        std::string sheetName;
-        std::string scaleName;
-        std::vector<int> intervals;
-        
-        bool operator==(const ScaleInfo& other) const {
-            return intervals == other.intervals;
-        }
-    };
-    
-    std::vector<ScaleInfo> scales;
-    
+    std::vector<ScaleMatch> scales;
+    std::map<std::pair<std::string, std::string>, ScaleMatch> scalesBySheetAndName_;
+    std::vector<std::string> sheetNamesSorted_;
+
 public:
-    ScaleDatabase() {
-        initializeAllScales();
+    ScaleDatabase() { initializeAllScales(); }
+
+    /** Shared catalog (Meyers singleton). */
+    static ScaleDatabase& shared() {
+        static ScaleDatabase instance;
+        return instance;
     }
-    
-    std::vector<ScaleInfo> findScale(const std::vector<int>& inputIntervals) {
-        std::vector<ScaleInfo> results;
+
+    std::size_t count() const { return scales.size(); }
+
+    /** All scales in load order. */
+    const std::vector<ScaleMatch>& all() const { return scales; }
+
+    /** Distinct category names, sorted (byte / lexicographic order). */
+    const std::vector<std::string>& getSheetNames() const { return sheetNamesSorted_; }
+
+    /** Scale names in the given category, sorted. */
+    std::vector<std::string> getScaleNames(const std::string& sheetName) const {
+        if (sheetName.empty()) return {};
+        std::set<std::string> names;
+        for (const auto& s : scales) {
+            if (s.sheetName == sheetName) names.insert(s.scaleName);
+        }
+        return {names.begin(), names.end()};
+    }
+
+    /** Every scale row in a category, in load order. */
+    std::vector<ScaleMatch> getScalesInSheet(const std::string& sheetName) const {
+        if (sheetName.empty()) return {};
+        std::vector<ScaleMatch> out;
+        for (const auto& s : scales) {
+            if (s.sheetName == sheetName) out.push_back(s);
+        }
+        return out;
+    }
+
+    bool tryGetScale(const std::string& sheetName, const std::string& scaleName, ScaleMatch& out) const {
+        if (sheetName.empty() || scaleName.empty()) return false;
+        auto it = scalesBySheetAndName_.find(std::make_pair(sheetName, scaleName));
+        if (it == scalesBySheetAndName_.end()) return false;
+        out = it->second;
+        return true;
+    }
+
+    std::optional<ScaleMatch> getScaleOrDefault(const std::string& sheetName,
+                                                const std::string& scaleName) const {
+        ScaleMatch m;
+        if (!tryGetScale(sheetName, scaleName, m)) return std::nullopt;
+        return m;
+    }
+
+    /**
+     * Lookup by (category, scale name). If the source listed the same pair twice, the first row is kept.
+     */
+    const std::map<std::pair<std::string, std::string>, ScaleMatch>& scalesBySheetAndName() const {
+        return scalesBySheetAndName_;
+    }
+
+    std::vector<ScaleMatch> findScale(const std::vector<int>& inputIntervals) {
+        std::vector<ScaleMatch> results;
         
         if (inputIntervals.empty()) return results;
         
@@ -55,7 +118,7 @@ public:
         processedInput.erase(std::unique(processedInput.begin(), processedInput.end()), processedInput.end());
         
         for (const auto& scale : scales) {
-            std::vector<int> sortedScale = scale.intervals;
+            std::vector<int> sortedScale = scale.pitchClasses;
             std::sort(sortedScale.begin(), sortedScale.end());
             
             if (processedInput == sortedScale) {
@@ -67,7 +130,7 @@ public:
     }
     
     void displayResults(const std::vector<int>& inputIntervals, const std::string& rootNote = "C") {
-        std::vector<ScaleInfo> foundScales = findScale(inputIntervals);
+        std::vector<ScaleMatch> foundScales = findScale(inputIntervals);
         
         std::cout << "\nInput notes: ";
         for (size_t i = 0; i < inputIntervals.size(); ++i) {
@@ -88,11 +151,10 @@ public:
             std::cout << "Category: " << scale.sheetName << std::endl;
             std::cout << "Scale: " << rootNote << " " << scale.scaleName << std::endl;
             
-            // Display intervals
             std::cout << "Pitch Classes: ";
-            for (size_t i = 0; i < scale.intervals.size(); ++i) {
-                std::cout << scale.intervals[i];
-                if (i < scale.intervals.size() - 1) std::cout << " ";
+            for (size_t i = 0; i < scale.pitchClasses.size(); ++i) {
+                std::cout << scale.pitchClasses[i];
+                if (i < scale.pitchClasses.size() - 1) std::cout << " ";
             }
             std::cout << std::endl << std::endl;
         }
@@ -102,7 +164,7 @@ public:
     std::set<std::vector<int>> getAllIntervalSets() {
         std::set<std::vector<int>> uniqueSets;
         for (const auto& scale : scales) {
-            std::vector<int> sorted = scale.intervals;
+            std::vector<int> sorted = scale.pitchClasses;
             std::sort(sorted.begin(), sorted.end());
             uniqueSets.insert(sorted);
         }
@@ -537,14 +599,23 @@ private:
         addScale("Miscellaneous scales", "Pyramid Hexatonic", {0, 2, 3, 5, 6, 9});
         addScale("Miscellaneous scales", "Nonatonic 2", {0, 1, 3, 4, 5, 6, 7, 9, 10});
         addScale("Miscellaneous scales", "Symmetrical Nonatonic", {0, 1, 2, 4, 6, 7, 8, 10, 11});
+
+        rebuildSheetNames();
     }
-    
-    void addScale(const std::string& sheetName, const std::string& scaleName, const std::vector<int>& intervals) {
-        ScaleInfo scale;
+
+    void addScale(const std::string& sheetName, const std::string& scaleName, const std::vector<int>& pitchClasses) {
+        ScaleMatch scale;
         scale.sheetName = sheetName;
         scale.scaleName = scaleName;
-        scale.intervals = intervals;
-        scales.push_back(scale);
+        scale.pitchClasses = pitchClasses;
+        scales.push_back(std::move(scale));
+        scalesBySheetAndName_.try_emplace(std::make_pair(sheetName, scaleName), scales.back());
+    }
+
+    void rebuildSheetNames() {
+        std::set<std::string> seen;
+        for (const auto& s : scales) seen.insert(s.sheetName);
+        sheetNamesSorted_.assign(seen.begin(), seen.end());
     }
 };
 

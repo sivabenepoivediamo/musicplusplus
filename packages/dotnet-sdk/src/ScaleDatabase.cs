@@ -1,15 +1,78 @@
 namespace Musicpp;
 
-public readonly record struct ScaleMatch(string SheetName, string ScaleName, IReadOnlyList<int> Intervals);
+public readonly record struct ScaleMatch(string SheetName, string ScaleName, IReadOnlyList<int> PitchClasses)
+{
+    /// <summary>Defensive copy of <see cref="PitchClasses"/>.</summary>
+    public int[] ToPitchClasses() => PitchClasses is int[] a ? (int[])a.Clone() : PitchClasses.ToArray();
+}
 
 public sealed partial class ScaleDatabase
 {
     private readonly List<ScaleMatch> _scales = new();
+    private readonly Dictionary<(string Sheet, string Name), ScaleMatch> _bySheetAndName = new();
+    private IReadOnlyList<string>? _sheetNames;
 
-    public ScaleDatabase() => ScaleDictionaryData.AddAllScales(this);
+    /// <summary>Shared catalog; same data as <see cref="ScaleDatabase()"/> without allocating a new list graph per consumer.</summary>
+    public static ScaleDatabase Shared { get; } = new();
 
-    internal void AddScaleInternal(string sheetName, string scaleName, int[] intervals) =>
-        _scales.Add(new ScaleMatch(sheetName, scaleName, intervals.ToList()));
+    public ScaleDatabase()
+    {
+        ScaleDictionaryData.AddAllScales(this);
+        foreach (var m in _scales)
+        {
+            var key = (m.SheetName, m.ScaleName);
+            _bySheetAndName.TryAdd(key, m);
+        }
+    }
+
+    public int Count => _scales.Count;
+
+    /// <summary>All scales in load order (same order as the generated dictionary).</summary>
+    public IReadOnlyList<ScaleMatch> All => _scales;
+
+    /// <summary>
+    /// Random access by category and scale name. If the source listed the same pair twice, the first row is kept.
+    /// </summary>
+    public IReadOnlyDictionary<(string SheetName, string ScaleName), ScaleMatch> ScalesBySheetAndName => _bySheetAndName;
+
+    /// <summary>Distinct category names, sorted with <see cref="StringComparer.Ordinal"/>.</summary>
+    public IReadOnlyList<string> GetSheetNames() =>
+        _sheetNames ??= _scales.Select(s => s.SheetName).Distinct().Order(StringComparer.Ordinal).ToList();
+
+    /// <summary>Scale names in the given category, sorted with <see cref="StringComparer.Ordinal"/>.</summary>
+    public IReadOnlyList<string> GetScaleNames(string sheetName)
+    {
+        if (string.IsNullOrEmpty(sheetName))
+            return Array.Empty<string>();
+        return _scales
+            .Where(s => s.SheetName == sheetName)
+            .Select(s => s.ScaleName)
+            .Distinct()
+            .Order(StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>Every scale row in a category, in dictionary load order.</summary>
+    public IReadOnlyList<ScaleMatch> GetScalesInSheet(string sheetName)
+    {
+        if (string.IsNullOrEmpty(sheetName))
+            return Array.Empty<ScaleMatch>();
+        return _scales.Where(s => s.SheetName == sheetName).ToList();
+    }
+
+    public bool TryGetScale(string sheetName, string scaleName, out ScaleMatch match)
+    {
+        match = default;
+        if (string.IsNullOrEmpty(sheetName) || string.IsNullOrEmpty(scaleName))
+            return false;
+        return _bySheetAndName.TryGetValue((sheetName, scaleName), out match);
+    }
+
+    public ScaleMatch? GetScaleOrDefault(string sheetName, string scaleName) =>
+        TryGetScale(sheetName, scaleName, out var m) ? m : null;
+
+    internal void AddScaleInternal(string sheetName, string scaleName, int[] pitchClasses) =>
+        _scales.Add(new ScaleMatch(sheetName, scaleName, pitchClasses.ToList()));
 
     public List<ScaleMatch> FindScale(IReadOnlyList<int> inputIntervals)
     {
@@ -21,7 +84,7 @@ public sealed partial class ScaleDatabase
         var processed = normalized.Distinct().OrderBy(x => x).ToList();
         foreach (var scale in _scales)
         {
-            var sortedScale = scale.Intervals.OrderBy(x => x).ToList();
+            var sortedScale = scale.PitchClasses.OrderBy(x => x).ToList();
             if (processed.SequenceEqual(sortedScale))
                 results.Add(scale);
         }
@@ -32,7 +95,7 @@ public sealed partial class ScaleDatabase
     {
         var unique = new HashSet<List<int>>(new SequenceComparer());
         foreach (var scale in _scales)
-            unique.Add(scale.Intervals.OrderBy(x => x).ToList());
+            unique.Add(scale.PitchClasses.OrderBy(x => x).ToList());
         return unique;
     }
 
@@ -54,7 +117,7 @@ public sealed partial class ScaleDatabase
             Console.WriteLine("Category: " + scale.SheetName);
             Console.WriteLine("Scale: " + rootNote + " " + scale.ScaleName);
             Console.Write("Pitch Classes: ");
-            Console.WriteLine(string.Join(" ", scale.Intervals));
+            Console.WriteLine(string.Join(" ", scale.PitchClasses));
             Console.WriteLine();
         }
     }
