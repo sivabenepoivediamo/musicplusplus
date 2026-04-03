@@ -3,9 +3,11 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "build": "node -e \"var p=process.platform==='win32'?'windows':'unix';require('child_process').execSync('cmake --preset '+p+' && cmake --build --preset '+p,{stdio:'inherit'})\"",
-        "test": "node -e \"var p=process.platform==='win32'?'windows':'unix';require('child_process').execSync('cmake --preset '+p+' && cmake --build --preset '+p+' && ctest --preset '+p,{stdio:'inherit'})\"",
-        "clean": "cmake -E remove_directory build",
+        "build": "node ./autobuild.mjs build",
+        "build:release": "node ./autobuild.mjs build --release",
+        "test": "node ./autobuild.mjs test",
+        "test:release": "node ./autobuild.mjs test --release",
+        "clean": "node ./clean.mjs",
         "docs": "doxygen Doxyfile",
         "docs:clean": "cmake -E remove_directory docs"
     }

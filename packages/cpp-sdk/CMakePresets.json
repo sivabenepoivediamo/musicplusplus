@@ -11,9 +11,29 @@
             }
         },
         {
+            "name": "base-ninja",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
             "name": "base-release",
             "hidden": true,
             "binaryDir": "${sourceDir}/build-release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "base-ninja-release",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build-release",
+            "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
@@ -31,10 +51,48 @@
             }
         },
         {
+            "name": "xcode",
+            "inherits": "base",
+            "displayName": "Xcode (macOS)",
+            "generator": "Xcode",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ninja",
+            "inherits": "base-ninja",
+            "displayName": "Ninja (cross-platform)"
+        },
+        {
             "name": "windows",
             "inherits": "base",
             "displayName": "Default (MinGW Makefiles)",
             "generator": "MinGW Makefiles",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022",
+            "inherits": "base",
+            "displayName": "Visual Studio 17 2022",
+            "generator": "Visual Studio 17 2022",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2019",
+            "inherits": "base",
+            "displayName": "Visual Studio 16 2019",
+            "generator": "Visual Studio 16 2019",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -53,10 +111,48 @@
             }
         },
         {
+            "name": "xcode-release",
+            "inherits": "base-release",
+            "displayName": "Release Xcode (macOS)",
+            "generator": "Xcode",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ninja-release",
+            "inherits": "base-ninja-release",
+            "displayName": "Release Ninja (cross-platform)"
+        },
+        {
             "name": "windows-release",
             "inherits": "base-release",
             "displayName": "Release (MinGW Makefiles)",
             "generator": "MinGW Makefiles",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022-release",
+            "inherits": "base-release",
+            "displayName": "Release Visual Studio 17 2022",
+            "generator": "Visual Studio 17 2022",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2019-release",
+            "inherits": "base-release",
+            "displayName": "Release Visual Studio 16 2019",
+            "generator": "Visual Studio 16 2019",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -75,8 +171,39 @@
             }
         },
         {
+            "name": "xcode",
+            "configurePreset": "xcode",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ninja",
+            "configurePreset": "ninja"
+        },
+        {
             "name": "windows",
             "configurePreset": "windows",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022",
+            "configurePreset": "vs2022",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2019",
+            "configurePreset": "vs2019",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -93,8 +220,39 @@
             }
         },
         {
+            "name": "xcode-release",
+            "configurePreset": "xcode-release",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ninja-release",
+            "configurePreset": "ninja-release"
+        },
+        {
             "name": "windows-release",
             "configurePreset": "windows-release",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022-release",
+            "configurePreset": "vs2022-release",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2019-release",
+            "configurePreset": "vs2019-release",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -106,6 +264,7 @@
         {
             "name": "unix",
             "configurePreset": "unix",
+            "configuration": "Debug",
             "output": {
                 "outputOnFailure": true
             },
@@ -119,8 +278,68 @@
             }
         },
         {
+            "name": "xcode",
+            "configurePreset": "xcode",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ninja",
+            "configurePreset": "ninja",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            }
+        },
+        {
             "name": "windows",
             "configurePreset": "windows",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022",
+            "configurePreset": "vs2022",
+            "configuration": "Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2019",
+            "configurePreset": "vs2019",
+            "configuration": "Debug",
             "output": {
                 "outputOnFailure": true
             },
@@ -136,6 +355,7 @@
         {
             "name": "unix-release",
             "configurePreset": "unix-release",
+            "configuration": "Release",
             "output": {
                 "outputOnFailure": true
             },
@@ -149,8 +369,68 @@
             }
         },
         {
+            "name": "xcode-release",
+            "configurePreset": "xcode-release",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ninja-release",
+            "configurePreset": "ninja-release",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            }
+        },
+        {
             "name": "windows-release",
             "configurePreset": "windows-release",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2022-release",
+            "configurePreset": "vs2022-release",
+            "configuration": "Release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "vs2019-release",
+            "configurePreset": "vs2019-release",
+            "configuration": "Release",
             "output": {
                 "outputOnFailure": true
             },
