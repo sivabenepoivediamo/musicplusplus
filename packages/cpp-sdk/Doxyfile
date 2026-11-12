@@ -1,7 +1,7 @@
 # Doxyfile 1.8.0
 PROJECT_NAME           = "musicplusplus"
 OUTPUT_DIRECTORY       = docs
-INPUT                  = src examples
+INPUT                  = src
 FILE_PATTERNS          = *.h *.hpp *.cpp
 RECURSIVE              = YES
 GENERATE_LATEX         = NO
@@ -13,5 +13,4 @@ EXTRACT_STATIC         = NO
 OPTIMIZE_OUTPUT_FOR_C  = NO
 GENERATE_TREEVIEW      = YES
 HTML_EXTRA_STYLESHEET  = docs/doxygen-custom.css
-ALIASES                = "example=\"\""
 

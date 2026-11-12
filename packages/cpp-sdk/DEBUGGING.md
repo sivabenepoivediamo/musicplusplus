@@ -1,224 +1,177 @@
-## Build System
+## Build system
 
-This project uses **CMake** with **CMake Presets** for cross-platform builds. It works on Windows, Linux, and macOS without any configuration changes.
+This package uses **CMake** with **CMake Presets**. It targets Windows, Linux, and macOS; on Windows the default preset uses **MinGW Makefiles**.
 
 ### Prerequisites
 
-- **CMake 3.19+** (for preset support)
+- **CMake 3.16+** (presets use schema version 6; 3.19+ is typical for preset workflows)
 - **A C++17 compiler**: GCC, Clang, AppleClang, or MinGW-w64
 
-## How to Run/Debug an Example
+There is **no** `examples/` tree here. Executables are **Catch2 tests** under `tests/`; CMake links each test to **`musicplusplus`** (header-only `INTERFACE` target) and **`Catch2::Catch2WithMain`**.
 
-### Method 1: Using VS Code Debugger (Recommended)
+## How to run or debug a test
 
-1. **Open an example file** from `packages/cpp-sdk/examples/` (e.g., `autoscale.cpp`)
-2. **Select the debug configuration** matching your OS from the dropdown (Linux, macOS, or Windows)
-3. **Press F5** or click the "Run and Debug" button
-4. CMake will automatically:
-   - Build the specific example using the configured target
-   - Link all necessary dependencies (including C++ standard library)
-   - Place the executable in `build/`
-5. The debugger will launch and stop at any breakpoints you've set
+### Method 1: VS Code debugger (recommended)
 
-### Method 2: Build Specific Example
+1. Open **`packages/cpp-sdk`** as the VS Code workspace folder (or ensure the active folder is this package so `.vscode/` applies).
+2. Open a test source such as `tests/vectors_test.cpp`.
+3. Pick **Debug Test (Linux)**, **Debug Test (macOS)**, or **Debug Test (Windows)** from the Run and Debug dropdown (match your OS).
+4. Press **F5**. The **preLaunchTask** runs **CMake: Build active test**, which builds the target whose name equals the **current file’s basename without extension** (e.g. `vectors_test.cpp` → target `vectors_test`).
+5. The debugger starts the matching binary under `build/` (on Windows, `build/vectors_test.exe`).
 
-1. Open the example file you want to build
-2. Press **Ctrl+Shift+B** (or run task: `CMake: Build active example`)
-3. The executable will be created in `build/`
-4. Run it from terminal:
+**Requirement:** The CMake target name must match the test filename stem. That is how this repo’s `CMakeLists.txt` defines targets (`vectors_test`, `chord_test`, …).
+
+### Method 2: Build the active test only
+
+1. Open the test file you care about (still under `tests/`).
+2. **Ctrl+Shift+B** (default build task) runs **CMake: Build active test**.
+3. Run from a terminal:
+
    ```powershell
    # Windows
-   .\build\autoscale.exe
+   .\build\vectors_test.exe
 
-   # Linux/macOS
-   ./build/autoscale
+   # Linux / macOS
+   ./build/vectors_test
    ```
 
-### Method 3: Build All Examples
+### Method 3: Full configure, build, and ctest
 
 From the monorepo root:
-```bash
-# Build all packages (including cpp-sdk examples)
-npm run build
 
-# Build only cpp-sdk
+```bash
 npm run build --workspace=packages/cpp-sdk
+npm run test  --workspace=packages/cpp-sdk
 ```
 
-Or from the `packages/cpp-sdk` directory:
+From `packages/cpp-sdk`:
+
 ```bash
-# Configure and build with CMake
 npm run build
-
-# Clean build artifacts
-npm run clean
+npm run test
 ```
 
-Or manually with CMake presets:
+Or with presets directly (use **`windows`** / **`windows-release`** on Windows):
+
 ```bash
-# Configure (only needed once, or after CMakeLists.txt changes)
-# Use "unix" on Linux/macOS, "windows" on Windows
 cmake --preset unix
-
-# Build all examples
 cmake --build --preset unix
-
-# Build a specific example
-cmake --build build --target autoscale --config Debug
+ctest --preset unix --output-on-failure
 ```
 
-## What's Configured
+## What is configured
 
-### CMake Presets (`CMakePresets.json`)
+### CMake presets (`CMakePresets.json`)
 
-Platform-conditional presets are available — only the ones matching your OS are visible:
+- **unix** / **unix-release** — non-Windows hosts (Unix Makefiles); binary dir **`build`** or **`build-release`**
+- **windows** / **windows-release** — Windows (MinGW Makefiles); same binary dir layout
 
-- **unix** / **unix-release** — Linux/macOS (Unix Makefiles)
-- **windows** / **windows-release** — Windows (MinGW Makefiles)
+`npm run build` / `npm run test` in this package pick the preset that matches the host.
 
-The `npm run build` script auto-detects your platform and picks the right preset.
+### VS Code tasks (`packages/cpp-sdk/.vscode/tasks.json`)
 
-### VS Code Tasks (`.vscode/tasks.json`)
+1. **CMake: Build active test** (default **Ctrl+Shift+B**) — builds `--target ${fileBasenameNoExtension}` in `build/`.
+2. **CMake: Configure** — runs `cmake --preset unix` or `windows` via a small Node one-liner.
+3. **CMake: Build all tests** — `cmake --build build` (all test executables).
 
-Three build tasks are available:
+### VS Code launch (`packages/cpp-sdk/.vscode/launch.json`)
 
-1. **CMake: Build active example** (Default: Ctrl+Shift+B)
-   - Builds only the currently open example file
-   - Fast incremental builds
+- **Debug Test (Linux)** — GDB, program `build/${fileBasenameNoExtension}`
+- **Debug Test (macOS)** — LLDB, same program path
+- **Debug Test (Windows)** — GDB, program `build/${fileBasenameNoExtension}.exe`
 
-2. **CMake: Configure**
-   - Configures the CMake build system using presets
-   - Run this if you modify `CMakeLists.txt`
+All three use **preLaunchTask**: **CMake: Build active test**.
 
-3. **CMake: Build all examples**
-   - Builds all 17 example executables
+## Test executables (`tests/`)
 
-### Debug Configurations (`.vscode/launch.json`)
+| Source file        | CMake target     |
+|--------------------|------------------|
+| `vectors_test.cpp` | `vectors_test`   |
+| `chord_test.cpp`   | `chord_test`     |
+| `scale_test.cpp`   | `scale_test`     |
+| `automation_test.cpp` | `automation_test` |
+| `matrix_test.cpp`  | `matrix_test`    |
+| `selection_test.cpp` | `selection_test` |
+| `analysis_test.cpp`| `analysis_test`  |
+| `rhythm_test.cpp`  | `rhythm_test`    |
+| `note_names_test.cpp` | `note_names_test` |
+| `slonimsky_test.cpp` | `slonimsky_test` |
 
-Three platform-specific configurations:
+## Quick start
 
-- **Debug Example (Linux)** — Uses GDB
-- **Debug Example (macOS)** — Uses LLDB
-- **Debug Example (Windows)** — Uses GDB with `.exe` extension
+1. Run **CMake: Configure** once (or `npm run build` from this package).
+2. Open `tests/vectors_test.cpp`.
+3. Press **F5** with **Debug Test** for your OS selected.
 
-Select the one matching your OS from the debug dropdown. VS Code remembers your selection.
+## Architecture notes
 
-## Available Examples
+### Header-only library
 
-The `examples/` directory contains 17 example files demonstrating various features:
+- Implementation lives in headers under `src/`.
+- Consumers get **`musicplusplus`** as an `INTERFACE` library with `target_include_directories(... INTERFACE src)` and C++17.
 
-### Core Functionality
-- **vectortest.cpp** - Comprehensive demonstration of Vectors class
-- **classtest.cpp** - Extensive class testing
-
-### Musical Features
-- **automations.cpp** - Automation helpers (voice leading, degree automation, modulation)
-- **automationsSeq.cpp** - Sequential automation patterns
-- **autoscale.cpp** - Automatic scale selection based on note input
-- **chordClass.cpp** - Chord class usage and examples
-- **chordNames.cpp** - Chord naming utilities
-- **chordTest.cpp** - Chord helper tests
-- **noteNames.cpp** - Note naming system examples
-- **scale.cpp** - Scale class demonstrations
-- **scaleDictionary.cpp** - Scale dictionary usage
-- **selection.cpp** - Selection meta-operators demo
-
-### Rhythmic and Mathematical
-- **rhythmGen.cpp** - Rhythmic generators (Euclidean, Clough-Douthett, deep rhythms)
-- **matrix.cpp** - Matrix generation and utilities
-- **matrixDistances.cpp** - Matrix-distance examples
-- **distances.cpp** - Distance metrics and transformation examples
-- **measures.cpp** - Analysis and measurement helpers
-
-## Quick Start
-
-Try running `autoscale.cpp` as your first example:
-
-1. Open `packages/cpp-sdk/examples/autoscale.cpp`
-2. Press **F5**
-3. Watch the output in the Debug Console
-
-## Architecture Notes
-
-### Header-Only Library
-
-This library is **header-only**, meaning:
-- All implementation is in header files (`.h`)
-- No separate compilation of library code
-- Examples compile by including headers from `src/`
-- CMake configures the library as an `INTERFACE` target
-
-### CMakeLists.txt Structure
+### `CMakeLists.txt` (tests)
 
 ```cmake
-# Header-only library
 add_library(musicplusplus INTERFACE)
 target_include_directories(musicplusplus INTERFACE src)
+target_compile_features(musicplusplus INTERFACE cxx_std_17)
 
-# C++17 standard
-set(CMAKE_CXX_STANDARD 17)
+FetchContent_MakeAvailable(Catch2)
+enable_testing()
 
-# Build each example
-foreach(SOURCE_FILE ${EXAMPLE_SOURCES})
-    get_filename_component(EXE_NAME ${SOURCE_FILE} NAME_WE)
-    add_executable(${EXE_NAME} ${SOURCE_FILE})
-    target_link_libraries(${EXE_NAME} musicplusplus)
-endforeach()
+function(add_musicpp_test test_name source_file)
+    add_executable(${test_name} ${source_file})
+    target_link_libraries(${test_name} PRIVATE musicplusplus Catch2::Catch2WithMain)
+    target_include_directories(${test_name} PRIVATE tests)
+    add_test(NAME ${test_name} COMMAND ${test_name})
+endfunction()
+
+add_musicpp_test(vectors_test tests/vectors_test.cpp)
+# ... other tests ...
 ```
 
 ## Troubleshooting
 
-### "CMake not found"
+### CMake not found
 
-Install CMake 3.19+:
-- **Windows**: `winget install Kitware.CMake`
-- **macOS**: `brew install cmake`
-- **Linux**: `sudo apt install cmake` (or your distro's package manager)
-- Or download from: https://cmake.org/download/
+Install CMake (e.g. Windows: `winget install Kitware.CMake`; macOS: `brew install cmake`; Linux: distro package). See https://cmake.org/download/
 
-### "No compiler found"
+### No compiler found
 
-Install a C++17 compiler:
-- **Windows**: Install MinGW-w64 (e.g. via MSYS2: `pacman -S mingw-w64-ucrt-x86_64-toolchain`)
-- **macOS**: `xcode-select --install` (installs AppleClang)
-- **Linux**: `sudo apt install g++` (or your distro's package manager)
+Install a C++17 toolchain (MinGW-w64 on Windows, Xcode CLT on macOS, `g++` on Linux).
 
-### "Target not found" when building
+### “Target not found” when building the active test
 
-CMake hasn't been configured yet:
-1. Run task: `CMake: Configure`
-2. Then build with: `CMake: Build active example`
+The open editor file must be a **`tests/*_test.cpp`** whose basename matches a declared target (see table above). If you have a header or a non-test file focused, the build task passes the wrong target name.
 
-### Breakpoints not working
+Configure first: **CMake: Configure** or `cmake --preset …`.
 
-- CMake automatically includes `-g` flag in Debug builds
-- Make sure you're building in Debug configuration (default)
-- Check that you're debugging (F5) not just running the program
+### Breakpoints not hit
 
-### Build directory issues
+- Use a **Debug** configuration build (default preset uses `CMAKE_BUILD_TYPE=Debug`).
+- Start debugging with **F5** so the **preLaunchTask** rebuilds the test you are editing.
+
+### Clean rebuild
 
 ```bash
-# Clean and rebuild
 npm run clean
 npm run build
-
-# Or manually (use "windows" preset on Windows)
-rm -rf build
-cmake --preset unix
-cmake --build --preset unix
 ```
 
-## Advanced Usage
+On Windows, delete `build` manually if needed, then `cmake --preset windows` and `cmake --build --preset windows`.
 
-### Release Build
+## Advanced usage
+
+### Release build + tests
 
 ```bash
-# Use "windows-release" on Windows
 cmake --preset unix-release
 cmake --build --preset unix-release
+ctest --preset unix-release --output-on-failure
 ```
 
-### Verbose Build Output
+### Verbose build
 
 ```bash
 cmake --build build --verbose
