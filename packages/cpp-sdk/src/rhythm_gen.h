@@ -23,6 +23,8 @@
  *       pass positive values suitable for the intended pattern (see `euclidean` for checked API).
  */
 
+namespace musicpp {
+
 /**
  * @brief Generates a Euclidean rhythm pattern
  * @param steps Total number of steps in the pattern
@@ -30,8 +32,6 @@
  * @return Vector<int> representing the Euclidean rhythm as intervals
  * 
  */
-
-namespace musicpp {
 
 std::vector<int> euclidean(int steps, int events) {
     if (steps <= 0 || events <= 0) {
