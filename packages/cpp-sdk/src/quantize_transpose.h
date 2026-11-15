@@ -15,6 +15,8 @@
  * @date 2025
  */
 
+namespace musicpp {
+
 /**
  * @brief Quantizes a given note to the nearest value in the specified scale
  *
@@ -29,8 +31,6 @@
  *          - If left=false: returns the upper neighbor
  *          If the note is outside the scale range, returns the boundary value.
  */
-
-namespace musicpp {
 
 int quantize(int note, const std::vector<int>& scale, bool left = true) {
     int lower = -1;
