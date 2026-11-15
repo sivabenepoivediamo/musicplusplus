@@ -19,14 +19,15 @@
  * @date 2025
  */
 
+
+namespace musicpp {
+
 /**
  * @brief Normalizes a vector of integers to a probability distribution
  * @param in Input vector of integers (read-only; not modified)
  * @return Vector of doubles representing the normalized probabilities
  * @throw invalid_argument if the sum of the input vector is zero
  */
-
-namespace musicpp {
 
 inline std::vector<double> normalize(const std::vector<int>& in) {
     double sum = std::accumulate(in.begin(), in.end(), 0.0);
