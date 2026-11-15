@@ -21,6 +21,10 @@
  * `onset_vector` and plain integer vectors.
  */
 
+
+
+namespace musicpp {
+
 /**
  * @brief Compute successive differences of an integer vector
  *
@@ -28,9 +32,6 @@
  * @return Vector of differences where out[i] = in[i+1] - in[i]
  * @note Returns an empty vector if input has less than two elements
  */
-
-namespace musicpp {
-
 inline std::vector<int> differences(std::vector<int>& in) {
     std::vector<int> out;
 
