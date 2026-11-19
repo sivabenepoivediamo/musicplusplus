@@ -11,8 +11,6 @@ This repository uses [Turborepo](https://turbo.build/repo) to manage a monorepo 
 
 The C++ library provides a unified framework for scales, chords, rhythms, and transformations using mathematical and algorithmic tools.
 
-For a concise map of the recent C++ API and file renames, see [CPP_SDK_REFACTOR.md](CPP_SDK_REFACTOR.md).
-
 ## Prerequisites
 
 - **Node.js** (v18 or later) and **npm** (v10 or later)
